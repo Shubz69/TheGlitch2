@@ -1,0 +1,96 @@
+# Only track trading-platform-backend and trading-platform-frontend
+# Exclude everything else
+
+# Installation files
+*.exe
+*.msi
+*.zip
+
+# Maven/JDK installations
+apache-maven-*/
+OpenJDK*/
+jdk-*/
+
+# Database exports and CSV files
+*.csv
+Export data/
+
+# Document files
+*.pdf
+*.doc
+*.docx
+*.tmp
+~$*
+
+# Other projects and directories
+#Shobhit_Singh#/
+All Projects/
+ngrok-*/
+
+# Images at root
+/*.png
+
+# Text files at root
+/*.txt
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.iml
+*.code-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Backend (Java/Maven/Spring Boot)
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+**/logs/
+**/*.log
+**/log.txt
+**/temp.txt
+**/pom.xml.versionsBackup
+**/pom.xml.bak
+**/pom.xml.fixed
+**/pom.xml.new
+
+# Frontend (Node/React)
+**/node_modules/
+**/build/
+**/dist/
+**/.pnp
+**/.pnp.js
+**/coverage/
+
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+
+# Database directories
+**/MySQL DB/
+
+# Package locks (you can uncomment to exclude them)
+# **/package-lock.json

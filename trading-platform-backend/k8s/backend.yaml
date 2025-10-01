@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secrets
+  namespace: trading-platform
+type: Opaque
+data:
+  jwt-secret: WW91clNlY3JldEtleUhlcmU= # YourSecretKeyHere
+  elastic-email-apikey: # Base64 encoded value of your Elastic Email API key
+  stripe-secret-key: # Base64 encoded value of your Stripe secret key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: trading-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: trading-platform-backend:latest
+        imagePullPolicy: Never # For local development with Minikube
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://mysql:3306/trading_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+        - name: SPRING_DATASOURCE_USERNAME
+          value: user
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secrets
+              key: MYSQL_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: jwt-secret
+        - name: ELASTIC_EMAIL_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: elastic-email-apikey
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: stripe-secret-key
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: trading-platform
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP 
