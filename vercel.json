@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd trading-platform-frontend && npm install && npm run build",
-  "outputDirectory": "trading-platform-frontend/build",
-  "installCommand": "cd trading-platform-frontend && npm install",
-  "devCommand": "cd trading-platform-frontend && npm start"
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "build",
+  "installCommand": "npm install",
+  "devCommand": "npm start"
 }

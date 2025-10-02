@@ -1,0 +1,258 @@
+.glitch-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Courier New', monospace;
+}
+
+.glitch-container {
+    text-align: center;
+    position: relative;
+}
+
+.glitch-text {
+    position: relative;
+    font-size: 8rem;
+    font-weight: 600;
+    font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+    letter-spacing: 0.5rem;
+    background: linear-gradient(90deg, #00ffff 0%, #0080ff 50%, #8000ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+    animation: glitch-animation 0.3s infinite;
+    text-transform: uppercase;
+}
+
+.glitch-text span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glitch-main {
+    background: linear-gradient(90deg, #00ffff 0%, #0080ff 50%, #8000ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    z-index: 1;
+}
+
+.glitch-red {
+    color: #ff0000;
+    z-index: 2;
+    animation: glitch-red 0.3s infinite;
+}
+
+.glitch-blue {
+    color: #00ffff;
+    z-index: 3;
+    animation: glitch-blue 0.3s infinite;
+}
+
+.glitch-green {
+    color: #00ff00;
+    z-index: 4;
+    animation: glitch-green 0.3s infinite;
+}
+
+/* Glitch phases */
+.glitch-phase-1 .glitch-red { transform: translate(2px, 2px); }
+.glitch-phase-1 .glitch-blue { transform: translate(-2px, -2px); }
+.glitch-phase-1 .glitch-green { transform: translate(1px, -1px); }
+
+.glitch-phase-2 .glitch-red { transform: translate(-3px, 1px); }
+.glitch-phase-2 .glitch-blue { transform: translate(3px, -1px); }
+.glitch-phase-2 .glitch-green { transform: translate(-1px, 3px); }
+
+.glitch-phase-3 .glitch-red { transform: translate(1px, -3px); }
+.glitch-phase-3 .glitch-blue { transform: translate(-1px, 3px); }
+.glitch-phase-3 .glitch-green { transform: translate(3px, 1px); }
+
+.glitch-phase-4 .glitch-red { transform: translate(-2px, 2px); }
+.glitch-phase-4 .glitch-blue { transform: translate(2px, -2px); }
+.glitch-phase-4 .glitch-green { transform: translate(-2px, -2px); }
+
+.glitch-phase-5 .glitch-red { transform: translate(3px, -1px); }
+.glitch-phase-5 .glitch-blue { transform: translate(-3px, 1px); }
+.glitch-phase-5 .glitch-green { transform: translate(1px, 3px); }
+
+.glitch-phase-6 .glitch-red { transform: translate(-1px, -3px); }
+.glitch-phase-6 .glitch-blue { transform: translate(1px, 3px); }
+.glitch-phase-6 .glitch-green { transform: translate(-3px, 1px); }
+
+@keyframes glitch-red {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(2px, 2px); }
+    50% { transform: translate(-2px, -2px); }
+    75% { transform: translate(1px, -1px); }
+}
+
+@keyframes glitch-blue {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(-1px, 1px); }
+}
+
+@keyframes glitch-green {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(1px, -2px); }
+    50% { transform: translate(-1px, 2px); }
+    75% { transform: translate(2px, 1px); }
+}
+
+@keyframes glitch-animation {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.glitch-subtitle {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.3rem;
+    color: #ccc;
+    margin-top: 2rem;
+    animation: subtitle-glitch 0.5s infinite;
+}
+
+.glitch-subtitle span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subtitle-main {
+    color: #ccc;
+    z-index: 1;
+}
+
+.subtitle-red {
+    color: #ff0000;
+    z-index: 2;
+    animation: subtitle-red 0.3s infinite;
+}
+
+.subtitle-blue {
+    color: #00ffff;
+    z-index: 3;
+    animation: subtitle-blue 0.3s infinite;
+}
+
+@keyframes subtitle-glitch {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+}
+
+@keyframes subtitle-red {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(1px, 1px); }
+}
+
+@keyframes subtitle-blue {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-1px, -1px); }
+}
+
+.glitch-progress {
+    margin-top: 3rem;
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #333;
+    border: 1px solid #666;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fff, #ccc);
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: progress-shine 1s infinite;
+}
+
+@keyframes progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #ccc;
+    letter-spacing: 0.2rem;
+    animation: text-blink 1s infinite;
+}
+
+@keyframes text-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .glitch-text {
+        font-size: 4rem;
+        letter-spacing: 0.3rem;
+    }
+    
+    .glitch-subtitle {
+        font-size: 1rem;
+        letter-spacing: 0.2rem;
+    }
+    
+    .glitch-progress {
+        width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .glitch-text {
+        font-size: 2.5rem;
+        letter-spacing: 0.2rem;
+    }
+    
+    .glitch-subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 0.1rem;
+    }
+    
+    .glitch-progress {
+        width: 250px;
+    }
+} 

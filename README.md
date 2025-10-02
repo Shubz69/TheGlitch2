@@ -1,79 +1,116 @@
-# Trading Platform
+# Trading Platform Frontend
 
-A full-stack trading platform application with AI-powered features, real-time chat, courses, and community features.
-
-## Project Structure
-
-This is a monorepo containing both the backend and frontend applications:
-
-- **trading-platform-backend/** - Spring Boot Java backend with REST API and WebSocket support
-- **trading-platform-frontend/** - React frontend with modern UI/UX
+This is the frontend application for the Trading Platform. It provides a user-friendly interface for accessing courses, community channels, and trading resources.
 
 ## Features
 
-- 🔐 User Authentication & Authorization (JWT)
-- 💬 Real-time Chat & Messaging (WebSocket)
-- 🤖 AI-Powered Chatbot
-- 📚 Course Management System
-- 👥 Community Features
-- 🏆 Leaderboard System
-- 💳 Payment Integration (Stripe)
-- 📧 Email Notifications
-- 🔒 Secure Data Encryption
+- User authentication with JWT and MFA
+- Role-based access (Free, Premium, Admin)
+- Course marketplace with Stripe payments
+- Real-time community messaging
+- AI-powered chatbot
+- User profiles with XP and level system
+- Leaderboard
+- Admin dashboard
+- Dark-themed fintech aesthetic
+- Fully responsive design
 
-## Tech Stack
+## Technologies
 
-### Backend
-- Java 17+
-- Spring Boot
-- Spring Security
-- Spring WebSocket
-- MySQL Database
-- JWT Authentication
-- Docker & Kubernetes support
+- React.js
+- React Router for navigation
+- Context API for state management
+- WebSockets (SockJS + STOMP) for real-time messaging
+- Stripe for payments
+- Responsive CSS with Media Queries
+- JWT for authentication
 
-### Frontend
-- React
-- React Router
-- WebSocket Client
-- Modern CSS with animations
-- Responsive Design
+## Prerequisites
 
-## Getting Started
+- Node.js 16+
+- npm or yarn
+- Backend API running
 
-### Prerequisites
-- Java 17 or higher
-- Node.js 16 or higher
-- MySQL 8.0+
-- Maven 3.6+
+## Setup
 
-### Backend Setup
+### Local Development
+
+1. Clone the repository:
 ```bash
-cd trading-platform-backend
-mvn clean install
-mvn spring-boot:run
+git clone https://github.com/username/trading-platform-frontend.git
+cd trading-platform-frontend
 ```
 
-### Frontend Setup
+2. Install dependencies:
 ```bash
-cd trading-platform-frontend
 npm install
+```
+
+3. Configure the environment:
+Create a `.env` file with:
+```
+REACT_APP_API_URL=http://localhost:8080
+```
+
+4. Start the development server:
+```bash
 npm start
 ```
 
-## Docker Deployment
+The application will be available at http://localhost:3000
 
-Both projects include Docker configurations for containerized deployment.
+### Docker Deployment
 
+1. Build and run using Docker Compose:
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
-## Kubernetes Deployment
+### Production Build
 
-K8s configuration files are available in `trading-platform-backend/k8s/`
+1. Create a production build:
+```bash
+npm run build
+```
+
+2. The build files will be in the `build` directory ready for deployment.
+
+## Application Structure
+
+- `/src/components` - Reusable UI components
+- `/src/pages` - Page components
+- `/src/context` - React context providers
+- `/src/services` - API service functions
+- `/src/utils` - Utility functions
+- `/src/styles` - CSS stylesheets
+
+## User Roles
+
+1. **Free User**
+   - Access to basic content
+   - Limited community channels
+   - Basic chatbot functionality
+
+2. **Premium User**
+   - Full course access
+   - All community channels
+   - Advanced chatbot features
+   - Trading tools
+
+3. **Admin**
+   - User management
+   - Content creation
+   - Moderation capabilities
+   - System analytics
+
+## Features in Development (v2)
+
+- Voice-enabled chatbot
+- OAuth integration
+- Analytics dashboard
+- Mobile app version
+- Multilingual support
 
 ## License
 
-All rights reserved.
-
+This project is proprietary and not licensed for public use.
