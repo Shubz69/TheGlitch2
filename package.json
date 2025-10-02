@@ -1,0 +1,11 @@
+{
+  "name": "the-glitch-website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd trading-platform-frontend && npm install && npm run build",
+    "start": "cd trading-platform-frontend && npm start",
+    "install": "cd trading-platform-frontend && npm install"
+  },
+  "description": "The Glitch - AI Trading Revolution Website"
+}

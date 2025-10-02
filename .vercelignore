@@ -1,1 +1,5 @@
 trading-platform-backend/
+backend-backup/
+complete-backup/
+build/
+node_modules/
