@@ -1,10 +1,28 @@
-/* Contact Us Page Styling */
+/* Contact Us Page Styling - Landing Page Style */
+:root {
+    /* Purple-Blue Colors */
+    --primary: #6366F1;      /* Indigo */
+    --secondary: #8B5CF6;    /* Purple-Blue */
+    --accent: #A78BFA;       /* Light Purple */
+    --dark-purple: #4C1D95;  /* Deep Purple */
+
+    /* Greys */
+    --bg-dark: #0F0F1E;
+    --bg-medium: #1A1A2E;
+    --bg-light: #252541;
+
+    /* Fonts */
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+}
+
 .contact-container {
     padding: 2rem 0;
     min-height: calc(100vh - 64px);
     display: flex;
     flex-direction: column;
-    background: rgba(20, 20, 20, 0.8); /* 60% darker grey */
+    background: var(--bg-dark);
+    font-family: var(--font-secondary);
 }
 
 .contact-info-paper, 
