@@ -12,9 +12,9 @@ body, html {
     min-height: 100vh;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
-    color: #1E90FF;
-    font-family: 'Courier New', 'Monaco', monospace;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-dark) 100%);
+    color: var(--primary);
+    font-family: var(--font-main);
 }
 
 .home-container {
@@ -40,7 +40,7 @@ body, html {
     position: absolute;
     width: 4px;
     height: 4px;
-    background: rgba(30, 144, 255, 0.6);
+    background: rgba(99, 102, 241, 0.6);
     border-radius: 50%;
     animation: particleFloat 8s infinite linear;
     animation-delay: var(--delay);
@@ -92,8 +92,8 @@ body, html {
     width: 100%;
     height: 100%;
     background-image: 
-        linear-gradient(rgba(30, 144, 255, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(30, 144, 255, 0.1) 1px, transparent 1px);
+        linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: gridMove 20s linear infinite;
 }
@@ -109,7 +109,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 50%, rgba(30, 144, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     animation: energyPulse 4s ease-in-out infinite;
 }
 
@@ -141,8 +141,8 @@ body, html {
     display: inline-flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(30, 144, 255, 0.1);
-    border: 2px solid rgba(30, 144, 255, 0.3);
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px solid rgba(99, 102, 241, 0.3);
     border-radius: 30px;
     padding: 1rem 2rem;
     position: relative;
@@ -157,7 +157,7 @@ body, html {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(30, 144, 255, 0.2), transparent);
+    background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.2), transparent);
     animation: badgeGlow 3s ease-in-out infinite;
 }
 
@@ -179,10 +179,10 @@ body, html {
 .badge-text {
     font-size: 1rem;
     font-weight: 600;
-    color: #1E90FF;
+    color: var(--primary);
     text-transform: uppercase;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 .hero-title {
@@ -194,7 +194,7 @@ body, html {
 
 .title-line {
     display: block;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
     animation: titleSlideIn 1s ease-out;
@@ -202,11 +202,11 @@ body, html {
 
 .title-highlight {
     display: block;
-    color: #1E90FF;
+    color: var(--primary);
     font-size: 6rem;
     text-shadow: 
-        0 0 20px rgba(30, 144, 255, 0.8),
-        0 0 40px rgba(30, 144, 255, 0.4);
+        0 0 20px rgba(99, 102, 241, 0.8),
+        0 0 40px rgba(139, 92, 246, 0.4);
     animation: titleGlow 3s ease-in-out infinite alternate;
     margin: 1rem 0;
 }
@@ -217,14 +217,14 @@ body, html {
 }
 
 @keyframes titleGlow {
-    0% { text-shadow: 0 0 20px rgba(30, 144, 255, 0.8), 0 0 40px rgba(30, 144, 255, 0.4); }
-    100% { text-shadow: 0 0 30px rgba(30, 144, 255, 1), 0 0 60px rgba(30, 144, 255, 0.8); }
+    0% { text-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 40px rgba(139, 92, 246, 0.4); }
+    100% { text-shadow: 0 0 30px rgba(99, 102, 241, 1), 0 0 60px rgba(139, 92, 246, 0.8); }
 }
 
 .hero-description {
     font-size: 1.3rem;
     line-height: 1.8;
-    color: rgba(30, 144, 255, 0.9);
+    color: var(--accent);
     max-width: 600px;
     animation: fadeInUp 1s ease-out 0.5s both;
 }
@@ -262,14 +262,14 @@ body, html {
 }
 
 .primary-button {
-    background: linear-gradient(45deg, #1E90FF, #00CED1);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #ffffff;
-    box-shadow: 0 10px 30px rgba(30, 144, 255, 0.4);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
 }
 
 .primary-button:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.6);
 }
 
 .button-particles {
@@ -304,15 +304,15 @@ body, html {
 
 .secondary-button {
     background: transparent;
-    color: #1E90FF;
-    border: 2px solid #1E90FF;
+    color: var(--primary);
+    border: 2px solid var(--primary);
     backdrop-filter: blur(10px);
 }
 
 .secondary-button:hover {
-    background: rgba(30, 144, 255, 0.1);
+    background: rgba(99, 102, 241, 0.1);
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(30, 144, 255, 0.3);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
 }
 
 .button-text {
@@ -355,11 +355,11 @@ body, html {
 }
 
 .control-btn {
-    background: rgba(30, 144, 255, 0.1);
-    border: 2px solid rgba(30, 144, 255, 0.3);
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px solid rgba(99, 102, 241, 0.3);
     border-radius: 15px;
     padding: 1.2rem 1.8rem;
-    color: #1E90FF;
+    color: var(--primary);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -375,16 +375,16 @@ body, html {
 
 .control-btn:hover,
 .control-btn.active {
-    background: rgba(30, 144, 255, 0.2);
-    border-color: rgba(30, 144, 255, 0.8);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.8);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(30, 144, 255, 0.3);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
 }
 
 .control-btn.active {
-    background: rgba(30, 144, 255, 0.3);
-    border-color: #1E90FF;
-    box-shadow: 0 0 30px rgba(30, 144, 255, 0.6);
+    background: rgba(99, 102, 241, 0.3);
+    border-color: var(--primary);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
 }
 
 .control-icon {
@@ -410,7 +410,7 @@ body, html {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -423,7 +423,7 @@ body, html {
 /* Features Section */
 .features-section {
     padding: 6rem 0;
-    background: rgba(20, 20, 20, 0.8);
+    background: rgba(15, 15, 30, 0.8);
     position: relative;
     z-index: 2;
 }
@@ -442,15 +442,15 @@ body, html {
 .section-title {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #1E90FF;
+    color: var(--primary);
     margin-bottom: 1.5rem;
     text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
 .section-subtitle {
     font-size: 1.3rem;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     max-width: 700px;
     margin: 0 auto;
     line-height: 1.6;
@@ -486,7 +486,7 @@ body, html {
     transform: translate(-50%, -50%);
     width: 200px;
     height: 200px;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
     border-radius: 50%;
     animation: auraPulse 2s ease-in-out infinite;
 }
@@ -499,14 +499,14 @@ body, html {
 .feature-title {
     font-size: 2.5rem;
     font-weight: 600;
-    color: #1E90FF;
+    color: var(--primary);
     margin-bottom: 1rem;
-    text-shadow: 0 0 15px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
 }
 
 .feature-description {
     font-size: 1.2rem;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     max-width: 400px;
     margin: 0 auto;
     line-height: 1.6;
@@ -523,8 +523,8 @@ body, html {
     align-items: center;
     gap: 1rem;
     padding: 1rem 1.5rem;
-    background: rgba(30, 144, 255, 0.05);
-    border: 2px solid rgba(30, 144, 255, 0.2);
+    background: rgba(99, 102, 241, 0.05);
+    border: 2px solid rgba(99, 102, 241, 0.2);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -533,15 +533,15 @@ body, html {
 }
 
 .feature-indicator:hover {
-    background: rgba(30, 144, 255, 0.1);
-    border-color: rgba(30, 144, 255, 0.4);
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
     transform: translateX(10px);
 }
 
 .feature-indicator.active {
-    background: rgba(30, 144, 255, 0.2);
-    border-color: #1E90FF;
-    box-shadow: 0 0 20px rgba(30, 144, 255, 0.4);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
 .indicator-icon {
@@ -551,13 +551,13 @@ body, html {
 .indicator-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #1E90FF;
+    color: var(--primary);
 }
 
 /* Stats Section */
 .stats-section {
     padding: 6rem 0;
-    background: rgba(10, 10, 10, 0.9);
+    background: rgba(15, 15, 30, 0.9);
     position: relative;
     z-index: 2;
 }
@@ -576,8 +576,8 @@ body, html {
 
 .stat-card {
     text-align: center;
-    background: rgba(30, 144, 255, 0.05);
-    border: 2px solid rgba(30, 144, 255, 0.2);
+    background: rgba(99, 102, 241, 0.05);
+    border: 2px solid rgba(99, 102, 241, 0.2);
     border-radius: 20px;
     padding: 3rem 2rem;
     transition: all 0.3s ease;
@@ -587,10 +587,10 @@ body, html {
 }
 
 .stat-card:hover {
-    background: rgba(30, 144, 255, 0.1);
-    border-color: rgba(30, 144, 255, 0.6);
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.6);
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(30, 144, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
 }
 
 .stat-icon {
@@ -608,14 +608,14 @@ body, html {
 .stat-number {
     font-size: 3rem;
     font-weight: 700;
-    color: #1E90FF;
+    color: var(--primary);
     margin-bottom: 0.5rem;
-    text-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
 .stat-label {
     font-size: 1rem;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -626,7 +626,7 @@ body, html {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -638,7 +638,7 @@ body, html {
 /* CTA Section */
 .cta-section {
     padding: 6rem 0;
-    background: linear-gradient(135deg, rgba(30, 144, 255, 0.1) 0%, rgba(20, 20, 20, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(15, 15, 30, 0.9) 100%);
     position: relative;
     z-index: 2;
 }
@@ -656,15 +656,15 @@ body, html {
 .cta-title {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #1E90FF;
+    color: var(--primary);
     margin-bottom: 1.5rem;
     text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
 .cta-description {
     font-size: 1.3rem;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     margin-bottom: 3rem;
     line-height: 1.6;
 }
@@ -692,14 +692,14 @@ body, html {
 }
 
 .cta-primary {
-    background: linear-gradient(45deg, #1E90FF, #00CED1);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #ffffff;
-    box-shadow: 0 15px 35px rgba(30, 144, 255, 0.4);
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
 }
 
 .cta-primary:hover {
     transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(30, 144, 255, 0.6);
+    box-shadow: 0 25px 50px rgba(99, 102, 241, 0.6);
 }
 
 .cta-glow {
@@ -719,15 +719,15 @@ body, html {
 
 .cta-secondary {
     background: transparent;
-    color: #1E90FF;
-    border: 2px solid #1E90FF;
+    color: var(--primary);
+    border: 2px solid var(--primary);
     backdrop-filter: blur(10px);
 }
 
 .cta-secondary:hover {
-    background: rgba(30, 144, 255, 0.1);
+    background: rgba(99, 102, 241, 0.1);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(30, 144, 255, 0.3);
+    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
 }
 
 .trust-indicators {
@@ -741,7 +741,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 1rem;
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     font-size: 1.1rem;
 }
 
