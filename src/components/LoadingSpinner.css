@@ -1,0 +1,246 @@
+/* Loading Screen Styles */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* Animated background with binary digits */
+.loading-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.binary-digit {
+    position: absolute;
+    color: rgba(138, 43, 226, 0.3);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    animation: binary-fall linear infinite;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes binary-fall {
+    0% {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+/* Main content */
+.loading-content {
+    text-align: center;
+    z-index: 10;
+    position: relative;
+}
+
+.loading-title {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #8a2be2;
+    text-shadow: 
+        0 0 10px #8a2be2,
+        0 0 20px #8a2be2,
+        0 0 30px #8a2be2;
+    margin-bottom: 1rem;
+    letter-spacing: 0.2em;
+    animation: title-glow 2s ease-in-out infinite alternate;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+@keyframes title-glow {
+    0% {
+        text-shadow: 
+            0 0 10px #8a2be2,
+            0 0 20px #8a2be2,
+            0 0 30px #8a2be2;
+    }
+    100% {
+        text-shadow: 
+            0 0 20px #9370db,
+            0 0 30px #9370db,
+            0 0 40px #9370db;
+    }
+}
+
+.loading-subtitle {
+    font-size: 1.2rem;
+    color: #9370db;
+    margin-bottom: 3rem;
+    letter-spacing: 0.1em;
+    font-weight: 300;
+    animation: subtitle-pulse 3s ease-in-out infinite;
+    font-family: 'Inter', sans-serif;
+}
+
+@keyframes subtitle-pulse {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Loading progress */
+.loading-progress {
+    margin-top: 2rem;
+}
+
+.loading-text {
+    color: #9370db;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+}
+
+.loading-percentage {
+    color: #8a2be2;
+    font-weight: bold;
+    animation: percentage-flicker 1.5s ease-in-out infinite;
+}
+
+@keyframes percentage-flicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 auto;
+    position: relative;
+}
+
+.loading-bar-fill {
+    height: 100%;
+    width: 63%;
+    background: linear-gradient(90deg, #8a2be2 0%, #9370db 50%, #ba55d3 100%);
+    border-radius: 2px;
+    animation: loading-progress 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+@keyframes loading-progress {
+    0% {
+        box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(147, 112, 219, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    }
+}
+
+/* Pulsing rings */
+.loading-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+.ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid rgba(138, 43, 226, 0.3);
+    border-radius: 50%;
+    animation: ring-pulse 3s ease-in-out infinite;
+}
+
+.ring-1 {
+    width: 200px;
+    height: 200px;
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    width: 300px;
+    height: 300px;
+    animation-delay: 1s;
+    border-color: rgba(147, 112, 219, 0.2);
+}
+
+.ring-3 {
+    width: 400px;
+    height: 400px;
+    animation-delay: 2s;
+    border-color: rgba(186, 85, 211, 0.1);
+}
+
+@keyframes ring-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .loading-title {
+        font-size: 2.5rem;
+    }
+    
+    .loading-subtitle {
+        font-size: 1rem;
+    }
+    
+    .loading-bar {
+        width: 250px;
+    }
+    
+    .ring-1 {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .ring-2 {
+        width: 225px;
+        height: 225px;
+    }
+    
+    .ring-3 {
+        width: 300px;
+        height: 300px;
+    }
+}

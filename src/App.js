@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import LoadingSpinner from './components/LoadingSpinner';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminUserList from './pages/AdminUserList';
@@ -36,7 +37,7 @@ import './styles/GlitchBranding.css';
 import GDPRModal from './components/GDPRModal';
 
 function AppRoutes() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
     const showChatbot = true;
 
     const [showGDPR, setShowGDPR] = useState(false);
@@ -50,6 +51,11 @@ function AppRoutes() {
         localStorage.setItem("gdprAccepted", "true");
         setShowGDPR(false);
     };
+
+    // Show loading screen while authentication is being checked
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <>
