@@ -1,21 +1,16 @@
 /* GlitchBranding.css - Glitching effects and branding styles */
 
-/* Glitch effect for "the glitch" branding */
+/* Glitch effect for "the glitch" branding - Landing Page Style */
 .glitch-brand {
     position: relative;
-    color: #1E90FF; /* Exact same blue as the description text */
+    color: var(--primary);
     text-shadow: 
-        0 0 0.5px rgba(30, 144, 255, 0.3),
-        0 0 1px rgba(30, 144, 255, 0.2),
-        0 0 2px rgba(30, 144, 255, 0.1),
-        0 0 3px rgba(30, 144, 255, 0.05),
-        0 0 4px rgba(30, 144, 255, 0.03),
-        0 0 5px rgba(30, 144, 255, 0.02),
-        0 0 6px rgba(30, 144, 255, 0.01);
-    animation: glitchy-effect 12s infinite;
-    font-weight: 300; /* Slender font weight */
-    letter-spacing: 2px;
-    /* Removed metallic gold background and effects */
+        0 0 10px rgba(99, 102, 241, 0.8),
+        0 0 20px rgba(139, 92, 246, 0.5);
+    animation: glitch-pulse 8s ease-in-out infinite;
+    font-weight: 700;
+    font-family: var(--font-main);
+    letter-spacing: 3px;
 }
 
 .glitch-brand::before,
@@ -29,15 +24,37 @@
 }
 
 .glitch-brand::before {
-    animation: glitch-effect 3s infinite linear alternate-reverse;
+    animation: glitch-pulse 3s infinite linear alternate-reverse;
     color: #ffffff;
     z-index: -1;
 }
 
 .glitch-brand::after {
-    animation: glitch-effect 2s infinite linear alternate-reverse;
-    color: #1E90FF;
+    animation: glitch-pulse 2s infinite linear alternate-reverse;
+    color: var(--secondary);
     z-index: -2;
+}
+
+/* Landing Page Glitch Pulse Animation */
+@keyframes glitch-pulse {
+    0%, 90%, 100% {
+        text-shadow: 
+            0 0 10px rgba(99, 102, 241, 0.8),
+            0 0 20px rgba(139, 92, 246, 0.5);
+    }
+    92%, 94%, 96%, 98% {
+        text-shadow: 
+            -2px 0 0 rgba(255, 0, 100, 0.7),
+            2px 0 0 rgba(0, 255, 255, 0.7),
+            0 0 30px rgba(139, 92, 246, 0.9);
+        transform: skew(-2deg);
+    }
+    93%, 95%, 97% {
+        text-shadow: 
+            2px 0 0 rgba(255, 0, 100, 0.7),
+            -2px 0 0 rgba(0, 255, 255, 0.7);
+        transform: skew(2deg);
+    }
 }
 
 /* Real glitchy effect - digital corruption and scan lines - SLOWER */
@@ -272,16 +289,16 @@
     margin: 10px 0;
 }
 
-/* Tech Glitch Logo */
+/* Tech Glitch Logo - Landing Page Style */
 .tech-logo {
     width: 60px;
     height: 60px;
     position: relative;
     border-radius: 50%;
-    background: linear-gradient(45deg, #1E90FF, #1E90FF);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     box-shadow: 
-        0 0 2px #1E90FF,
-        0 0 4px #1E90FF;
+        0 0 20px rgba(99, 102, 241, 0.4),
+        0 0 40px rgba(139, 92, 246, 0.2);
     animation: logo-glow 3s ease-in-out infinite alternate;
     overflow: visible;
 }
@@ -293,12 +310,12 @@
     left: 50%;
     width: 30px;
     height: 30px;
-    background: #2A2A2A;
+    background: var(--bg-dark);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 
-        inset 0 0 1px #1E90FF,
-        0 0 1.5px #1E90FF;
+        inset 0 0 10px rgba(99, 102, 241, 0.3),
+        0 0 15px rgba(139, 92, 246, 0.5);
 }
 
 .tech-logo::after {
@@ -308,23 +325,23 @@
     left: 25%;
     width: 15px;
     height: 15px;
-    background: #1E90FF;
+    background: var(--primary);
     border-radius: 50%;
-    box-shadow: 0 0 1px #1E90FF;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
 }
 
-/* Logo glow animation */
+/* Logo glow animation - Landing Page Style */
 @keyframes logo-glow {
     0% {
         box-shadow: 
-            0 0 2px #1E90FF,
-            0 0 4px #1E90FF;
+            0 0 20px rgba(99, 102, 241, 0.4),
+            0 0 40px rgba(139, 92, 246, 0.2);
     }
     100% {
         box-shadow: 
-            0 0 3px #1E90FF,
-            0 0 6px #1E90FF,
-            0 0 8px #1E90FF;
+            0 0 30px rgba(99, 102, 241, 0.6),
+            0 0 60px rgba(139, 92, 246, 0.4),
+            0 0 80px rgba(167, 139, 250, 0.2);
     }
 }
 

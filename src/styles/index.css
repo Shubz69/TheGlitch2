@@ -1,16 +1,28 @@
-/* Define color palette and fonts */
+/* ========== VARIABLES (From Landing Page) ========== */
 :root {
-    --bg-dark: rgba(20, 20, 20, 0.8); /* 60% darker grey */
-    --bg-light: rgba(28, 28, 28, 0.9); /* 60% darker grey */
-    --bg-lighter: rgba(36, 36, 36, 1.0); /* 60% darker grey */
+    /* Purple-Blue Colors */
+    --primary: #6366F1;      /* Indigo */
+    --secondary: #8B5CF6;    /* Purple-Blue */
+    --accent: #A78BFA;       /* Light Purple */
+    --dark-purple: #4C1D95;  /* Deep Purple */
     
-    /* Blue colors - Only the specific blue from the description */
-    --blue-primary: #1E90FF; /* Main blue - Dodger Blue */
-    --blue-secondary: #1E90FF; /* Same blue for consistency */
-    --blue-accent: #1E90FF; /* Same blue for highlights */
-    --blue-dark: #1E90FF; /* Same blue for shadows */
+    /* Greys */
+    --bg-dark: #0F0F1E;
+    --bg-medium: #1A1A2E;
+    --bg-light: #252541;
     
-    /* Reduced glow effects - 90% reduction as requested */
+    /* Fonts */
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    
+    /* Legacy variables for compatibility */
+    --blue-primary: #6366F1;
+    --blue-secondary: #8B5CF6;
+    --blue-accent: #A78BFA;
+    --blue-dark: #4C1D95;
+    --bg-lighter: #252541;
+    
+    /* Reduced glow effects */
     --glow-weak: 0 0 0.5px;
     --glow-medium: 0 0 1px;
     --glow-strong: 0 0 1.5px;
@@ -21,17 +33,18 @@ html, body, #root {
     padding: 0;
     height: 100%;
     background: var(--bg-dark);
-    color: var(--gold-primary);
-    font-family: "Courier New", "Monaco", monospace;
+    color: var(--primary);
+    font-family: var(--font-main);
     overflow-x: hidden;
+    line-height: 1.6;
 }
 
 body {
-  font-family: var(--heading-font);
+  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-dark);
-  color: var(--gold-primary);
+  color: var(--primary);
 }
 
 .container {
@@ -155,62 +168,62 @@ footer {
 
 /* Selection */
 ::selection {
-    background: rgba(30, 144, 255, 0.3); /* Changed from gold to blue */
-    color: var(--accent); /* Changed from gold to blue */
+    background: rgba(99, 102, 241, 0.3);
+    color: var(--accent);
 }
 
 /* Focus styles */
 *:focus {
-    outline: 2px solid var(--accent); /* Changed from gold to blue */
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 
 /* Links */
 a {
-    color: var(--accent); /* Changed from gold to blue */
+    color: var(--accent);
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 a:hover {
-    color: var(--text-light); /* Changed from gold to blue */
-    text-shadow: 0 0 0.5px rgba(30, 144, 255, 0.5); /* Changed from gold to blue */
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 /* Form elements */
 input, textarea, select {
-    font-family: "Courier New", "Monaco", monospace;
-    background: rgba(42, 42, 42, 0.6);
-    border: 1px solid rgba(30, 144, 255, 0.2); /* Changed from gold to blue */
-    color: var(--accent); /* Changed from gold to blue */
+    font-family: var(--font-secondary);
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: var(--accent);
     transition: all 0.3s ease;
 }
 
 input:focus, textarea:focus, select:focus {
-    border-color: var(--accent); /* Changed from gold to blue */
-    box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.2); /* Changed from gold to blue */
-    background: rgba(42, 42, 42, 0.8);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.08);
 }
 
 /* Buttons */
 .btn {
-    background: linear-gradient(45deg, var(--accent), #00CED1); /* Changed from gold to blue */
-    color: var(--bg-dark);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
     border: none;
     padding: 10px 20px;
-    font-family: "Courier New", "Monaco", monospace;
+    font-family: var(--font-main);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    border-radius: 4px;
+    border-radius: 50px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .btn:hover {
-    background: linear-gradient(45deg, var(--gold-secondary), var(--gold-primary));
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
 }
 
 .btn:active {
@@ -219,9 +232,9 @@ input:focus, textarea:focus, select:focus {
 
 /* Footer */
 footer {
-    border-top: 1px solid rgba(255, 215, 0, 0.1);
-    background: linear-gradient(to bottom, var(--bg-dark), var(--bg-darker));
-    color: var(--gold-secondary);
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    background: linear-gradient(to bottom, var(--bg-dark), var(--bg-medium));
+    color: var(--accent);
     text-align: center;
     padding: 20px;
     font-size: 0.9rem;
@@ -269,8 +282,8 @@ footer {
 }
 
 @keyframes glow {
-    0% { box-shadow: 0 0 0.5px rgba(255, 215, 0, 0.3); }
-    100% { box-shadow: 0 0 2px rgba(255, 215, 0, 0.6); }
+    0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.8); }
+    100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
 }
 
 @keyframes pulse {
