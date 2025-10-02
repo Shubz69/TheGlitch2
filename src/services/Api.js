@@ -219,7 +219,15 @@ const Api = {
                 data: [
                     { id: 1, title: "Introduction to Trading", description: "Learn the basics of trading.", level: "Beginner", duration: 2, price: 0 },
                     { id: 2, title: "Technical Analysis", description: "Master chart patterns and indicators.", level: "Intermediate", duration: 4, price: 49.99 },
-                    { id: 3, title: "Risk Management", description: "Essential strategies to protect your capital.", level: "All Levels", duration: 3, price: 29.99 }
+                    { id: 3, title: "Risk Management", description: "Essential strategies to protect your capital.", level: "All Levels", duration: 3, price: 29.99 },
+                    { id: 4, title: "Health & Fitness", description: "Master the science of peak physical performance, biohacking techniques, and longevity protocols that enhance cognitive function, energy levels, and decision-making capabilities for sustained wealth creation", level: "All Levels", duration: 6, price: 79.99 },
+                    { id: 5, title: "E-Commerce", description: "Build and scale profitable online businesses using advanced dropshipping strategies, Amazon FBA mastery, Shopify optimization, and multi-channel selling techniques that generate 6-7 figure revenues", level: "Intermediate", duration: 8, price: 99.99 },
+                    { id: 6, title: "Forex Trading", description: "Master professional-grade currency trading strategies, risk management systems, and market analysis techniques used by institutional traders to consistently profit from global currency fluctuations", level: "Intermediate", duration: 6, price: 89.99 },
+                    { id: 7, title: "Crypto & Blockchain", description: "Navigate the digital asset revolution with advanced DeFi strategies, yield farming protocols, NFT arbitrage, and blockchain technology investments that capitalize on the future of finance", level: "Intermediate", duration: 5, price: 79.99 },
+                    { id: 8, title: "Algorithmic FX", description: "Develop sophisticated automated trading systems using machine learning, quantitative analysis, and algorithmic strategies that execute high-frequency trades with precision and minimal risk", level: "Advanced", duration: 10, price: 149.99 },
+                    { id: 9, title: "Intelligent Systems Development", description: "Create cutting-edge AI applications, automated trading bots, and intelligent software solutions that generate passive income through technology innovation and system automation", level: "Advanced", duration: 12, price: 199.99 },
+                    { id: 10, title: "Social Media", description: "Build massive personal brands and monetize digital influence across TikTok, Instagram, YouTube, and LinkedIn using advanced content strategies, affiliate marketing, and brand partnerships", level: "All Levels", duration: 4, price: 59.99 },
+                    { id: 11, title: "Real Estate", description: "Master strategic property investment, REIT analysis, real estate crowdfunding, and PropTech opportunities that create multiple passive income streams and long-term wealth appreciation", level: "Intermediate", duration: 7, price: 119.99 }
                 ]
             };
         }
