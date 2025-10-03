@@ -276,23 +276,23 @@
 
 /* CREATE ACCOUNT BUTTON - EXACTLY MATCHES START TRADING BUTTON */
 .register-button {
-    width: 100%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
-  border: none;
-    border-radius: 50px;
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
-  font-weight: 600;
-    font-family: var(--font-main);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
-    position: relative;
-    overflow: hidden;
-    margin-top: 12px;
+    width: 100% !important;
+    background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 0.8rem 2rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    font-family: var(--font-main) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    margin-top: 12px !important;
 }
 
 .register-button::before {
@@ -307,8 +307,8 @@
 }
 
 .register-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5) !important;
 }
 
 .register-button:hover::before {
