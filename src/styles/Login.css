@@ -180,17 +180,20 @@
 }
 
 .forgot-password a {
-    color: var(--accent);
+    color: var(--primary);
     text-decoration: none;
     font-size: 0.85rem;
     font-family: var(--font-secondary);
-    font-weight: 500;
-    transition: color 0.3s ease;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
 }
 
 .forgot-password a:hover {
-    color: var(--primary);
+    color: var(--secondary);
     text-decoration: underline;
+    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    transform: translateY(-1px);
 }
 
 .signup-link {
@@ -211,15 +214,18 @@
 .signup-link a {
     color: var(--primary);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     font-family: var(--font-main);
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     font-size: 0.85rem;
+    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
 }
 
 .signup-link a:hover {
     color: var(--secondary);
     text-decoration: underline;
+    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    transform: translateY(-1px);
 }
 
 /* Error message */
