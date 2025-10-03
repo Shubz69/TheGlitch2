@@ -84,12 +84,11 @@ const Register = () => {
             <SharedBackground />
             
             <div className="register-form-container">
-                <div className="brand-section">
-                    <h1 className="brand-title glitch-brand" data-text="THE GLITCH">THE GLITCH</h1>
-                    <p className="brand-subtitle">FUTURISTIC TRADING PLATFORM</p>
-                </div>
                 
-                <h2 className="glitch glitch-brand" data-text="SIGN UP">SIGN UP</h2>
+                <div className="form-header">
+                    <h2 className="register-title">SIGN UP</h2>
+                    <p className="register-subtitle">Create your new account</p>
+                </div>
                 
                 {error && <div className="error-message">{error}</div>}
                 

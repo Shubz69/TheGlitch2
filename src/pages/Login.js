@@ -310,10 +310,6 @@ const Login = () => {
             </div>
             
             <div className="login-form-container">
-                <div className="brand-section">
-                    <h1 className="brand-title glitch-brand" data-text="THE GLITCH">THE GLITCH</h1>
-                    <p className="brand-subtitle">FUTURISTIC TRADING PLATFORM</p>
-                </div>
                 
                 <div className="form-header">
                     <h2 className="login-title">SIGN IN</h2>
