@@ -4,6 +4,7 @@ import "../styles/Register.css";
 import "../styles/SharedBackground.css";
 import "../styles/GlitchBranding.css";
 import SharedBackground from '../components/SharedBackground';
+import Avatar from '../components/Avatar';
 import Api from '../services/Api';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
@@ -18,7 +19,7 @@ const Register = () => {
         password: '',
         confirmPassword: '',
         name: '',
-        avatar: 'avatar_ai.png'
+        avatar: 'ai'
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -144,19 +145,12 @@ const Register = () => {
                         <label className="form-label">Choose Avatar</label>
                         <div className="avatar-grid">
                             {avatarOptions.map((option) => (
-                                <div 
+                                <Avatar
                                     key={option.value}
-                                    className={`avatar-option ${formData.avatar === option.value ? 'selected' : ''}`}
+                                    type={option.value}
+                                    selected={formData.avatar === option.value}
                                     onClick={() => handleInputChange({ target: { name: 'avatar', value: option.value } })}
-                                >
-                                    <img 
-                                        src={`/avatars/${option.value}`} 
-                                        alt={option.label}
-                                        onError={(e) => {
-                                            e.target.src = '/avatars/avatar_ai.png';
-                                        }}
-                                    />
-                                </div>
+                                />
                             ))}
                         </div>
                     </div>
