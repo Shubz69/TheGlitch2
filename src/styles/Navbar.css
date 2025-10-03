@@ -209,6 +209,8 @@
 @media (max-width: 768px) {
     .navbar {
         padding: 0.5rem 1rem;
+        justify-content: space-between;
+        align-items: center;
     }
     
     .nav-links {
@@ -216,12 +218,11 @@
     }
     
     .nav-buttons {
-        gap: 0.5rem;
+        display: none; /* Hide desktop buttons on mobile */
     }
     
-    .sign-in, .start-trading {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.9rem;
+    .mobile-menu-toggle {
+        display: block;
     }
 
     .navbar-ai-head {
@@ -239,9 +240,14 @@
     display: none;
     background: none;
     border: none;
-    color: var(--gold-primary);
+    color: var(--primary);
     font-size: 1.5rem;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    color: var(--secondary);
 }
 
 .mobile-menu {
@@ -250,8 +256,9 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    background: rgba(42, 42, 42, 0.97);
-    backdrop-filter: blur(10px);
+    background: rgba(15, 15, 30, 0.97);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -271,9 +278,14 @@
     right: 20px;
     background: none;
     border: none;
-    color: var(--gold-primary);
+    color: var(--primary);
     font-size: 1.5rem;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.mobile-menu-close:hover {
+    color: var(--secondary);
 }
 
 .mobile-nav-links {
@@ -288,12 +300,18 @@
 
 .mobile-nav-links li a {
     text-decoration: none;
-    color: var(--gold-primary);
+    color: var(--accent);
     font-size: 1.2rem;
     font-weight: 500;
+    font-family: var(--font-main);
     position: relative;
     padding: 0.5rem 1rem;
     display: block;
+    transition: color 0.3s ease;
+}
+
+.mobile-nav-links li a:hover {
+    color: var(--primary);
 }
 
 .mobile-nav-links li a::after {
@@ -303,7 +321,7 @@
     height: 2px;
     bottom: 0;
     left: 50%;
-    background: linear-gradient(90deg, var(--gold-primary), var(--gold-secondary));
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     transition: all 0.3s ease;
     transform: translateX(-50%);
 }
@@ -321,36 +339,44 @@
 
 .mobile-sign-in, .mobile-start-trading {
     padding: 0.8rem 2rem;
-    border-radius: 5px;
+    border-radius: 16px;
     cursor: pointer;
     font-weight: 600;
+    font-family: var(--font-main);
     min-width: 200px;
     text-align: center;
+    transition: all 0.3s ease;
 }
 
 .mobile-sign-in {
     background: transparent;
-    border: 1px solid var(--gold-primary);
-    color: var(--gold-primary);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+
+.mobile-sign-in:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--secondary);
+    color: var(--secondary);
 }
 
 .mobile-start-trading {
-    background: linear-gradient(90deg, var(--gold-primary), var(--gold-secondary));
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     border: none;
-    color: var(--bg-dark);
+    color: white;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
-@media (max-width: 768px) {
-    .mobile-menu-toggle {
-        display: block;
-    }
+.mobile-start-trading:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
 /* Active nav link */
 .nav-links li a.active {
-    color: var(--gold-primary);
-    background: rgba(255, 215, 0, 0.2);
-    box-shadow: 0 0 1px rgba(255, 215, 0, 0.3);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 1px rgba(99, 102, 241, 0.3);
 }
 
 .nav-links li a.active::after {
@@ -363,34 +389,4 @@ html, body, #root {
     min-height: 100%;
     overflow-y: auto;
     scroll-behavior: smooth;
-}
-
-/* Responsive Navbar Layout */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .nav-links {
-        flex-direction: column;
-        width: 100%;
-        padding-left: 0;
-    }
-
-    .nav-links li a {
-        width: 100%;
-        padding: 10px;
-    }
-
-    .nav-buttons {
-        flex-direction: column;
-        width: 100%;
-        align-items: flex-start;
-    }
-
-    .sign-in, .start-trading {
-        width: 100%;
-        margin-top: 8px;
-    }
 }
