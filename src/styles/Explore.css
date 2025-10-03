@@ -129,6 +129,48 @@
     100% { transform: translateX(-100%); }
 }
 
+/* Explore Header */
+.explore-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 10;
+}
+
+.explore-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: var(--font-main);
+    text-shadow: 
+        0 0 15px rgba(99, 102, 241, 0.6),
+        0 0 30px rgba(139, 92, 246, 0.3);
+    margin-bottom: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.explore-title .highlight {
+    color: var(--primary);
+    text-shadow: 
+        0 0 15px rgba(99, 102, 241, 0.6),
+        0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+.explore-subtitle {
+    font-size: 1.2rem;
+    color: var(--accent);
+    font-family: var(--font-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.explore-subtitle .highlight {
+    color: var(--primary);
+    font-weight: 600;
+    font-family: var(--font-main);
+}
+
 /* Page Title */
 .explore-title {
     text-align: center;
@@ -234,6 +276,108 @@
     font-family: var(--font-secondary);
 }
 
+/* Team Section */
+.team-section {
+    margin-bottom: 4rem;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.team-member {
+    background: var(--bg-medium);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+    position: relative;
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.member-image-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.member-image {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.image-placeholder {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: var(--font-main);
+}
+
+.expertise-tag {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: var(--font-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.team-member h3 {
+    color: var(--primary);
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-main);
+    text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.team-member .member-role {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-family: var(--font-secondary);
+    font-size: 0.9rem;
+}
+
+.team-member .member-description {
+    color: var(--accent);
+    line-height: 1.6;
+    font-family: var(--font-secondary);
+    font-size: 0.9rem;
+}
+
+/* Testimonial Section */
+.testimonials {
+    margin-bottom: 4rem;
+}
+
+.testimonial-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
 /* Testimonial Cards */
 .testimonial-grid {
     display: grid;
@@ -258,19 +402,20 @@
     border-color: rgba(99, 102, 241, 0.4);
 }
 
-.testimonial-quote {
-    font-size: 3rem;
+.quote-mark {
+    font-size: 4rem;
     color: var(--primary);
     position: absolute;
     top: 1rem;
     left: 1.5rem;
     font-family: var(--font-main);
     opacity: 0.3;
+    line-height: 1;
 }
 
-.testimonial-text {
+.testimonial-card p {
     color: var(--accent);
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
     font-family: var(--font-secondary);
@@ -278,15 +423,20 @@
 }
 
 .testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.author-name {
     color: var(--primary);
     font-weight: 600;
     font-size: 1rem;
     font-family: var(--font-main);
-    margin-bottom: 0.5rem;
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
-.testimonial-title {
+.author-title {
     color: var(--accent);
     font-size: 0.9rem;
     font-family: var(--font-secondary);
@@ -431,9 +581,21 @@
         font-size: 2rem;
     }
     
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .testimonial-container {
+        grid-template-columns: 1fr;
+    }
+    
     .feature-grid,
     .testimonial-grid,
     .job-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .team-grid {
         grid-template-columns: 1fr;
     }
     
