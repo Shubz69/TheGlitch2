@@ -203,12 +203,16 @@ body, html {
 .title-highlight {
     display: block;
     color: var(--primary);
-    font-size: 6rem;
+    font-size: 3.5rem;
     text-shadow: 
-        0 0 20px rgba(99, 102, 241, 0.8),
-        0 0 40px rgba(139, 92, 246, 0.4);
+        0 0 15px rgba(99, 102, 241, 0.6),
+        0 0 30px rgba(139, 92, 246, 0.3);
     animation: titleGlow 3s ease-in-out infinite alternate;
-    margin: 1rem 0;
+    font-family: var(--font-secondary);
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 15px 0;
+    line-height: 1.2;
 }
 
 @keyframes titleSlideIn {
@@ -217,8 +221,8 @@ body, html {
 }
 
 @keyframes titleGlow {
-    0% { text-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 40px rgba(139, 92, 246, 0.4); }
-    100% { text-shadow: 0 0 30px rgba(99, 102, 241, 1), 0 0 60px rgba(139, 92, 246, 0.8); }
+    0% { text-shadow: 0 0 15px rgba(99, 102, 241, 0.6), 0 0 30px rgba(139, 92, 246, 0.3); }
+    100% { text-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 40px rgba(139, 92, 246, 0.5); }
 }
 
 .hero-description {
@@ -799,7 +803,7 @@ body, html {
     }
     
     .title-highlight {
-        font-size: 4rem;
+        font-size: 2.8rem;
     }
     
     .section-title {
@@ -867,7 +871,7 @@ body, html {
     }
     
     .title-highlight {
-        font-size: 3rem;
+        font-size: 2.2rem;
     }
     
     .section-title {
