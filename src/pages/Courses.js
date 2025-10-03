@@ -4,7 +4,7 @@ import '../styles/Courses.css';
 import '../styles/SharedBackground.css';
 import '../styles/GlitchBranding.css';
 import Api from '../services/Api';
-import { FaChartLine, FaChartBar, FaMoneyBillWave, FaShieldAlt, FaSun, FaMoon, FaChartPie, FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
+import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -30,9 +30,9 @@ const Courses = () => {
                 setCourses(response.data);
                 
                 // Check if we're using mock data by examining the course IDs
-                // The mock data uses IDs 1-11
+                // The mock data uses IDs 1-8
                 const isMockData = response.data && 
-                    response.data.length === 11 && 
+                    response.data.length === 8 && 
                     response.data[0]?.id === 1 &&
                     response.data[1]?.id === 2 &&
                     response.data[2]?.id === 3 &&
@@ -113,12 +113,6 @@ const Courses = () => {
     };
 
     const getCourseIcon = (title) => {
-        if (title.includes('Introduction')) return <FaChartLine />;
-        if (title.includes('Technical')) return <FaChartBar />;
-        if (title.includes('Fundamental')) return <FaChartPie />;
-        if (title.includes('Risk')) return <FaShieldAlt />;
-        if (title.includes('Day')) return <FaSun />;
-        if (title.includes('Swing')) return <FaMoon />;
         if (title.includes('Health') || title.includes('Fitness')) return <FaDumbbell />;
         if (title.includes('E-Commerce')) return <FaShoppingCart />;
         if (title.includes('Forex')) return <FaExchangeAlt />;

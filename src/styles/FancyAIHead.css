@@ -1,4 +1,21 @@
-/* Fancy AI Head Styles */
+/* Fancy AI Head Styles - Landing Page Theme */
+:root {
+    /* Purple-Blue Colors */
+    --primary: #6366F1;      /* Indigo */
+    --secondary: #8B5CF6;    /* Purple-Blue */
+    --accent: #A78BFA;       /* Light Purple */
+    --dark-purple: #4C1D95;  /* Deep Purple */
+
+    /* Greys */
+    --bg-dark: #0F0F1E;
+    --bg-medium: #1A1A2E;
+    --bg-light: #252541;
+
+    /* Fonts */
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+}
+
 .fancy-ai-head {
     position: relative;
     width: 600px;
@@ -87,7 +104,7 @@
     left: -20px;
     width: calc(100% + 40px);
     height: calc(100% + 40px);
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
     border-radius: 50%;
     animation: outerGlowPulse 3s ease-in-out infinite;
     z-index: 1;
@@ -104,11 +121,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    border: 3px solid rgba(30, 144, 255, 0.8);
+    border: 3px solid rgba(99, 102, 241, 0.8);
     border-radius: 50%;
     box-shadow: 
-        0 0 20px rgba(30, 144, 255, 0.5),
-        inset 0 0 20px rgba(30, 144, 255, 0.2);
+        0 0 20px rgba(99, 102, 241, 0.5),
+        inset 0 0 20px rgba(99, 102, 241, 0.2);
     animation: headPulse 2s ease-in-out infinite;
     z-index: 2;
 }
@@ -116,13 +133,13 @@
 @keyframes headPulse {
     0%, 100% { 
         box-shadow: 
-            0 0 20px rgba(30, 144, 255, 0.5),
-            inset 0 0 20px rgba(30, 144, 255, 0.2);
+            0 0 20px rgba(99, 102, 241, 0.5),
+            inset 0 0 20px rgba(99, 102, 241, 0.2);
     }
     50% { 
         box-shadow: 
-            0 0 30px rgba(30, 144, 255, 0.8),
-            inset 0 0 30px rgba(30, 144, 255, 0.4);
+            0 0 30px rgba(99, 102, 241, 0.8),
+            inset 0 0 30px rgba(99, 102, 241, 0.4);
     }
 }
 
@@ -132,7 +149,7 @@
     left: 10px;
     width: calc(100% - 20px);
     height: calc(100% - 20px);
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.4) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 60%);
     border-radius: 50%;
     animation: innerGlowPulse 2.5s ease-in-out infinite;
     z-index: 3;
@@ -149,7 +166,7 @@
     left: 20px;
     width: calc(100% - 40px);
     height: calc(100% - 40px);
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.6) 0%, rgba(20, 20, 20, 0.9) 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, var(--bg-dark) 70%);
     border-radius: 50%;
     animation: corePulse 1.8s ease-in-out infinite;
     z-index: 4;
@@ -166,7 +183,7 @@
     left: -10px;
     width: calc(100% + 20px);
     height: calc(100% + 20px);
-    background: conic-gradient(from 0deg, transparent, rgba(30, 144, 255, 0.2), transparent);
+    background: conic-gradient(from 0deg, transparent, rgba(99, 102, 241, 0.2), transparent);
     border-radius: 50%;
     animation: energyFieldRotate 10s linear infinite;
     z-index: 0;
@@ -206,7 +223,7 @@
     left: -5px;
     width: 50px;
     height: 50px;
-    border: 2px solid rgba(30, 144, 255, 0.6);
+    border: 2px solid rgba(99, 102, 241, 0.6);
     border-radius: 50%;
     animation: outerRingPulse 2s ease-in-out infinite;
 }
@@ -220,7 +237,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.9) 0%, rgba(30, 144, 255, 0.6) 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.9) 0%, rgba(99, 102, 241, 0.6) 70%);
     border-radius: 50%;
     transition: transform 0.1s ease;
 }
@@ -259,7 +276,7 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), transparent);
     animation: eyeScan 2s ease-in-out infinite;
 }
 
@@ -276,7 +293,7 @@
     transform: translateX(-50%);
     width: 2px;
     height: 20px;
-    background: linear-gradient(to bottom, rgba(30, 144, 255, 0.8), transparent);
+    background: linear-gradient(to bottom, rgba(99, 102, 241, 0.8), transparent);
     animation: dataStreamMove 1.5s ease-in-out infinite;
 }
 
@@ -291,7 +308,7 @@
     left: -2px;
     width: calc(100% + 4px);
     height: calc(100% + 4px);
-    border: 2px solid rgba(0, 255, 255, 0.6);
+    border: 2px solid rgba(139, 92, 246, 0.6);
     border-radius: 50%;
     animation: ringPulse 2.5s ease-in-out infinite;
 }
@@ -307,7 +324,7 @@
     left: -10px;
     width: calc(100% + 20px);
     height: calc(100% + 20px);
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
     border-radius: 50%;
     animation: eyeGlow 2s ease-in-out infinite;
 }
@@ -341,7 +358,7 @@
 .unit-core {
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.9) 0%, rgba(30, 144, 255, 0.6) 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.9) 0%, rgba(99, 102, 241, 0.6) 70%);
     border-radius: 50%;
     animation: unitPulse 2s ease-in-out infinite;
 }
@@ -357,7 +374,7 @@
     left: -5px;
     width: calc(100% + 10px);
     height: calc(100% + 10px);
-    border: 2px solid rgba(30, 144, 255, 0.4);
+    border: 2px solid rgba(99, 102, 241, 0.4);
     border-radius: 50%;
     animation: unitPulseRing 2.5s ease-in-out infinite;
 }
@@ -374,7 +391,7 @@
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-    background: conic-gradient(from 0deg, transparent, rgba(0, 255, 255, 0.6), transparent);
+    background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.6), transparent);
     border-radius: 50%;
     animation: dataFlow 3s linear infinite;
 }
@@ -422,7 +439,7 @@
 .stream-particle {
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(30, 144, 255, 0.8), transparent);
+    background: linear-gradient(to bottom, rgba(99, 102, 241, 0.8), transparent);
     animation: particleFloat 3s ease-in-out infinite;
 }
 
@@ -437,7 +454,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.4), transparent);
+    background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.4), transparent);
     animation: energyFlow 2s ease-in-out infinite;
 }
 
@@ -468,7 +485,7 @@
 
 .field-layer {
     position: absolute;
-    border: 1px solid rgba(30, 144, 255, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.3);
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -476,14 +493,14 @@
 }
 
 .field-layer:hover {
-    border-color: rgba(30, 144, 255, 0.8);
+    border-color: rgba(99, 102, 241, 0.8);
     transform: scale(1.05);
 }
 
 .field-particles {
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     border-radius: 50%;
     animation: particleFloat 4s ease-in-out infinite;
 }
@@ -514,7 +531,7 @@
     position: absolute;
     width: 6px;
     height: 6px;
-    background: rgba(30, 144, 255, 0.8);
+    background: rgba(99, 102, 241, 0.8);
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -526,8 +543,8 @@
 
 .particle:hover {
     transform: scale(2);
-    background: rgba(0, 255, 255, 1);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    background: rgba(139, 92, 246, 1);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
 }
 
 @keyframes particleFloat {
@@ -559,14 +576,14 @@
 .scan-line {
     position: absolute;
     height: 3px;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.8), transparent);
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), transparent);
     cursor: pointer;
     transition: all 0.3s ease;
     animation: scanMove 3s ease-in-out infinite;
 }
 
 .scan-line:hover {
-    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 1), transparent);
     transform: scaleY(2);
 }
 
@@ -608,7 +625,7 @@
 .status-dot {
     width: 12px;
     height: 12px;
-    background: rgba(30, 144, 255, 0.8);
+    background: rgba(99, 102, 241, 0.8);
     border-radius: 50%;
     animation: statusPulse 2s ease-in-out infinite;
 }
@@ -641,7 +658,7 @@
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-    border: 2px solid rgba(30, 144, 255, 0.4);
+    border: 2px solid rgba(99, 102, 241, 0.4);
     border-radius: 50%;
     animation: statusPulseRing 2.5s ease-in-out infinite;
 }
@@ -658,18 +675,19 @@
     transform: translateX(-50%);
     width: 2px;
     height: 15px;
-    background: linear-gradient(to top, rgba(30, 144, 255, 0.6), transparent);
+    background: linear-gradient(to top, rgba(99, 102, 241, 0.6), transparent);
     animation: dataFlow 1.5s ease-in-out infinite;
 }
 
 .status-text {
     font-size: 0.8rem;
-    color: rgba(30, 144, 255, 0.9);
+    color: var(--accent);
     text-align: center;
     font-weight: 600;
+    font-family: var(--font-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 /* Enhanced Effects Canvas */
@@ -694,8 +712,8 @@
 }
 
 .info-content {
-    background: rgba(20, 20, 20, 0.95);
-    border: 2px solid rgba(30, 144, 255, 0.8);
+    background: var(--bg-dark);
+    border: 2px solid rgba(99, 102, 241, 0.8);
     border-radius: 12px;
     padding: 1.5rem;
     backdrop-filter: blur(15px);
@@ -711,7 +729,7 @@
 }
 
 .info-content h4 {
-    color: #1E90FF;
+    color: var(--primary);
     font-size: 1.2rem;
     margin-bottom: 1rem;
     text-align: center;
@@ -720,8 +738,9 @@
 }
 
 .info-content p {
-    color: rgba(30, 144, 255, 0.8);
+    color: var(--accent);
     font-size: 0.9rem;
+    font-family: var(--font-secondary);
     margin-bottom: 0.5rem;
     text-align: center;
 }
@@ -732,7 +751,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(30, 144, 255, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     animation: infoGlow 2s ease-in-out infinite;
 }
 
@@ -743,10 +762,10 @@
 
 /* State-specific Enhancements */
 .fancy-ai-head.thinking .head-outline {
-    border-color: rgba(0, 255, 255, 0.9);
+    border-color: rgba(139, 92, 246, 0.9);
     box-shadow: 
-        0 0 30px rgba(0, 255, 255, 0.6),
-        inset 0 0 30px rgba(0, 255, 255, 0.3);
+        0 0 30px rgba(139, 92, 246, 0.6),
+        inset 0 0 30px rgba(139, 92, 246, 0.3);
 }
 
 .fancy-ai-head.analyzing .head-outline {
