@@ -26,7 +26,7 @@
     overflow: hidden;
     font-family: var(--font-secondary);
     padding: 20px;
-    padding-top: 80px; /* Account for navbar height */
+    padding-top: 75px; /* Account for navbar height */
 }
 
 /* Lightning Background Effect */

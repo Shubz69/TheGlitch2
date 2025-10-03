@@ -25,7 +25,7 @@
     position: relative;
     overflow: hidden;
     font-family: var(--font-secondary);
-    padding-top: 60px; /* Account for navbar height */
+    padding-top: 55px; /* Account for navbar height */
 }
 
 /* Lightning Background Effect */
