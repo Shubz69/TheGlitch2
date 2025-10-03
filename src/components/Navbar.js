@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
 import "../styles/GlitchBranding.css";
-import YinYangLogo from "./YinYangLogo";
 import { FaEnvelopeOpen, FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
 import { RiBugFill, RiCodeBoxFill, RiTerminalBoxFill } from 'react-icons/ri';
 
@@ -25,7 +24,6 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="logo-container">
                 <Link to="/" className="logo-link">
-                    <YinYangLogo size={40} showGlitch={false} />
                     <span className="logo glitch-brand" data-text="THE GLITCH">THE GLITCH</span>
                 </Link>
             </div>
