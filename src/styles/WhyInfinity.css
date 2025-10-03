@@ -55,7 +55,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
   color: var(--text-light);
-  padding: 120px 20px 80px;
+  padding: 140px 20px 80px; /* Increased top padding for better navbar clearance */
   overflow: hidden;
   z-index: 1;
   font-family: var(--font-secondary);
@@ -1054,7 +1054,7 @@
   }
   
   .why-container {
-    padding: 100px 20px 60px;
+    padding: 80px 15px 60px;
   }
   
   .why-heading {

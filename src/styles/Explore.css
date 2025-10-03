@@ -20,9 +20,8 @@
     position: relative;
     background: var(--bg-dark);
     color: var(--primary);
-    padding: 3rem;
+    padding: 120px 3rem 3rem; /* Consistent top padding for navbar */
     min-height: 100vh;
-    padding-top: 120px; /* Account for navbar */
     font-family: var(--font-secondary);
 }
 
@@ -567,10 +566,25 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .explore-page {
+        padding: 100px 2rem 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 768px) {
     .explore-page {
-        padding: 1.5rem;
-        padding-top: 100px;
+        padding: 80px 1rem 1rem;
     }
     
     .explore-title h1 {
@@ -582,7 +596,8 @@
     }
     
     .team-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .testimonial-container {
@@ -595,16 +610,29 @@
         grid-template-columns: 1fr;
     }
     
-    .team-grid {
+    .stats-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .cta-section {
+        padding: 2rem 1rem;
     }
     
     .cta-title {
         font-size: 2rem;
+    }
+    
+    .cta-description {
+        font-size: 1rem;
     }
 }
 
