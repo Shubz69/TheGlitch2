@@ -29,14 +29,17 @@ const mockLogin = async (email, password) => {
         setTimeout(() => {
             const user = MOCK_USERS.find(u => u.email === email && u.password === password);
             if (user) {
-                // Generate a mock JWT token
-                const token = btoa(JSON.stringify({
+                // Generate a proper 3-part JWT token
+                const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+                const payload = btoa(JSON.stringify({
                     sub: user.id.toString(),
                     email: user.email,
                     name: user.name,
                     role: user.role,
                     exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
                 }));
+                const signature = btoa('mock-signature');
+                const token = `${header}.${payload}.${signature}`;
                 
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify({
@@ -88,14 +91,17 @@ const mockRegister = async (userData) => {
             
             MOCK_USERS.push(newUser);
             
-            // Generate a mock JWT token
-            const token = btoa(JSON.stringify({
+            // Generate a proper 3-part JWT token
+            const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+            const payload = btoa(JSON.stringify({
                 sub: newUser.id.toString(),
                 email: newUser.email,
                 name: newUser.name,
                 role: newUser.role,
                 exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
             }));
+            const signature = btoa('mock-signature');
+            const token = `${header}.${payload}.${signature}`;
             
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({
