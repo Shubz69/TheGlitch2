@@ -4,7 +4,6 @@ import "../styles/Login.css";
 import "../styles/SharedBackground.css";
 import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
-import { FaLock } from 'react-icons/fa';
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
@@ -316,41 +315,40 @@ const Login = () => {
                     <p className="brand-subtitle">FUTURISTIC TRADING PLATFORM</p>
                 </div>
                 
-                <h2 className="glitch glitch-brand" data-text="SIGN IN">SIGN IN</h2>
+                <div className="form-header">
+                    <h2 className="login-title">SIGN IN</h2>
+                    <p className="login-subtitle">Access your trading account</p>
+                </div>
                 
                 {error && <div className="error-message">{error}</div>}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="email">Email Address</label>
-                        <div className="input-wrapper">
-                            <input 
-                                type="email"
-                                id="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                autoComplete="email"
-                                placeholder="Enter your email"
-                            />
-                            <FaLock className="input-icon" />
-                        </div>
+                        <label htmlFor="email" className="form-label">Email Address</label>
+                        <input 
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoComplete="email"
+                            placeholder="Enter your email"
+                            className="form-input"
+                        />
                     </div>
                     
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <div className="input-wrapper">
-                            <input 
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                autoComplete="current-password"
-                                placeholder="Enter your password"
-                            />
-                            <FaLock className="input-icon" />
-                        </div>
+                        <label htmlFor="password" className="form-label">Password</label>
+                        <input 
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            autoComplete="current-password"
+                            placeholder="Enter your password"
+                            className="form-input"
+                        />
                     </div>
                     
                     <button 

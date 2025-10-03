@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Register.css";
 import "../styles/SharedBackground.css";
 import "../styles/GlitchBranding.css";
-import { FaUser, FaEnvelope, FaLock, FaUserCircle } from 'react-icons/fa';
 import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 // Import avatar images
@@ -23,47 +22,9 @@ const Register = () => {
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [passwordStrength, setPasswordStrength] = useState('');
-    const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const navigate = useNavigate();
     
-    // Lightning background effect
-    const [lightningBolt, setLightningBolt] = useState(null);
-    const [flashEffect, setFlashEffect] = useState(false);
-    
-    useEffect(() => {
-        // Create lightning effect
-        const createLightning = () => {
-            const bolt = {
-                id: Date.now(),
-                x: Math.random() * 100,
-                y: Math.random() * 100,
-                intensity: Math.random() * 0.8 + 0.2,
-                duration: Math.random() * 200 + 100
-            };
-            setLightningBolt(bolt);
-            setFlashEffect(true);
-            
-            // Clear lightning after duration
-            setTimeout(() => {
-                setLightningBolt(null);
-                setFlashEffect(false);
-            }, bolt.duration);
-        };
-
-        // Create lightning bolts at random intervals
-        const lightningInterval = setInterval(() => {
-            if (Math.random() < 0.3) { // 30% chance every interval
-                createLightning();
-            }
-        }, 2000);
-
-        // Initial lightning
-        setTimeout(createLightning, 1000);
-
-        return () => clearInterval(lightningInterval);
-    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -72,30 +33,8 @@ const Register = () => {
             [name]: value
         }));
 
-        if (name === 'password') {
-            checkPasswordStrength(value);
-        }
     };
 
-    const checkPasswordStrength = (password) => {
-        const hasLower = /[a-z]/.test(password);
-        const hasUpper = /[A-Z]/.test(password);
-        const hasNumber = /\d/.test(password);
-        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        const length = password.length;
-
-        let strength = 0;
-        if (hasLower) strength++;
-        if (hasUpper) strength++;
-        if (hasNumber) strength++;
-        if (hasSpecial) strength++;
-        if (length >= 8) strength++;
-
-        if (strength < 2) setPasswordStrength('weak');
-        else if (strength < 4) setPasswordStrength('medium');
-        else if (strength < 5) setPasswordStrength('strong');
-        else setPasswordStrength('very-strong');
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -143,21 +82,6 @@ const Register = () => {
     return (
         <div className="register-container">
             <SharedBackground />
-            {/* Lightning Background */}
-            <div className="lightning-background">
-                {lightningBolt && (
-                    <div 
-                        className="lightning-bolt"
-                        style={{
-                            left: `${lightningBolt.x}%`,
-                            top: `${lightningBolt.y}%`,
-                            opacity: lightningBolt.intensity,
-                            animationDuration: `${lightningBolt.duration}ms`
-                        }}
-                    />
-                )}
-                {flashEffect && <div className="flash-overlay" />}
-            </div>
             
             <div className="register-form-container">
                 <div className="brand-section">
@@ -172,131 +96,99 @@ const Register = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="username">Username</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    value={formData.username}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter username"
-                                />
-                                <FaUser className="input-icon" />
-                            </div>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter email"
-                                />
-                                <FaEnvelope className="input-icon" />
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="name">Full Name</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Enter full name"
-                                />
-                                <FaUserCircle className="input-icon" />
-                            </div>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label htmlFor="avatar">Avatar</label>
-                            <select
-                                id="avatar"
-                                name="avatar"
-                                value={formData.avatar}
+                            <label htmlFor="username" className="form-label">Username</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                value={formData.username}
                                 onChange={handleInputChange}
-                                className="avatar-dropdown"
-                            >
-                                {avatarOptions.map(option => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                                required
+                                placeholder="Enter username"
+                                className="form-input"
+                            />
                         </div>
-                    </div>
-                    
-                    <div className="avatar-preview">
-                        <img 
-                            src={`/avatars/${formData.avatar}`} 
-                            alt="Selected Avatar" 
-                            className="avatar-img"
-                            onError={(e) => {
-                                e.target.src = '/avatars/avatar_ai.png';
-                            }}
-                        />
+                        
+                        <div className="form-group">
+                            <label htmlFor="email" className="form-label">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter email"
+                                className="form-input"
+                            />
+                        </div>
                     </div>
                     
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    onFocus={() => setShowPasswordRequirements(true)}
-                                    onBlur={() => setShowPasswordRequirements(false)}
-                                    required
-                                    placeholder="Enter password"
-                                />
-                                <FaLock className="input-icon" />
-                            </div>
-                            {showPasswordRequirements && (
-                                <div className="password-requirements">
-                                    <ul className="requirements-list">
-                                        <li>At least 8 characters</li>
-                                        <li>One uppercase letter</li>
-                                        <li>One lowercase letter</li>
-                                        <li>One number</li>
-                                        <li>One special character</li>
-                                    </ul>
+                            <label htmlFor="name" className="form-label">Full Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter full name"
+                                className="form-input"
+                            />
+                        </div>
+                        
+                    </div>
+                    
+                    <div className="avatar-selection">
+                        <label className="form-label">Choose Avatar</label>
+                        <div className="avatar-grid">
+                            {avatarOptions.map((option) => (
+                                <div 
+                                    key={option.value}
+                                    className={`avatar-option ${formData.avatar === option.value ? 'selected' : ''}`}
+                                    onClick={() => handleInputChange({ target: { name: 'avatar', value: option.value } })}
+                                >
+                                    <img 
+                                        src={`/avatars/${option.value}`} 
+                                        alt={option.label}
+                                        onError={(e) => {
+                                            e.target.src = '/avatars/avatar_ai.png';
+                                        }}
+                                    />
                                 </div>
-                            )}
-                            <div className="password-strength">
-                                <div className={`strength-meter ${passwordStrength}`}></div>
-                            </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label htmlFor="password" className="form-label">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter password"
+                                className="form-input"
+                            />
                         </div>
                         
                         <div className="form-group">
-                            <label htmlFor="confirmPassword">Confirm Password</label>
-                            <div className="input-wrapper">
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    required
-                                    placeholder="Confirm password"
-                                />
-                                <FaLock className="input-icon" />
-                            </div>
+                            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Confirm password"
+                                className="form-input"
+                            />
                         </div>
                     </div>
                     
