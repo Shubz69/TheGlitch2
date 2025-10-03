@@ -93,14 +93,13 @@ const Login = () => {
         try {
             console.log('Attempting login with:', email);
             
-            // Use Api directly instead of the auth context's login function
-            const response = await Api.login({ email, password });
-            const data = response.data;
+            // Use the auth context's login function directly
+            const data = await login(email, password);
             
-            console.log('Login API response:', data);
+            console.log('Login response:', data);
             
             // Handle MFA required case
-            if (data.status === "MFA_REQUIRED" && !data.mfaVerified) {
+            if (data && data.status === "MFA_REQUIRED" && !data.mfaVerified) {
                 console.log('MFA required, switching to MFA verification...');
                 
                 // Store email and userId for MFA verification
@@ -114,10 +113,8 @@ const Login = () => {
                 return;
             }
             
-            // For non-MFA case, use the context login
-            await login(email, password);
-            
             // Success is handled by the useEffect that checks isAuthenticated
+            setIsLoading(false);
         } catch (err) {
             console.error('Login error details:', err);
             setError(err.message || 'Failed to login. Please check your credentials.');

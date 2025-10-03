@@ -6,6 +6,7 @@ import "../styles/GlitchBranding.css";
 import { FaUser, FaEnvelope, FaLock, FaUserCircle } from 'react-icons/fa';
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
+import Api from '../services/Api';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
 // import avatar2 from '../../public/avatars/avatar_money.png';
@@ -114,32 +115,22 @@ const Register = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    name: formData.name,
-                    avatar: formData.avatar
-                }),
+            const response = await Api.register({
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+                name: formData.name,
+                avatar: formData.avatar
             });
 
-            const data = await response.json();
+            const data = response.data;
 
-            if (response.ok) {
-                // Registration successful
-                alert('Registration successful! Please check your email for verification.');
-                navigate('/login');
-            } else {
-                setError(data.message || 'Registration failed');
-            }
+            // Registration successful - user is automatically logged in
+            alert('Registration successful! You are now logged in.');
+            navigate('/');
         } catch (err) {
             console.error('Registration error:', err);
-            setError('Network error. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
         } finally {
             setIsLoading(false);
         }

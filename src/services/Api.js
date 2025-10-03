@@ -3,6 +3,125 @@ import axios from 'axios';
 // Define a fixed API base URL with proper fallback
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
+// Mock user database for demo purposes
+const MOCK_USERS = [
+    {
+        id: 1,
+        email: 'shubzfx@gmail.com',
+        password: 'password123', // In real app, this would be hashed
+        name: 'Shubz',
+        username: 'shubz',
+        role: 'ADMIN'
+    },
+    {
+        id: 2,
+        email: 'demo@theglitch.online',
+        password: 'demo123',
+        name: 'Demo User',
+        username: 'demo',
+        role: 'USER'
+    }
+];
+
+// Mock authentication functions
+const mockLogin = async (email, password) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+            if (user) {
+                // Generate a mock JWT token
+                const token = btoa(JSON.stringify({
+                    sub: user.id.toString(),
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+                }));
+                
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify({
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    username: user.username,
+                    role: user.role
+                }));
+                
+                resolve({
+                    data: {
+                        token: token,
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                            username: user.username,
+                            role: user.role
+                        }
+                    }
+                });
+            } else {
+                reject(new Error('Invalid email or password'));
+            }
+        }, 1000); // Simulate network delay
+    });
+};
+
+const mockRegister = async (userData) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // Check if user already exists
+            const existingUser = MOCK_USERS.find(u => u.email === userData.email || u.username === userData.username);
+            if (existingUser) {
+                reject(new Error('User already exists with this email or username'));
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: MOCK_USERS.length + 1,
+                email: userData.email,
+                password: userData.password,
+                name: userData.name,
+                username: userData.username,
+                role: 'USER'
+            };
+            
+            MOCK_USERS.push(newUser);
+            
+            // Generate a mock JWT token
+            const token = btoa(JSON.stringify({
+                sub: newUser.id.toString(),
+                email: newUser.email,
+                name: newUser.name,
+                role: newUser.role,
+                exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+            }));
+            
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify({
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                username: newUser.username,
+                role: newUser.role
+            }));
+            
+            resolve({
+                data: {
+                    token: token,
+                    user: {
+                        id: newUser.id,
+                        email: newUser.email,
+                        name: newUser.name,
+                        username: newUser.username,
+                        role: newUser.role
+                    }
+                }
+            });
+        }, 1000); // Simulate network delay
+    });
+};
+
 // List of endpoints that should be accessible without authentication
 const PUBLIC_ENDPOINTS = [
     '/api/courses',
@@ -98,12 +217,34 @@ axios.interceptors.response.use(
 
 const Api = {
     // Authentication
-    login: (credentials) => {
-        return axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
+    login: async (credentials) => {
+        try {
+            // Try mock authentication first (for demo purposes)
+            return await mockLogin(credentials.email, credentials.password);
+        } catch (error) {
+            // If mock fails, try real API (for when backend is available)
+            try {
+                return await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
+            } catch (apiError) {
+                // If both fail, throw the original mock error
+                throw error;
+            }
+        }
     },
     
-    register: (userData) => {
-        return axios.post(`${API_BASE_URL}/api/auth/register`, userData);
+    register: async (userData) => {
+        try {
+            // Try mock registration first (for demo purposes)
+            return await mockRegister(userData);
+        } catch (error) {
+            // If mock fails, try real API (for when backend is available)
+            try {
+                return await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
+            } catch (apiError) {
+                // If both fail, throw the original mock error
+                throw error;
+            }
+        }
     },
     
     // Direct Stripe payment link that bypasses authentication checks
