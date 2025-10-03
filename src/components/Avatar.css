@@ -1,398 +1,4 @@
-/* MODERN AVATAR STYLES */
-:root {
-    --primary: #6366F1;
-    --secondary: #8B5CF6;
-    --accent: #A78BFA;
-    --bg-dark: #0A0A0F;
-    --bg-medium: #1A1A2E;
-    --bg-light: #252541;
-    --font-main: 'Space Grotesk', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
-}
-
-.avatar-option {
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    border: 2px solid transparent;
-    background: rgba(37, 37, 65, 0.3);
-    backdrop-filter: blur(10px);
-}
-
-.avatar-option:hover {
-    transform: scale(1.05);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
-    background: rgba(37, 37, 65, 0.5);
-}
-
-.avatar-option.selected {
-    border-color: var(--primary);
-    box-shadow: 
-        0 0 0 2px rgba(99, 102, 241, 0.3), 
-        0 8px 24px rgba(99, 102, 241, 0.3);
-    background: rgba(37, 37, 65, 0.6);
-    transform: scale(1.02);
-}
-
-.avatar-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 12px;
-}
-
-/* AI AVATAR */
-.ai-avatar {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-}
-
-.avatar-head {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4F46E5, #7C3AED);
-    position: relative;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.ai-eyes {
-    display: flex;
-    gap: 6px;
-    z-index: 2;
-}
-
-.eye {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #00F5FF;
-    box-shadow: 0 0 8px #00F5FF;
-    animation: aiBlink 3s infinite;
-}
-
-.ai-circuits {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-}
-
-.circuit {
-    position: absolute;
-    background: rgba(0, 245, 255, 0.6);
-    border-radius: 1px;
-}
-
-.circuit-1 {
-    width: 20px;
-    height: 2px;
-    top: 50%;
-    left: 10px;
-    animation: circuitPulse 2s infinite;
-}
-
-.circuit-2 {
-    width: 2px;
-    height: 16px;
-    top: 30%;
-    right: 8px;
-    animation: circuitPulse 2s infinite 0.5s;
-}
-
-.circuit-3 {
-    width: 12px;
-    height: 2px;
-    bottom: 20%;
-    left: 20%;
-    animation: circuitPulse 2s infinite 1s;
-}
-
-.ai-core {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00F5FF, #6366F1);
-    box-shadow: 0 0 12px rgba(0, 245, 255, 0.5);
-    animation: corePulse 2s infinite;
-}
-
-/* MONEY AVATAR */
-.money-avatar {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
-}
-
-.money-eyes .eye {
-    background: #10B981;
-    box-shadow: 0 0 8px #10B981;
-}
-
-.money-symbol {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10B981, #059669);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 10px;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-}
-
-.coins {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-}
-
-.coin {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #FBBF24, #F59E0B);
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
-    animation: coinSpin 3s infinite;
-}
-
-.coin-2 {
-    animation-delay: 0.3s;
-}
-
-.coin-3 {
-    animation-delay: 0.6s;
-}
-
-/* TECH AVATAR */
-.tech-avatar {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
-}
-
-.tech-eyes .eye {
-    background: #3B82F6;
-    box-shadow: 0 0 8px #3B82F6;
-}
-
-.tech-glasses {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-}
-
-.glass {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border: 2px solid rgba(59, 130, 246, 0.6);
-    border-radius: 50%;
-    top: 35%;
-}
-
-.left-glass {
-    left: 20%;
-}
-
-.right-glass {
-    right: 20%;
-}
-
-.tech-pattern {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.pattern-line {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #3B82F6, transparent);
-    animation: patternFlow 2s infinite;
-}
-
-.line-1 {
-    width: 16px;
-    animation-delay: 0s;
-}
-
-.line-2 {
-    width: 12px;
-    animation-delay: 0.3s;
-}
-
-.line-3 {
-    width: 14px;
-    animation-delay: 0.6s;
-}
-
-/* TRADING AVATAR */
-.trading-avatar {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.1));
-}
-
-.trading-eyes .eye {
-    background: #A855F7;
-    box-shadow: 0 0 8px #A855F7;
-}
-
-.trading-chart {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-}
-
-.chart-line {
-    position: absolute;
-    width: 16px;
-    height: 2px;
-    background: linear-gradient(90deg, #A855F7, #EC4899);
-    top: 40%;
-    left: 50%;
-    transform: translateX(-50%) rotate(15deg);
-    border-radius: 1px;
-}
-
-.chart-points {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.point {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: #EC4899;
-    box-shadow: 0 0 4px #EC4899;
-}
-
-.point-1 {
-    top: 25%;
-    left: 25%;
-    animation: pointGlow 2s infinite;
-}
-
-.point-2 {
-    top: 35%;
-    right: 25%;
-    animation: pointGlow 2s infinite 0.3s;
-}
-
-.point-3 {
-    bottom: 30%;
-    left: 30%;
-    animation: pointGlow 2s infinite 0.6s;
-}
-
-.point-4 {
-    bottom: 25%;
-    right: 30%;
-    animation: pointGlow 2s infinite 0.9s;
-}
-
-.trading-symbols {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.trend-up, .trend-down {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--primary);
-    animation: trendPulse 2s infinite;
-}
-
-.trend-up {
-    color: #10B981;
-}
-
-.trend-down {
-    color: #EF4444;
-}
-
-/* ANIMATIONS */
-@keyframes aiBlink {
-    0%, 90%, 100% { opacity: 1; }
-    95% { opacity: 0.3; }
-}
-
-@keyframes circuitPulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
-@keyframes corePulse {
-    0%, 100% { 
-        box-shadow: 0 0 12px rgba(0, 245, 255, 0.5);
-        transform: scale(1);
-    }
-    50% { 
-        box-shadow: 0 0 20px rgba(0, 245, 255, 0.8);
-        transform: scale(1.1);
-    }
-}
-
-@keyframes coinSpin {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(360deg); }
-}
-
-@keyframes patternFlow {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-}
-
-@keyframes pointGlow {
-    0%, 100% { 
-        box-shadow: 0 0 4px #EC4899;
-        transform: scale(1);
-    }
-    50% { 
-        box-shadow: 0 0 8px #EC4899;
-        transform: scale(1.2);
-    }
-}
-
-@keyframes trendPulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-    .avatar-head {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .ai-core {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .eye {
-        width: 5px;
-        height: 5px;
-    }
-}
+/* CLEAN MODERN AVATAR STYLES */
 :root {
     --primary: #6366F1;
     --secondary: #8B5CF6;
@@ -417,10 +23,11 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+    min-height: 80px;
 }
 
 .avatar-option:hover {
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-4px) scale(1.05);
     border-color: rgba(99, 102, 241, 0.4);
     box-shadow: 0 16px 40px rgba(99, 102, 241, 0.25);
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
@@ -436,13 +43,14 @@
 }
 
 .avatar-container {
-    width: 80px;
-    height: 80px;
-    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+    padding: 12px;
 }
 
 /* AVATAR HEAD */
@@ -457,6 +65,7 @@
     justify-content: center;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(99, 102, 241, 0.3);
+    margin-bottom: 8px;
 }
 
 /* EYES */
@@ -491,7 +100,6 @@
     height: 30px;
     border-radius: 12px;
     background: linear-gradient(135deg, #2D3748, #4A5568);
-    margin-top: 4px;
     position: relative;
     display: flex;
     align-items: center;
@@ -506,10 +114,16 @@
     border-color: rgba(59, 130, 246, 0.4);
 }
 
+.ai-avatar .eye {
+    background: #00F5FF;
+    box-shadow: 0 0 8px #00F5FF;
+}
+
 .ai-circuits {
     position: absolute;
     width: 100%;
     height: 100%;
+    border-radius: 50%;
 }
 
 .circuit {
@@ -568,6 +182,11 @@
     border-color: rgba(16, 185, 129, 0.4);
 }
 
+.money-avatar .eye {
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+}
+
 .money-symbol {
     position: absolute;
     font-size: 18px;
@@ -575,6 +194,8 @@
     color: #FEF3C7;
     text-shadow: 0 0 10px #F59E0B;
     animation: moneyGlow 2s ease-in-out infinite alternate;
+    top: -5px;
+    right: -5px;
 }
 
 .coins {
@@ -615,6 +236,11 @@
 .tech-avatar .avatar-head {
     background: linear-gradient(135deg, #7C3AED, #A855F7);
     border-color: rgba(168, 85, 247, 0.4);
+}
+
+.tech-avatar .eye {
+    background: #3B82F6;
+    box-shadow: 0 0 8px #3B82F6;
 }
 
 .tech-glasses {
@@ -681,6 +307,11 @@
 .trading-avatar .avatar-head {
     background: linear-gradient(135deg, #DC2626, #EF4444);
     border-color: rgba(239, 68, 68, 0.4);
+}
+
+.trading-avatar .eye {
+    background: #A855F7;
+    box-shadow: 0 0 8px #A855F7;
 }
 
 .trading-chart {
@@ -782,8 +413,7 @@
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
     .avatar-container {
-        width: 70px;
-        height: 70px;
+        padding: 8px;
     }
     
     .avatar-head {
@@ -814,8 +444,7 @@
 
 @media (max-width: 480px) {
     .avatar-container {
-        width: 60px;
-        height: 60px;
+        padding: 6px;
     }
     
     .avatar-head {
@@ -826,403 +455,5 @@
     .avatar-body {
         width: 50px;
         height: 22px;
-    }
-}
-:root {
-    --primary: #6366F1;
-    --secondary: #8B5CF6;
-    --accent: #A78BFA;
-    --bg-dark: #0A0A0F;
-    --bg-medium: #1A1A2E;
-    --bg-light: #252541;
-    --font-main: 'Space Grotesk', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
-}
-
-.avatar-option {
-    position: relative;
-    cursor: pointer;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    border: 3px solid transparent;
-    aspect-ratio: 1;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
-    background: linear-gradient(135deg, var(--bg-light), var(--bg-medium));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 80px;
-}
-
-.avatar-option:hover {
-    transform: translateY(-4px) scale(1.05);
-    border-color: rgba(99, 102, 241, 0.6);
-    box-shadow: 0 16px 40px rgba(99, 102, 241, 0.3);
-}
-
-.avatar-option.selected {
-    border-color: var(--primary);
-    box-shadow: 
-        0 0 0 2px rgba(99, 102, 241, 0.4), 
-        0 20px 50px rgba(99, 102, 241, 0.4);
-    transform: translateY(-2px);
-}
-
-.avatar-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 12px;
-}
-
-/* AI Avatar */
-.ai-avatar {
-    background: linear-gradient(135deg, #1e1b4b, #312e81);
-}
-
-.ai-avatar .avatar-head {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    position: relative;
-    margin-bottom: 8px;
-    border: 2px solid rgba(59, 130, 246, 0.3);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-}
-
-.ai-eyes {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 6px;
-}
-
-.ai-eyes .eye {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-    animation: aiBlink 3s infinite;
-}
-
-.ai-circuits {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.circuit {
-    position: absolute;
-    background: rgba(59, 130, 246, 0.6);
-    border-radius: 1px;
-}
-
-.circuit-1 {
-    width: 8px;
-    height: 1px;
-    top: 15%;
-    left: 20%;
-    transform: rotate(45deg);
-}
-
-.circuit-2 {
-    width: 6px;
-    height: 1px;
-    bottom: 20%;
-    right: 25%;
-    transform: rotate(-30deg);
-}
-
-.circuit-3 {
-    width: 4px;
-    height: 1px;
-    top: 60%;
-    left: 10%;
-    transform: rotate(60deg);
-}
-
-.ai-core {
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle, #3b82f6, #1e40af);
-    border-radius: 50%;
-    border: 1px solid rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-    animation: aiPulse 2s infinite;
-}
-
-/* Money Avatar */
-.money-avatar {
-    background: linear-gradient(135deg, #064e3b, #065f46);
-}
-
-.money-avatar .avatar-head {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981, #059669);
-    position: relative;
-    margin-bottom: 8px;
-    border: 2px solid rgba(16, 185, 129, 0.3);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-}
-
-.money-eyes {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 6px;
-}
-
-.money-eyes .eye {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-.money-symbol {
-    position: absolute;
-    top: 20%;
-    right: 15%;
-    font-size: 12px;
-    font-weight: 900;
-    color: #ffffff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-.coins {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-}
-
-.coin {
-    width: 8px;
-    height: 8px;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    border-radius: 50%;
-    border: 1px solid rgba(251, 191, 36, 0.5);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.coin-2 {
-    width: 10px;
-    height: 10px;
-}
-
-.coin-3 {
-    width: 6px;
-    height: 6px;
-}
-
-/* Tech Avatar */
-.tech-avatar {
-    background: linear-gradient(135deg, #7c2d12, #9a3412);
-}
-
-.tech-avatar .avatar-head {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ea580c, #c2410c);
-    position: relative;
-    margin-bottom: 8px;
-    border: 2px solid rgba(234, 88, 12, 0.3);
-    box-shadow: 0 0 20px rgba(234, 88, 12, 0.4);
-}
-
-.tech-eyes {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 6px;
-}
-
-.tech-eyes .eye {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-.tech-glasses {
-    position: absolute;
-    top: 35%;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 4px;
-}
-
-.glass {
-    width: 8px;
-    height: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.tech-pattern {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.pattern-line {
-    height: 2px;
-    background: rgba(234, 88, 12, 0.6);
-    border-radius: 1px;
-}
-
-.line-1 { width: 16px; }
-.line-2 { width: 12px; }
-.line-3 { width: 14px; }
-
-/* Trading Avatar */
-.trading-avatar {
-    background: linear-gradient(135deg, #581c87, #6b21a8);
-}
-
-.trading-avatar .avatar-head {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #a855f7, #9333ea);
-    position: relative;
-    margin-bottom: 8px;
-    border: 2px solid rgba(168, 85, 247, 0.3);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-}
-
-.trading-eyes {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 6px;
-}
-
-.trading-eyes .eye {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-}
-
-.trading-chart {
-    position: absolute;
-    top: 20%;
-    right: 15%;
-    width: 12px;
-    height: 8px;
-}
-
-.chart-line {
-    width: 100%;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.8);
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.chart-points {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.point {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-}
-
-.point-1 { left: 0; top: 20%; }
-.point-2 { left: 33%; top: 10%; }
-.point-3 { left: 66%; top: 70%; }
-.point-4 { left: 100%; top: 50%; }
-
-.trading-symbols {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-}
-
-.trend-up, .trend-down {
-    font-size: 10px;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.trend-up {
-    color: #10b981;
-}
-
-.trend-down {
-    color: #ef4444;
-}
-
-/* Animations */
-@keyframes aiBlink {
-    0%, 90%, 100% { opacity: 1; }
-    95% { opacity: 0.3; }
-}
-
-@keyframes aiPulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-    }
-    50% { 
-        transform: scale(1.1);
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .avatar-option {
-        min-height: 70px;
-        border-radius: 12px;
-    }
-    
-    .avatar-container {
-        padding: 8px;
-    }
-    
-    .ai-avatar .avatar-head,
-    .money-avatar .avatar-head,
-    .tech-avatar .avatar-head,
-    .trading-avatar .avatar-head {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .ai-core {
-        width: 16px;
-        height: 16px;
     }
 }
