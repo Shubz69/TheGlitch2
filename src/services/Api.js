@@ -72,8 +72,18 @@ const mockLogin = async (email, password) => {
 const mockRegister = async (userData) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
+            // Handle FormData or regular object
+            const userInfo = userData instanceof FormData ? {
+                email: userData.get('email'),
+                password: userData.get('password'),
+                name: userData.get('name'),
+                username: userData.get('username'),
+                profilePicture: userData.get('profilePicture'),
+                profileColor: userData.get('profileColor')
+            } : userData;
+            
             // Check if user already exists
-            const existingUser = MOCK_USERS.find(u => u.email === userData.email || u.username === userData.username);
+            const existingUser = MOCK_USERS.find(u => u.email === userInfo.email || u.username === userInfo.username);
             if (existingUser) {
                 reject(new Error('User already exists with this email or username'));
                 return;
@@ -82,10 +92,12 @@ const mockRegister = async (userData) => {
             // Create new user
             const newUser = {
                 id: MOCK_USERS.length + 1,
-                email: userData.email,
-                password: userData.password,
-                name: userData.name,
-                username: userData.username,
+                email: userInfo.email,
+                password: userInfo.password,
+                name: userInfo.name,
+                username: userInfo.username,
+                profilePicture: userInfo.profilePicture,
+                profileColor: userInfo.profileColor,
                 role: 'USER'
             };
             
@@ -245,7 +257,14 @@ const Api = {
         } catch (error) {
             // If mock fails, try real API (for when backend is available)
             try {
-                return await axios.post(`${API_BASE_URL}/api/auth/register`, userData);
+                // Handle FormData for file uploads
+                const config = userData instanceof FormData ? {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                } : {};
+                
+                return await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config);
             } catch (apiError) {
                 // If both fail, throw the original mock error
                 throw error;
