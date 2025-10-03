@@ -103,7 +103,7 @@ const LightningEffect = ({ onLightningComplete }) => {
                 {/* Brand text */}
                 <div className={`brand-text ${textVisible ? 'visible' : ''}`}>
                     <h1 className="brand-title glitch-brand" data-text="THE GLITCH">THE GLITCH</h1>
-                    <div className="brand-subtitle">FUTURISTIC TRADING PLATFORM</div>
+                    <div className="brand-subtitle">WEALTH REVOLUTION</div>
                 </div>
 
                 {/* Lightning flash effect */}

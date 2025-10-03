@@ -640,6 +640,131 @@ body, html {
     opacity: 1;
 }
 
+/* Wealth Impact Section */
+.wealth-impact-section {
+    padding: 6rem 0;
+    background: rgba(15, 15, 30, 0.9);
+    position: relative;
+    z-index: 2;
+}
+
+.wealth-impact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.wealth-impact-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.wealth-impact-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 
+        0 0 20px rgba(99, 102, 241, 0.8),
+        0 0 40px rgba(139, 92, 246, 0.5);
+    margin-bottom: 1rem;
+    letter-spacing: 0.1em;
+    animation: wealth-title-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes wealth-title-glow {
+    0% {
+        text-shadow: 
+            0 0 20px rgba(99, 102, 241, 0.8),
+            0 0 40px rgba(139, 92, 246, 0.5);
+    }
+    100% {
+        text-shadow: 
+            0 0 30px rgba(99, 102, 241, 1),
+            0 0 50px rgba(139, 92, 246, 0.8);
+    }
+}
+
+.wealth-impact-subtitle {
+    font-size: 1.2rem;
+    color: var(--accent);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+.wealth-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.wealth-stat-card {
+    text-align: center;
+    background: rgba(99, 102, 241, 0.05);
+    border: 2px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.wealth-stat-card:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.6);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+.wealth-stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+}
+
+.wealth-stat-number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+    animation: wealth-number-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes wealth-number-pulse {
+    0% {
+        text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+    }
+    100% {
+        text-shadow: 0 0 30px rgba(99, 102, 241, 1);
+    }
+}
+
+.wealth-stat-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.wealth-stat-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.wealth-stat-card:hover .wealth-stat-glow {
+    opacity: 1;
+}
+
 /* CTA Section */
 .cta-section {
     padding: 6rem 0;
@@ -787,6 +912,15 @@ body, html {
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
     }
+    
+    .wealth-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    
+    .wealth-impact-title {
+        font-size: 2.5rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -818,6 +952,23 @@ body, html {
     .stats-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+    
+    .wealth-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .wealth-impact-title {
+        font-size: 2rem;
+    }
+    
+    .wealth-stat-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .wealth-stat-number {
+        font-size: 2.5rem;
     }
     
     .hero-actions {

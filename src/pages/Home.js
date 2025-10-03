@@ -134,10 +134,12 @@ const Home = () => {
                                 </h1>
                                 
                                 <p className="hero-description">
-                                    Experience the future of trading with our cutting-edge AI-powered platform. 
-                                    <span className="highlight-text"> Neural networks</span> analyze markets in real-time, 
-                                    <span className="highlight-text"> quantum algorithms</span> optimize strategies, 
-                                    and <span className="highlight-text">predictive analytics</span> give you the edge.
+                                    Your comprehensive platform for building generational wealth across 8 powerful domains: 
+                                    <span className="highlight-text">Health & Fitness</span>, <span className="highlight-text">E-Commerce</span>, 
+                                    <span className="highlight-text">Forex</span>, <span className="highlight-text">Crypto</span>, 
+                                    <span className="highlight-text">Algorithmic FX</span>, <span className="highlight-text">Intelligent Systems Development</span>, 
+                                    <span className="highlight-text">Social Media</span>, and <span className="highlight-text">Real Estate</span>. 
+                                    Multiple income streams powered by cutting-edge knowledge.
                                 </p>
                                 
                                 <div className="hero-actions">
@@ -228,33 +230,38 @@ const Home = () => {
                         </div>
                     </section>
 
-                    {/* Stats Section */}
-                    <section className="stats-section">
-                        <div className="stats-container">
-                            <div className="stats-grid">
-                                <div className="stat-card">
-                                    <div className="stat-icon">⚡</div>
-                                    <div className="stat-number">99.9%</div>
-                                    <div className="stat-label">Uptime</div>
-                                    <div className="stat-glow"></div>
+                    {/* Wealth Impact Section */}
+                    <section className="wealth-impact-section">
+                        <div className="wealth-impact-container">
+                            <div className="wealth-impact-header">
+                                <h2 className="wealth-impact-title">WEALTH IMPACT</h2>
+                                <p className="wealth-impact-subtitle">Real results across all wealth-building domains</p>
+                            </div>
+                            
+                            <div className="wealth-stats-grid">
+                                <div className="wealth-stat-card">
+                                    <div className="wealth-stat-icon">🎯</div>
+                                    <div className="wealth-stat-number">8.00</div>
+                                    <div className="wealth-stat-label">WEALTH DOMAINS</div>
+                                    <div className="wealth-stat-glow"></div>
                                 </div>
-                                <div className="stat-card">
-                                    <div className="stat-icon">🚀</div>
-                                    <div className="stat-number">50ms</div>
-                                    <div className="stat-label">Latency</div>
-                                    <div className="stat-glow"></div>
+                                <div className="wealth-stat-card">
+                                    <div className="wealth-stat-icon">💰</div>
+                                    <div className="wealth-stat-number">247</div>
+                                    <div className="wealth-stat-label">% AVG ROI</div>
+                                    <div className="wealth-stat-glow"></div>
                                 </div>
-                                <div className="stat-card">
-                                    <div className="stat-icon">🔒</div>
-                                    <div className="stat-number">24/7</div>
-                                    <div className="stat-label">Monitoring</div>
-                                    <div className="stat-glow"></div>
+                                <div className="wealth-stat-card">
+                                    <div className="wealth-stat-icon">📈</div>
+                                    <div className="wealth-stat-number">15</div>
+                                    <div className="wealth-stat-label">INCOME STREAMS</div>
+                                    <div className="wealth-stat-glow"></div>
                                 </div>
-                                <div className="stat-card">
-                                    <div className="stat-icon">🧠</div>
-                                    <div className="stat-number">AI</div>
-                                    <div className="stat-label">Powered</div>
-                                    <div className="stat-glow"></div>
+                                <div className="wealth-stat-card">
+                                    <div className="wealth-stat-icon">🏆</div>
+                                    <div className="wealth-stat-number">99</div>
+                                    <div className="wealth-stat-label">SUCCESS RATE</div>
+                                    <div className="wealth-stat-glow"></div>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
+import { FaEnvelope, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import { IoSend } from 'react-icons/io5';
 import '../styles/ContactUs.css';
 import '../styles/SharedBackground.css';
@@ -162,7 +162,7 @@ const ContactUs = () => {
                             )}
                             
                             <div className="direct-email-option">
-                                <p>Or email us directly at: <a href="mailto:shubzfx@gmail.com">shubzfx@gmail.com</a></p>
+                                <p>Or email us directly at: <a href="mailto:platform@theglitch.online">platform@theglitch.online</a></p>
                             </div>
                         </form>
                     </div>
@@ -177,17 +177,7 @@ const ContactUs = () => {
                                 </div>
                                 <div className="contact-text">
                                     <strong>Email</strong>
-                                    <span>shubzfx@gmail.com</span>
-                                </div>
-                            </div>
-                            
-                            <div className="contact-info-item">
-                                <div className="contact-icon">
-                                    <FaPhone />
-                                </div>
-                                <div className="contact-text">
-                                    <strong>Phone</strong>
-                                    <span>+44 07878869400</span>
+                                    <span>platform@theglitch.online</span>
                                 </div>
                             </div>
                             
