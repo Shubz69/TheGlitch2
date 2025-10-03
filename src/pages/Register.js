@@ -4,7 +4,6 @@ import "../styles/Register.css";
 import "../styles/SharedBackground.css";
 import "../styles/GlitchBranding.css";
 import { FaUser, FaEnvelope, FaLock, FaUserCircle } from 'react-icons/fa';
-import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 // Import avatar images
@@ -122,8 +121,6 @@ const Register = () => {
                 name: formData.name,
                 avatar: formData.avatar
             });
-
-            const data = response.data;
 
             // Registration successful - user is automatically logged in
             alert('Registration successful! You are now logged in.');

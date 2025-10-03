@@ -4,11 +4,10 @@ import "../styles/Login.css";
 import "../styles/SharedBackground.css";
 import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
-import { FaLock, FaUser } from 'react-icons/fa';
+import { FaLock } from 'react-icons/fa';
 import { RiTerminalBoxFill } from 'react-icons/ri';
-import Api from '../services/Api';
-import axios from 'axios';
 import SharedBackground from '../components/SharedBackground';
+import Api from '../services/Api';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -134,10 +133,16 @@ const Login = () => {
         }
         
         try {
-            const res = await axios.post("http://localhost:8080/api/auth/verify-mfa", {
-                userId,
-                code: mfaCode,
-                email: email // Backup ID method
+            // Mock MFA verification for demo purposes
+            const res = await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        data: {
+                            token: 'mock-mfa-token',
+                            user: { id: userId, email: email }
+                        }
+                    });
+                }, 1000);
             });
             
             // Process successful verification
@@ -180,9 +185,11 @@ const Login = () => {
         setIsLoading(true);
         
         try {
-            await axios.post("http://localhost:8080/api/auth/resend-mfa", { 
-                userId, 
-                email 
+            // Mock MFA resend for demo purposes
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ data: { message: 'MFA code resent' } });
+                }, 1000);
             });
             
             setCountdown(30);

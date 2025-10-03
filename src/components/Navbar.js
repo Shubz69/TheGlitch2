@@ -4,8 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
 import "../styles/GlitchBranding.css";
-import { FaEnvelopeOpen, FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
-import { RiBugFill, RiCodeBoxFill, RiTerminalBoxFill } from 'react-icons/ri';
+import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
