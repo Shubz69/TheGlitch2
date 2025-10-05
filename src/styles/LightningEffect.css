@@ -1,0 +1,341 @@
+.lightning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(20, 20, 20, 0.8); /* 60% darker grey */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+}
+
+/* Lightning Effect Loading Page */
+.lightning-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: rgba(20, 20, 20, 0.8); /* 60% darker grey */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Matrix Background - same as all other pages */
+.matrix-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+/* Grid pattern - same as home page */
+.grid-pattern {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(90deg, rgba(30, 144, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(rgba(30, 144, 255, 0.03) 1px, transparent 1px); /* Same blue as home page */
+    background-size: 50px 50px;
+    animation: grid-move 20s linear infinite;
+    z-index: 2;
+}
+
+/* Floating particles - same as home page */
+.floating-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.floating-particles::before,
+.floating-particles::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(30, 144, 255, 0.5); /* Same blue as home page */
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-particles::before {
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.floating-particles::after {
+    top: 60%;
+    right: 15%;
+    animation-delay: 3s;
+}
+
+/* Grid and particle animations - same as home page */
+@keyframes grid-move {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); opacity: 0.3; }
+    50% { transform: translateY(-20px); opacity: 1; }
+}
+
+/* Lightning bolts */
+.lightning-bolt {
+    position: absolute;
+    background: linear-gradient(45deg, #1E90FF, #1E90FF, #1E90FF); /* Same blue as home page description */
+    border-radius: 2px;
+    opacity: 0;
+    animation: lightning-strike 0.3s ease-out;
+}
+
+.bolt-1 {
+    width: 4px;
+    height: 200px;
+    top: 10%;
+    left: 20%;
+    transform: rotate(15deg);
+}
+
+.bolt-2 {
+    width: 3px;
+    height: 150px;
+    top: 15%;
+    right: 25%;
+    transform: rotate(-20deg);
+}
+
+.bolt-3 {
+    width: 5px;
+    height: 180px;
+    bottom: 20%;
+    left: 30%;
+    transform: rotate(25deg);
+}
+
+.bolt-4 {
+    width: 3px;
+    height: 120px;
+    bottom: 25%;
+    right: 20%;
+    transform: rotate(-15deg);
+}
+
+/* Lightning phases */
+.lightning-phase-1 .bolt-1,
+.lightning-phase-3 .bolt-2,
+.lightning-phase-5 .bolt-3,
+.lightning-phase-7 .bolt-4 {
+    opacity: 1;
+    animation: lightning-strike 0.2s ease-out;
+}
+
+.lightning-phase-2 .bolt-1,
+.lightning-phase-4 .bolt-2,
+.lightning-phase-6 .bolt-3,
+.lightning-phase-8 .bolt-4 {
+    opacity: 0;
+}
+
+@keyframes lightning-strike {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+/* Brand text */
+.brand-text {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.8s ease;
+}
+
+.brand-text.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.brand-title {
+    font-size: 6rem;
+    font-weight: 300; /* Slender font weight like the image */
+    font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+    letter-spacing: 2px; /* Increased letter spacing like the image */
+    color: #1E90FF; /* Same blue as home page description */
+    text-shadow: 
+        0 0 0.5px rgba(30, 144, 255, 0.3),
+        0 0 1px rgba(30, 144, 255, 0.2); /* Same blue as home page description */
+    margin: 0;
+    animation: text-glow 2s ease-in-out infinite alternate;
+    text-transform: uppercase;
+}
+
+.brand-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.3rem;
+    color: #1E90FF; /* Same blue as home page description */
+    margin-top: 1rem;
+    text-shadow: 0 0 0.5px rgba(30, 144, 255, 0.3); /* Same blue as home page description */
+    animation: subtitle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes text-glow {
+    0% {
+        text-shadow: 
+            0 0 0.5px rgba(30, 144, 255, 0.3),
+            0 0 1px rgba(30, 144, 255, 0.2);
+    }
+    100% {
+        text-shadow: 
+            0 0 0.5px rgba(30, 144, 255, 0.4),
+            0 0 1px rgba(30, 144, 255, 0.3);
+    }
+}
+
+@keyframes subtitle-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* Lightning flash effect */
+.lightning-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(30, 144, 255, 0.8) 0%, transparent 70%); /* Same blue as home page description */
+    opacity: 0;
+    pointer-events: none;
+}
+
+.lightning-phase-1 .lightning-flash,
+.lightning-phase-3 .lightning-flash,
+.lightning-phase-5 .lightning-flash,
+.lightning-phase-7 .lightning-flash {
+    animation: flash 0.1s ease-out;
+}
+
+@keyframes flash {
+    0% { opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0; }
+}
+
+/* Progress indicator */
+.lightning-progress {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(28, 28, 28, 0.9); /* 60% darker grey */
+    border: 1px solid #1E90FF; /* Same blue as home page description */
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1E90FF, #1E90FF, #1E90FF); /* Same blue as home page description */
+    transition: width 0.5s ease;
+    position: relative;
+    box-shadow: 0 0 1px #1E90FF; /* Same blue as home page description */
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.8), transparent); /* Same blue as home page description */
+    animation: progress-shine 1s infinite;
+}
+
+@keyframes progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #1E90FF; /* Same blue as home page description */
+    letter-spacing: 0.2rem;
+    animation: text-blink 1s infinite;
+}
+
+@keyframes text-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .brand-title {
+        font-size: 3.5rem;
+        letter-spacing: 0.3rem;
+    }
+
+    .brand-subtitle {
+        font-size: 1rem;
+        letter-spacing: 0.2rem;
+    }
+
+    .lightning-progress {
+        width: 300px;
+    }
+
+    .bolt-1, .bolt-2, .bolt-3, .bolt-4 {
+        height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-title {
+        font-size: 2.5rem;
+        letter-spacing: 0.2rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 0.1rem;
+    }
+
+    .lightning-progress {
+        width: 250px;
+    }
+} 
