@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Register.css";
-import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
-import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
@@ -117,8 +114,6 @@ const Register = () => {
 
     return (
         <div className="register-container">
-            <SharedBackground />
-            
             <div className="register-form-container">
                 
                 <div className="form-header">
@@ -273,7 +268,7 @@ const Register = () => {
                     </div>
                     
                     <button type="submit" className="register-button" disabled={isLoading}>
-                        {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>
                 

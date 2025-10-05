@@ -1,14 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import '../styles/Community.css';
-import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import { useWebSocket } from '../utils/useWebSocket';
 import { useAuth } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Api from '../services/Api';
-import SharedBackground from '../components/SharedBackground';
 
 // Icons - only keep the ones actually used in the code
 import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrown, FaShieldAlt, FaBan, FaVolumeMute, FaTrash } from 'react-icons/fa';
@@ -1987,8 +1984,6 @@ const Community = () => {
     if (loading && channelList.length === 0) {
         return (
             <div className="community-container">
-                <SharedBackground />
-                <div className="stars"></div>
                 <div className="loading">Loading community...</div>
             </div>
         );

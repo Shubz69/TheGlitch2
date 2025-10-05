@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Courses.css';
-import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import Api from '../services/Api';
 import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import SharedBackground from '../components/SharedBackground';
 
 // Fallback API URL
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -127,8 +124,6 @@ const Courses = () => {
     if (loading) {
         return (
             <div className="courses-container">
-                <SharedBackground />
-                <div className="stars"></div>
                 <div className="courses-loading">
                     <div className="loading-spinner"></div>
                     <p>Loading courses...</p>
@@ -140,8 +135,6 @@ const Courses = () => {
     if (error) {
         return (
             <div className="courses-container">
-                <SharedBackground />
-                <div className="stars"></div>
                 <div className="courses-error">
                     <h2>Oops!</h2>
                     <p>{error}</p>
@@ -153,10 +146,8 @@ const Courses = () => {
 
     return (
         <div className="courses-container">
-            <SharedBackground />
-            <div className="stars"></div>
             <div className="courses-header">
-                <h1 className="glitch glitch-brand" data-text="COURSES">COURSES</h1>
+                <h1>Courses</h1>
                 <p>Expand your knowledge with our comprehensive trading courses</p>
             </div>
             
