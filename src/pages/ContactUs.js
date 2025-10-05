@@ -3,15 +3,13 @@ import { useLocation } from 'react-router-dom';
 import { FaEnvelope, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import { IoSend } from 'react-icons/io5';
 import '../styles/ContactUs.css';
-import '../styles/SharedBackground.css';
 import Chatbot from "../components/Chatbot";
-import SharedBackground from '../components/SharedBackground';
 
-// Glitch Text Component
-const GlitchText = ({ text }) => {
+// Clean Text Component
+const CleanText = ({ text }) => {
     return (
-        <div className="glitch-wrapper">
-            <div className="glitch glitch-brand" data-text={text}>{text}</div>
+        <div className="text-wrapper">
+            <h1>{text}</h1>
         </div>
     );
 };
@@ -90,12 +88,10 @@ const ContactUs = () => {
 
     return (
         <div className="contact-container">
-            <SharedBackground />
-            <div className="stars"></div>
             
             <div className="contact-content">
                 <div className="contact-header">
-                    <GlitchText text={fromMfa ? 'MFA Support' : 'Contact Us'} />
+                    <CleanText text={fromMfa ? 'MFA Support' : 'Contact Us'} />
                     
                     <p className="contact-subtitle">
                         {fromMfa 
