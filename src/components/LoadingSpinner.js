@@ -1,4 +1,5 @@
 import React from 'react';
+import './LoadingSpinner.css';
 
 // LoadingSpinner component - styles moved to index.css
 const LoadingSpinner = () => {
