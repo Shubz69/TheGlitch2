@@ -89,16 +89,13 @@ const Login = () => {
         setIsLoading(true);
         
         try {
-            console.log('Attempting login with:', email);
             
             // Use the auth context's login function directly
             const data = await login(email, password);
             
-            console.log('Login response:', data);
             
             // Handle MFA required case
             if (data && data.status === "MFA_REQUIRED" && !data.mfaVerified) {
-                console.log('MFA required, switching to MFA verification...');
                 
                 // Store email and userId for MFA verification
                 localStorage.setItem('mfaEmail', email);
@@ -114,7 +111,6 @@ const Login = () => {
             // Success is handled by the useEffect that checks isAuthenticated
             setIsLoading(false);
         } catch (err) {
-            console.error('Login error details:', err);
             setError(err.message || 'Failed to login. Please check your credentials.');
             setIsLoading(false);
         }
@@ -173,7 +169,6 @@ const Login = () => {
                 throw new Error("Invalid response from server");
             }
         } catch (err) {
-            console.error("MFA verification error:", err);
             setError(err.response?.data?.message || "Invalid code. Please try again.");
             setIsLoading(false);
         }

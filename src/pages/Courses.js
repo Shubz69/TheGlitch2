@@ -25,7 +25,6 @@ const Courses = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                console.log('Fetching courses from:', `${API_BASE_URL}/api/courses`);
                 const response = await Api.getCourses();
                 setCourses(response.data);
                 
@@ -41,7 +40,6 @@ const Courses = () => {
                 setUsingMockData(isMockData);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching courses:', error);
                 // Show a more user-friendly error message
                 if (error.response && error.response.status === 403) {
                     setError('Authentication error. Please log in first or try again later.');
@@ -62,7 +60,6 @@ const Courses = () => {
     const handleEnrollClick = async (course) => {
         try {
             setProcessingPayment(true);
-            console.log("Starting course purchase for:", course.id, course.title);
             
             // Store the course ID for later use after payment completes
             localStorage.setItem("purchasedCourseId", course.id);
@@ -70,7 +67,6 @@ const Courses = () => {
             
             // Check if the course is free
             if (course.price === 0) {
-                console.log("Processing free course enrollment");
                 try {
                     // For free courses, directly process the enrollment
                     const response = await axios.post(
@@ -86,7 +82,6 @@ const Courses = () => {
                         throw new Error("Failed to enroll in course");
                     }
                 } catch (error) {
-                    console.error('Error enrolling in free course:', error);
                     toast.error('Unable to enroll in course. Please try again.');
                     setProcessingPayment(false);
                 }
@@ -94,7 +89,6 @@ const Courses = () => {
             }
             
             // DIRECT STRIPE PAYMENT LINK APPROACH
-            console.log("Using direct Stripe payment link");
             
             // Live Stripe payment link provided by the user
             const stripePaymentLink = "https://buy.stripe.com/14k6pTfh32W07zG9AK";
@@ -106,7 +100,6 @@ const Courses = () => {
             setProcessingPayment(false);
             
         } catch (error) {
-            console.error('Payment initiation error:', error);
             toast.error('Payment processing failed. Please try again.');
             setProcessingPayment(false);
         }

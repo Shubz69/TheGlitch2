@@ -142,7 +142,6 @@ const useMockWebSocket = (channelId, onMessageCallback) => {
     const [connectionError] = useState(null);
     
     const sendMessage = useCallback((message) => {
-        console.log('MOCK WebSocket: Message sent', message);
         
         // Simulate message being added to state after a short delay
         setTimeout(() => {
@@ -604,7 +603,6 @@ const Community = () => {
         input.onchange = (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
-                console.log('Files selected:', files.map(f => f.name));
                 // Here you would handle file upload to your backend
                 const fileNames = files.map(f => f.name).join(', ');
                 alert(`Files selected: ${fileNames}\n\nFile upload functionality would be implemented here.`);
@@ -617,7 +615,6 @@ const Community = () => {
         // Simulate GIF picker functionality
         const gifCategories = ['Funny', 'Reaction', 'Gaming', 'Anime', 'Sports'];
         const randomGif = gifCategories[Math.floor(Math.random() * gifCategories.length)];
-        console.log('GIF picker opened for category:', randomGif);
         alert(`GIF picker would open here for ${randomGif} GIFs.\n\nThis would integrate with a GIF service like GIPHY.`);
     };
 
@@ -625,7 +622,6 @@ const Community = () => {
         // Simulate game activity functionality
         const games = ['Minecraft', 'Fortnite', 'Valorant', 'League of Legends', 'Among Us'];
         const randomGame = games[Math.floor(Math.random() * games.length)];
-        console.log('Game activity opened for:', randomGame);
         alert(`Game activity panel would open here.\n\nCurrent game: ${randomGame}\n\nThis would show current games and allow joining.`);
     };
 

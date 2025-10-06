@@ -17,12 +17,10 @@ const Home = () => {
     const [aiHeadState, setAiHeadState] = useState('idle');
     const [currentFeature, setCurrentFeature] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowContent(true);
-            setIsLoaded(true);
         }, 3000); // Reduced from 5500ms for better UX
 
         return () => clearTimeout(timer);
