@@ -10,6 +10,7 @@ import SharedBackground from "../components/SharedBackground";
 import FancyAIHead from "../components/FancyAIHead";
 
 const Home = () => {
+    // Force new deployment
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
     const [showLightning, setShowLightning] = useState(true);

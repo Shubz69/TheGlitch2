@@ -1,7 +1,6 @@
 import React from "react";
 import "../styles/Footer.css";
 import "../styles/GlitchBranding.css";
-import "../styles/GlitchBranding.css";
 
 const Footer = () => {
     return (
