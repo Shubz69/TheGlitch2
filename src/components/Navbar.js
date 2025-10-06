@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
+import "../styles/GlitchBranding.css";
 import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
 
 const Navbar = () => {
@@ -22,7 +23,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="logo-container">
                 <Link to="/" className="logo-link">
-                    <span className="logo">THE GLITCH</span>
+                    <span className="logo glitch-brand" data-text="THE GLITCH">THE GLITCH</span>
                 </Link>
             </div>
 

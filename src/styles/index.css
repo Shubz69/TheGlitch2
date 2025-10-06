@@ -17,9 +17,9 @@
     --text-secondary: #B0B0B0;
     --text-muted: #808080;
     
-    /* Fonts */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
+    /* Fonts - Clean professional fonts like AlgoPro */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -216,12 +216,12 @@ input:focus, textarea:focus, select:focus {
     background: rgba(99, 102, 241, 0.08);
 }
 
-/* Buttons */
+/* Buttons - Clean professional styling like AlgoPro */
 .btn, .btn-primary, .btn-secondary {
     font-family: var(--font-main);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: var(--radius-md);
     border: none;
     padding: var(--spacing-sm) var(--spacing-lg);
@@ -231,6 +231,8 @@ input:focus, textarea:focus, select:focus {
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-primary {
@@ -240,8 +242,8 @@ input:focus, textarea:focus, select:focus {
 
 .btn-primary:hover {
     background: var(--secondary);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
 }
 
 .btn-secondary {

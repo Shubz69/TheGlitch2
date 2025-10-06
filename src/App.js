@@ -31,6 +31,8 @@ import VerifyMFA from './pages/VerifyMFA';
 
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import './styles/SharedBackground.css';
+import './styles/GlitchBranding.css';
 
 import GDPRModal from './components/GDPRModal';
 

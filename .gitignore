@@ -16,11 +16,6 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 lerna-debug.log*
 
 # IDE
@@ -49,3 +44,14 @@ MySQL DB/
 
 # Other
 server.js.backup
+
+# Exclude everything outside project directory
+../*
+!src/
+!public/
+!package.json
+!package-lock.json
+!README.md
+!vercel.json
+!trading-platform-backend/
+!trading-platform-frontend/
