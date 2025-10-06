@@ -1,0 +1,231 @@
+/* LoadingSpinner.css - Enhanced loading screen styles */
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.loading-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+}
+
+.binary-digit {
+    position: absolute;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    animation: binaryFloat 3s ease-in-out infinite;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes binaryFloat {
+    0%, 100% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+}
+
+.loading-content {
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.loading-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-shadow: 
+        0 0 20px rgba(99, 102, 241, 0.8),
+        0 0 40px rgba(139, 92, 246, 0.5);
+    animation: titleGlow 2s ease-in-out infinite alternate;
+    font-family: var(--font-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+@keyframes titleGlow {
+    0% {
+        text-shadow: 
+            0 0 20px rgba(99, 102, 241, 0.8),
+            0 0 40px rgba(139, 92, 246, 0.5);
+    }
+    100% {
+        text-shadow: 
+            0 0 30px rgba(99, 102, 241, 1),
+            0 0 50px rgba(139, 92, 246, 0.8);
+    }
+}
+
+.loading-subtitle {
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 3rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.loading-progress {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.loading-text {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+}
+
+.loading-percentage {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+    width: 63%;
+    animation: loadingProgress 2s ease-in-out infinite;
+    position: relative;
+}
+
+.loading-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingProgress {
+    0% { width: 0%; }
+    100% { width: 63%; }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.loading-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.ring {
+    position: absolute;
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    border-radius: 50%;
+    animation: ringPulse 2s ease-in-out infinite;
+}
+
+.ring-1 {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+    left: -50px;
+    animation-delay: 0s;
+}
+
+.ring-2 {
+    width: 150px;
+    height: 150px;
+    top: -75px;
+    left: -75px;
+    animation-delay: 0.5s;
+}
+
+.ring-3 {
+    width: 200px;
+    height: 200px;
+    top: -100px;
+    left: -100px;
+    animation-delay: 1s;
+}
+
+@keyframes ringPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .loading-title {
+        font-size: 2rem;
+    }
+    
+    .loading-subtitle {
+        font-size: 1rem;
+    }
+    
+    .loading-progress {
+        max-width: 300px;
+    }
+    
+    .loading-text {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .loading-title {
+        font-size: 1.5rem;
+    }
+    
+    .loading-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .loading-progress {
+        max-width: 250px;
+    }
+    
+    .binary-digit {
+        font-size: 0.6rem;
+    }
+}
