@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/Profile.css";
+import "../styles/SharedBackground.css";
+import "../styles/GlitchBranding.css";
 import { useNavigate } from 'react-router-dom';
+import SharedBackground from '../components/SharedBackground';
 
 // Helper function to ensure avatar path is valid
 const getAvatarPath = (avatarName) => {
@@ -250,9 +253,10 @@ const Profile = () => {
 
     return (
         <div className="profile-container">
+            <SharedBackground />
             <div className="profile-content">
                 <div className="profile-header">
-                    <h1 className="profile-title">My Profile</h1>
+                    <h1 className="profile-title glitch-brand" data-text="MY PROFILE">MY PROFILE</h1>
                 </div>
                 
                 <div className="profile-box">

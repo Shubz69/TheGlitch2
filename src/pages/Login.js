@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
+import "../styles/SharedBackground.css";
+import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
+import { RiTerminalBoxFill } from 'react-icons/ri';
+import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 
 const Login = () => {
@@ -16,6 +20,43 @@ const Login = () => {
     const [canResendCode, setCanResendCode] = useState(false);
     const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    
+    // Lightning background effect
+    const [lightningBolt, setLightningBolt] = useState(null);
+    const [flashEffect, setFlashEffect] = useState(false);
+    
+    useEffect(() => {
+        // Create lightning effect
+        const createLightning = () => {
+            const bolt = {
+                id: Date.now(),
+                x: Math.random() * 100,
+                y: Math.random() * 100,
+                intensity: Math.random() * 0.8 + 0.2,
+                duration: Math.random() * 200 + 100
+            };
+            setLightningBolt(bolt);
+            setFlashEffect(true);
+            
+            // Clear lightning after duration
+            setTimeout(() => {
+                setLightningBolt(null);
+                setFlashEffect(false);
+            }, bolt.duration);
+        };
+
+        // Create lightning bolts at random intervals
+        const lightningInterval = setInterval(() => {
+            if (Math.random() < 0.3) { // 30% chance every interval
+                createLightning();
+            }
+        }, 2000);
+
+        // Initial lightning
+        setTimeout(createLightning, 1000);
+
+        return () => clearInterval(lightningInterval);
+    }, []);
     
     useEffect(() => {
         // Reset countdown timer if MFA verification is shown
@@ -170,28 +211,50 @@ const Login = () => {
     if (showMfaVerification) {
         return (
             <div className="login-container">
+                <SharedBackground />
+                <div className="lightning-background">
+                    {lightningBolt && (
+                        <div 
+                            className="lightning-bolt"
+                            style={{
+                                left: `${lightningBolt.x}%`,
+                                top: `${lightningBolt.y}%`,
+                                opacity: lightningBolt.intensity,
+                                animationDuration: `${lightningBolt.duration}ms`
+                            }}
+                        />
+                    )}
+                    {flashEffect && <div className="flash-overlay" />}
+                </div>
+                
                 <div className="login-form-container">
-                    <div className="form-header">
-                        <h2 className="login-title">MFA VERIFICATION</h2>
-                        <p className="login-subtitle">Please enter the 6-digit code sent to your email</p>
-                        <p className="email-sent">Code sent to: {email}</p>
+                    <div className="brand-logo">
+                        <div className="logo-icon">
+                            <RiTerminalBoxFill />
+                        </div>
+                        <h1 className="brand-title glitch-brand" data-text="WHY THE GLITCH">WHY THE GLITCH</h1>
                     </div>
+                    
+                    <h2 className="glitch" data-text="MFA VERIFICATION">MFA VERIFICATION</h2>
+                    <p className="mfa-info">Please enter the 6-digit code sent to your email.</p>
+                    <p className="email-sent">Code sent to: {email}</p>
                     
                     {error && <div className="error-message">{error}</div>}
                     
                     <form onSubmit={handleVerifyMfa}>
                         <div className="form-group">
                             <label htmlFor="mfa-code">Verification Code</label>
-                            <input 
-                                type="text"
-                                id="mfa-code"
-                                value={mfaCode}
-                                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                                maxLength={6}
-                                required
-                                placeholder="Enter 6-digit code"
-                                className="form-input"
-                            />
+                            <div className="input-wrapper">
+                                <input 
+                                    type="text"
+                                    id="mfa-code"
+                                    value={mfaCode}
+                                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').substring(0, 6))}
+                                    maxLength={6}
+                                    required
+                                    placeholder="Enter 6-digit code"
+                                />
+                            </div>
                         </div>
                         
                         <button 
@@ -199,7 +262,7 @@ const Login = () => {
                             className="login-button"
                             disabled={isLoading || mfaCode.length !== 6}
                         >
-                            {isLoading ? 'Verifying...' : 'Verify Code'}
+                            {isLoading ? 'VERIFYING...' : 'VERIFY CODE'}
                         </button>
                         
                         <div className="mfa-actions">
@@ -229,9 +292,27 @@ const Login = () => {
     // Regular login interface
     return (
         <div className="login-container">
+            <SharedBackground />
+            {/* Lightning Background */}
+            <div className="lightning-background">
+                {lightningBolt && (
+                    <div 
+                        className="lightning-bolt"
+                        style={{
+                            left: `${lightningBolt.x}%`,
+                            top: `${lightningBolt.y}%`,
+                            opacity: lightningBolt.intensity,
+                            animationDuration: `${lightningBolt.duration}ms`
+                        }}
+                    />
+                )}
+                {flashEffect && <div className="flash-overlay" />}
+            </div>
+            
             <div className="login-form-container">
+                
                 <div className="form-header">
-                    <h2 className="login-title">Sign In</h2>
+                    <h2 className="login-title">SIGN IN</h2>
                     <p className="login-subtitle">Access your trading account</p>
                 </div>
                 
@@ -271,7 +352,7 @@ const Login = () => {
                         className="login-button"
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Signing In...' : 'Sign In'}
+                        {isLoading ? 'AUTHENTICATING...' : 'LOGIN'}
                     </button>
                     
                     <Link to="/forgot-password" className="forgot-password">

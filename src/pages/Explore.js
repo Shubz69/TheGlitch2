@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Explore.css';
+import '../styles/SharedBackground.css';
+import '../styles/GlitchBranding.css';
+import SharedBackground from '../components/SharedBackground';
 
 const Explore = () => {
   const [dataPoints, setDataPoints] = useState([]);
@@ -93,6 +96,7 @@ const Explore = () => {
 
   return (
     <div className="explore-page">
+      <SharedBackground />
       {/* SVG Background Chart */}
       <svg className="chart-background" viewBox="0 0 100 100" preserveAspectRatio="none" ref={chartRef}>
         {/* Grid Lines */}

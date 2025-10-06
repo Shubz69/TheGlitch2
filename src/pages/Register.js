@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Register.css";
+import "../styles/SharedBackground.css";
+import "../styles/GlitchBranding.css";
+import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
@@ -16,7 +19,7 @@ const Register = () => {
         confirmPassword: '',
         name: '',
         profilePicture: null,
-        profileColor: '#6366F1'
+        profileColor: '#3B82F6'
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -102,18 +105,17 @@ const Register = () => {
     };
 
     const colorOptions = [
-        { value: '#6366F1', name: 'Purple' },
-        { value: '#8B5CF6', name: 'Violet' },
-        { value: '#EC4899', name: 'Pink' },
-        { value: '#EF4444', name: 'Red' },
-        { value: '#F59E0B', name: 'Orange' },
-        { value: '#10B981', name: 'Green' },
         { value: '#3B82F6', name: 'Blue' },
-        { value: '#6B7280', name: 'Gray' }
+        { value: '#8B5CF6', name: 'Purple' },
+        { value: '#EF4444', name: 'Red' },
+        { value: '#10B981', name: 'Green' },
+        { value: '#6B7280', name: 'Grey' }
     ];
 
     return (
         <div className="register-container">
+            <SharedBackground />
+            
             <div className="register-form-container">
                 
                 <div className="form-header">
@@ -268,7 +270,7 @@ const Register = () => {
                     </div>
                     
                     <button type="submit" className="register-button" disabled={isLoading}>
-                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                        {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
                     </button>
                 </form>
                 
