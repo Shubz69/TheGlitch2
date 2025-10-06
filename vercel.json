@@ -21,9 +21,5 @@
   ],
   "env": {
     "REACT_APP_API_URL": "@react_app_api_url"
-  },
-  "buildCommand": "npm ci && npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm ci",
-  "devCommand": "npm start"
+  }
 }

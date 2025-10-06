@@ -1,7 +1,7 @@
 import React from 'react';
 import './LoadingSpinner.css';
 
-// LoadingSpinner component - styles moved to index.css
+// LoadingSpinner component - styles consolidated in index.css for better performance
 const LoadingSpinner = () => {
     return (
         <div className="loading-screen">
