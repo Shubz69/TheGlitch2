@@ -1,3 +1,5 @@
+/* Enhanced Home.css - Modern, Clean, Professional Design */
+
 /* Global Styles */
 * {
     margin: 0;
@@ -25,7 +27,7 @@ body, html {
     overflow-x: hidden;
 }
 
-/* Floating Particles Background */
+/* Enhanced Floating Particles Background */
 .floating-particles {
     position: fixed;
     top: 0;
@@ -38,34 +40,37 @@ body, html {
 
 .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(99, 102, 241, 0.6);
+    width: var(--size, 4px);
+    height: var(--size, 4px);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.4) 100%);
     border-radius: 50%;
-    animation: particleFloat 8s infinite linear;
+    animation: particleFloat 12s infinite linear;
     animation-delay: var(--delay);
     left: var(--x);
     top: var(--y);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
 }
 
 @keyframes particleFloat {
     0% {
-        transform: translateY(0) translateX(0);
+        transform: translateY(0) translateX(0) scale(0);
         opacity: 0;
     }
     10% {
         opacity: 1;
+        transform: translateY(-10vh) translateX(10px) scale(1);
     }
     90% {
         opacity: 1;
+        transform: translateY(-90vh) translateX(50px) scale(1);
     }
     100% {
-        transform: translateY(-100vh) translateX(100px);
+        transform: translateY(-100vh) translateX(100px) scale(0);
         opacity: 0;
     }
 }
 
-/* Hero Section */
+/* Enhanced Hero Section */
 .hero-section {
     min-height: 100vh;
     display: flex;
@@ -74,7 +79,7 @@ body, html {
     position: relative;
     z-index: 2;
     padding: 2rem 0;
-    padding-top: 80px; /* Account for navbar */
+    padding-top: 80px;
 }
 
 .hero-background {
@@ -119,6 +124,56 @@ body, html {
     50% { transform: scale(1.2); opacity: 0.6; }
 }
 
+/* New Gradient Orbs */
+.gradient-orbs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    animation: orbFloat 20s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+    top: 60%;
+    right: 20%;
+    animation-delay: 7s;
+}
+
+.orb-3 {
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.25) 0%, transparent 70%);
+    bottom: 20%;
+    left: 30%;
+    animation-delay: 14s;
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
 .hero-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -130,7 +185,7 @@ body, html {
     width: 100%;
 }
 
-/* Hero Left Side */
+/* Enhanced Hero Left Side */
 .hero-left {
     display: flex;
     flex-direction: column;
@@ -150,6 +205,12 @@ body, html {
     overflow: hidden;
     width: fit-content;
     backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.hero-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
 }
 
 .badge-glow {
@@ -334,7 +395,52 @@ body, html {
     transform: translateX(8px);
 }
 
-/* Hero Right Side */
+/* New Hero Stats */
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    animation: fadeInUp 1s ease-out 1.5s both;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Enhanced Hero Right Side */
 .hero-right {
     display: flex;
     flex-direction: column;
@@ -425,7 +531,7 @@ body, html {
     opacity: 1;
 }
 
-/* Features Section */
+/* Enhanced Features Section */
 .features-section {
     padding: 6rem 0;
     background: rgba(15, 15, 30, 0.8);
@@ -477,6 +583,14 @@ body, html {
     margin-bottom: 2rem;
     position: relative;
     animation: featureIconFloat 3s ease-in-out infinite;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes featureIconFloat {
@@ -545,7 +659,7 @@ body, html {
 
 .feature-indicator.active {
     background: rgba(99, 102, 241, 0.2);
-    border-color: var(--primary);
+    border-color: var(--feature-color, var(--primary));
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
@@ -559,88 +673,7 @@ body, html {
     color: var(--primary);
 }
 
-/* Stats Section */
-.stats-section {
-    padding: 6rem 0;
-    background: rgba(15, 15, 30, 0.9);
-    position: relative;
-    z-index: 2;
-}
-
-.stats-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-}
-
-.stat-card {
-    text-align: center;
-    background: rgba(99, 102, 241, 0.05);
-    border: 2px solid rgba(99, 102, 241, 0.2);
-    border-radius: 20px;
-    padding: 3rem 2rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.stat-card:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.6);
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
-}
-
-.stat-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    display: block;
-    animation: statIconBounce 2s ease-in-out infinite;
-}
-
-@keyframes statIconBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-.stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-}
-
-.stat-label {
-    font-size: 1rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.stat-glow {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.stat-card:hover .stat-glow {
-    opacity: 1;
-}
-
-/* Wealth Impact Section */
+/* Enhanced Wealth Impact Section */
 .wealth-impact-section {
     padding: 6rem 0;
     background: rgba(15, 15, 30, 0.9);
@@ -765,7 +798,7 @@ body, html {
     opacity: 1;
 }
 
-/* CTA Section */
+/* Enhanced CTA Section */
 .cta-section {
     padding: 6rem 0;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(15, 15, 30, 0.9) 100%);
@@ -885,7 +918,7 @@ body, html {
     50% { transform: scale(1.1); }
 }
 
-/* Responsive Design */
+/* Enhanced Responsive Design */
 @media (max-width: 1200px) {
     .hero-content {
         grid-template-columns: 1fr;
@@ -908,11 +941,6 @@ body, html {
         text-align: center;
     }
     
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-    }
-    
     .wealth-stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
@@ -920,6 +948,10 @@ body, html {
     
     .wealth-impact-title {
         font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -947,11 +979,6 @@ body, html {
     
     .cta-title {
         font-size: 2.5rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
     }
     
     .wealth-stats-grid {
@@ -1011,6 +1038,11 @@ body, html {
         align-items: center;
         gap: 2rem;
     }
+    
+    .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1053,20 +1085,19 @@ body, html {
     
     .feature-icon-large {
         font-size: 5rem;
+        width: 150px;
+        height: 150px;
     }
     
     .feature-title {
         font-size: 2rem;
     }
     
-    .stat-card {
+    .wealth-stat-card {
         padding: 2rem 1.5rem;
     }
     
-    .stat-number {
+    .wealth-stat-number {
         font-size: 2.5rem;
     }
 }
-
-
-

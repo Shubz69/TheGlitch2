@@ -17,19 +17,21 @@ const Home = () => {
     const [aiHeadState, setAiHeadState] = useState('idle');
     const [currentFeature, setCurrentFeature] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowContent(true);
-        }, 5500);
+            setIsLoaded(true);
+        }, 3000); // Reduced from 5500ms for better UX
 
         return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentFeature((prev) => (prev + 1) % 4);
-        }, 3000);
+            setCurrentFeature((prev) => (prev + 1) % features.length);
+        }, 4000); // Increased interval for better readability
 
         return () => clearInterval(interval);
     }, []);
@@ -58,34 +60,45 @@ const Home = () => {
 
     const handleAiHeadInteraction = (state) => {
         setAiHeadState(state);
-        setTimeout(() => setAiHeadState('idle'), 4000);
+        setTimeout(() => setAiHeadState('idle'), 3000);
     };
 
     const features = [
         {
             icon: "🧠",
             title: "Neural Intelligence",
-            description: "Advanced AI algorithms that learn and adapt in real-time",
-            color: "#1E90FF"
+            description: "Advanced AI algorithms that learn and adapt in real-time, providing unprecedented market insights",
+            color: "#6366F1",
+            gradient: "linear-gradient(135deg, #6366F1, #8B5CF6)"
         },
         {
             icon: "⚡",
             title: "Quantum Speed",
-            description: "Ultra-low latency execution with sub-millisecond response",
-            color: "#00CED1"
+            description: "Ultra-low latency execution with sub-millisecond response times for optimal trading performance",
+            color: "#00CED1",
+            gradient: "linear-gradient(135deg, #00CED1, #20B2AA)"
         },
         {
             icon: "🔒",
             title: "Military Security",
-            description: "Bank-grade encryption with blockchain verification",
-            color: "#32CD32"
+            description: "Bank-grade encryption with blockchain verification ensuring your data and investments are secure",
+            color: "#32CD32",
+            gradient: "linear-gradient(135deg, #32CD32, #228B22)"
         },
         {
             icon: "📊",
             title: "Predictive Analytics",
-            description: "Pattern recognition and trend prediction algorithms",
-            color: "#FF69B4"
+            description: "Advanced pattern recognition and trend prediction algorithms for smarter trading decisions",
+            color: "#FF69B4",
+            gradient: "linear-gradient(135deg, #FF69B4, #FF1493)"
         }
+    ];
+
+    const stats = [
+        { number: "20,000+", label: "Active Traders", icon: "👥" },
+        { number: "99.9%", label: "Uptime", icon: "⚡" },
+        { number: "247%", label: "Average ROI", icon: "📈" },
+        { number: "24/7", label: "AI Support", icon: "🤖" }
     ];
 
     return (
@@ -97,26 +110,32 @@ const Home = () => {
             
             {showContent && (
                 <>
-                    {/* Floating Particles Background */}
+                    {/* Enhanced Floating Particles Background */}
                     <div className="floating-particles">
-                        {[...Array(50)].map((_, i) => (
+                        {[...Array(30)].map((_, i) => (
                             <div 
                                 key={i} 
                                 className="particle"
                                 style={{
-                                    '--delay': `${i * 0.1}s`,
+                                    '--delay': `${i * 0.2}s`,
                                     '--x': `${Math.random() * 100}%`,
-                                    '--y': `${Math.random() * 100}%`
+                                    '--y': `${Math.random() * 100}%`,
+                                    '--size': `${Math.random() * 4 + 2}px`
                                 }}
                             />
                         ))}
                     </div>
 
-                    {/* Main Hero Section */}
+                    {/* Enhanced Hero Section */}
                     <section className="hero-section">
                         <div className="hero-background">
                             <div className="grid-overlay"></div>
                             <div className="energy-waves"></div>
+                            <div className="gradient-orbs">
+                                <div className="orb orb-1"></div>
+                                <div className="orb orb-2"></div>
+                                <div className="orb orb-3"></div>
+                            </div>
                         </div>
                         
                         <div className="hero-content">
@@ -152,6 +171,17 @@ const Home = () => {
                                         <span className="button-text">Explore Features</span>
                                         <span className="button-arrow">→</span>
                                     </button>
+                                </div>
+
+                                {/* Enhanced Stats Row */}
+                                <div className="hero-stats">
+                                    {stats.map((stat, index) => (
+                                        <div key={index} className="stat-item">
+                                            <div className="stat-icon">{stat.icon}</div>
+                                            <div className="stat-number">{stat.number}</div>
+                                            <div className="stat-label">{stat.label}</div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             
@@ -194,7 +224,7 @@ const Home = () => {
                         </div>
                     </section>
 
-                    {/* Interactive Features Section */}
+                    {/* Enhanced Features Section */}
                     <section className="features-section">
                         <div className="features-container">
                             <div className="features-header">
@@ -204,7 +234,7 @@ const Home = () => {
                             
                             <div className="features-showcase">
                                 <div className="feature-display">
-                                    <div className="feature-icon-large">
+                                    <div className="feature-icon-large" style={{ background: features[currentFeature].gradient }}>
                                         <span>{features[currentFeature].icon}</span>
                                         <div className="icon-aura"></div>
                                     </div>
@@ -220,6 +250,7 @@ const Home = () => {
                                             key={index}
                                             className={`feature-indicator ${index === currentFeature ? 'active' : ''}`}
                                             onClick={() => setCurrentFeature(index)}
+                                            style={{ '--feature-color': feature.color }}
                                         >
                                             <span className="indicator-icon">{feature.icon}</span>
                                             <span className="indicator-title">{feature.title}</span>
@@ -230,7 +261,7 @@ const Home = () => {
                         </div>
                     </section>
 
-                    {/* Wealth Impact Section */}
+                    {/* Enhanced Wealth Impact Section */}
                     <section className="wealth-impact-section">
                         <div className="wealth-impact-container">
                             <div className="wealth-impact-header">
@@ -267,7 +298,7 @@ const Home = () => {
                         </div>
                     </section>
 
-                    {/* CTA Section */}
+                    {/* Enhanced CTA Section */}
                     <section className="cta-section">
                         <div className="cta-container">
                             <div className="cta-content">
