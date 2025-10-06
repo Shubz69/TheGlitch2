@@ -20,10 +20,10 @@
 
 .loading-title {
     font-size: 2.5rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--primary);
     margin-bottom: var(--spacing-sm);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .loading-subtitle {

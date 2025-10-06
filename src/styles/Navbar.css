@@ -33,9 +33,9 @@
 
 .logo {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--primary);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .nav-links {
@@ -55,9 +55,10 @@
     color: var(--text-secondary);
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
+    letter-spacing: 0.01em;
 }
 
 .nav-links a:hover {
@@ -74,11 +75,12 @@
 .sign-in, .start-trading {
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-md);
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border: none;
     font-size: 0.9rem;
+    letter-spacing: 0.01em;
 }
 
 .sign-in {

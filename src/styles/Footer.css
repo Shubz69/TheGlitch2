@@ -12,7 +12,8 @@
 
 .footer-logo {
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 /* Responsive Design */

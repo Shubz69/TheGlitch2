@@ -26,9 +26,10 @@
 
 .register-title {
     font-size: 2rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: var(--spacing-sm);
+    letter-spacing: -0.01em;
 }
 
 .register-subtitle {
@@ -64,8 +65,9 @@
     background: var(--bg-medium);
     color: var(--text-primary);
     font-size: 1rem;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-sizing: border-box;
+    letter-spacing: 0.01em;
 }
 
 .form-input:focus {
@@ -214,10 +216,11 @@
     border: none;
     border-radius: var(--radius-md);
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     margin-bottom: var(--spacing-md);
+    letter-spacing: 0.01em;
 }
 
 .register-button:hover:not(:disabled) {
