@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
+import "../styles/SharedBackground.css";
+import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
 import Chatbot from "../components/Chatbot";
 import LightningEffect from "../components/LightningEffect";
@@ -8,7 +10,6 @@ import SharedBackground from "../components/SharedBackground";
 import FancyAIHead from "../components/FancyAIHead";
 
 const Home = () => {
-    // Force redeployment
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
     const [showLightning, setShowLightning] = useState(true);
@@ -128,7 +129,7 @@ const Home = () => {
                                 
                                 <h1 className="hero-title">
                                     <span className="title-line">WELCOME TO</span>
-                                    <span className="title-highlight">THE GLITCH</span>
+                                    <span className="title-highlight" data-text="THE GLITCH">THE GLITCH</span>
                                     <span className="title-line">PLATFORM</span>
                                 </h1>
                                 

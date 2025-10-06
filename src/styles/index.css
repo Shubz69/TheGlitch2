@@ -1,43 +1,31 @@
-/* ========== CLEAN PROFESSIONAL VARIABLES ========== */
+/* ========== VARIABLES (From Landing Page) ========== */
 :root {
-    /* Primary Colors - Keeping your existing color scheme */
+    /* Purple-Blue Colors */
     --primary: #6366F1;      /* Indigo */
     --secondary: #8B5CF6;    /* Purple-Blue */
     --accent: #A78BFA;       /* Light Purple */
     --dark-purple: #4C1D95;  /* Deep Purple */
     
-    /* Background Colors */
+    /* Greys */
     --bg-dark: #0F0F1E;
     --bg-medium: #1A1A2E;
     --bg-light: #252541;
-    --bg-lighter: #2A2A3E;
     
-    /* Text Colors */
-    --text-primary: #FFFFFF;
-    --text-secondary: #B0B0B0;
-    --text-muted: #808080;
+    /* Fonts */
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
     
-    /* Fonts - Ultra clean professional fonts like AlgoPro */
-    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-    --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
+    /* Legacy variables for compatibility */
+    --blue-primary: #6366F1;
+    --blue-secondary: #8B5CF6;
+    --blue-accent: #A78BFA;
+    --blue-dark: #4C1D95;
+    --bg-lighter: #252541;
     
-    /* Spacing */
-    --spacing-xs: 0.5rem;
-    --spacing-sm: 1rem;
-    --spacing-md: 1.5rem;
-    --spacing-lg: 2rem;
-    --spacing-xl: 3rem;
-    
-    /* Border Radius */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    /* Reduced glow effects */
+    --glow-weak: 0 0 0.5px;
+    --glow-medium: 0 0 1px;
+    --glow-strong: 0 0 1.5px;
 }
 
 html, body, #root {
@@ -45,18 +33,18 @@ html, body, #root {
     padding: 0;
     height: 100%;
     background: var(--bg-dark);
-    color: var(--text-primary);
+    color: var(--primary);
     font-family: var(--font-main);
     overflow-x: hidden;
     line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: var(--font-main);
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-dark);
+  color: var(--primary);
 }
 
 .container {
@@ -217,46 +205,25 @@ input:focus, textarea:focus, select:focus {
     background: rgba(99, 102, 241, 0.08);
 }
 
-/* Buttons - Ultra clean professional styling like AlgoPro */
-.btn, .btn-primary, .btn-secondary {
-    font-family: var(--font-main);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    border-radius: var(--radius-md);
+/* Buttons */
+.btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
     border: none;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: 0.95rem;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xs);
-    position: relative;
-    overflow: hidden;
-    letter-spacing: 0.01em;
+    padding: 10px 20px;
+    font-family: var(--font-main);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.btn-primary {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--secondary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-}
-
-.btn-secondary {
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--primary);
-}
-
-.btn-secondary:hover {
-    background: var(--primary);
-    color: white;
+.btn:hover {
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
 }
 
 .btn:active {
@@ -355,4 +322,3 @@ footer {
         font-size: 0.8rem;
     }
 }
-
