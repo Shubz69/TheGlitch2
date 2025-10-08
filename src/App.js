@@ -36,7 +36,7 @@ import './styles/SharedBackground.css';
 
 import GDPRModal from './components/GDPRModal';
 
-// Force deployment update - clean build
+// Force deployment update - clean build - loading page fixed
 
 function AppRoutes() {
     const { user, loading } = useAuth();
