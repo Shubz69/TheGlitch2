@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Leaderboard.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 import SharedBackground from '../components/SharedBackground';
 
 const Leaderboard = () => {

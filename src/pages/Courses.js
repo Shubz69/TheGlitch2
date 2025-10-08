@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Courses.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 import Api from '../services/Api';
 import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';

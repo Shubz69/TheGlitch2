@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
@@ -21,42 +21,7 @@ const Login = () => {
     const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     
-    // Lightning background effect
-    const [lightningBolt, setLightningBolt] = useState(null);
-    const [flashEffect, setFlashEffect] = useState(false);
-    
-    useEffect(() => {
-        // Create lightning effect
-        const createLightning = () => {
-            const bolt = {
-                id: Date.now(),
-                x: Math.random() * 100,
-                y: Math.random() * 100,
-                intensity: Math.random() * 0.8 + 0.2,
-                duration: Math.random() * 200 + 100
-            };
-            setLightningBolt(bolt);
-            setFlashEffect(true);
-            
-            // Clear lightning after duration
-            setTimeout(() => {
-                setLightningBolt(null);
-                setFlashEffect(false);
-            }, bolt.duration);
-        };
-
-        // Create lightning bolts at random intervals
-        const lightningInterval = setInterval(() => {
-            if (Math.random() < 0.3) { // 30% chance every interval
-                createLightning();
-            }
-        }, 2000);
-
-        // Initial lightning
-        setTimeout(createLightning, 1000);
-
-        return () => clearInterval(lightningInterval);
-    }, []);
+    // Removed lightning effects for cleaner design
     
     useEffect(() => {
         // Reset countdown timer if MFA verification is shown
@@ -207,20 +172,7 @@ const Login = () => {
         return (
             <div className="login-container">
                 <SharedBackground />
-                <div className="lightning-background">
-                    {lightningBolt && (
-                        <div 
-                            className="lightning-bolt"
-                            style={{
-                                left: `${lightningBolt.x}%`,
-                                top: `${lightningBolt.y}%`,
-                                opacity: lightningBolt.intensity,
-                                animationDuration: `${lightningBolt.duration}ms`
-                            }}
-                        />
-                    )}
-                    {flashEffect && <div className="flash-overlay" />}
-                </div>
+                {/* Removed lightning background for cleaner design */}
                 
                 <div className="login-form-container">
                     <div className="brand-logo">
@@ -288,21 +240,7 @@ const Login = () => {
     return (
         <div className="login-container">
             <SharedBackground />
-            {/* Lightning Background */}
-            <div className="lightning-background">
-                {lightningBolt && (
-                    <div 
-                        className="lightning-bolt"
-                        style={{
-                            left: `${lightningBolt.x}%`,
-                            top: `${lightningBolt.y}%`,
-                            opacity: lightningBolt.intensity,
-                            animationDuration: `${lightningBolt.duration}ms`
-                        }}
-                    />
-                )}
-                {flashEffect && <div className="flash-overlay" />}
-            </div>
+            {/* Removed lightning background for cleaner design */}
             
             <div className="login-form-container">
                 

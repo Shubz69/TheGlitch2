@@ -20,7 +20,7 @@
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
     position: relative;
     overflow: hidden;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     padding: 20px;
     padding-top: 80px;
 }
@@ -68,17 +68,17 @@
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 8px;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
     letter-spacing: -0.5px;
     line-height: 1.1;
 }
 
 .register-subtitle {
-    color: var(--accent);
+    color: #FFFFFF;
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: 20px;
@@ -107,7 +107,7 @@
     color: var(--primary);
     font-size: 0.8rem;
     font-weight: 600;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     margin-bottom: 6px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -119,9 +119,9 @@
     border: 2px solid rgba(99, 102, 241, 0.3);
     border-radius: 16px;
     padding: 16px 20px;
-    color: var(--accent);
+    color: #FFFFFF;
     font-size: 1rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-weight: 500;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
@@ -140,7 +140,7 @@
 
 .form-input::placeholder {
     color: rgba(167, 139, 250, 0.6);
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-weight: 400;
 }
 
@@ -163,7 +163,7 @@
     border: 2px dashed rgba(99, 102, 241, 0.4);
     border-radius: 12px;
     color: var(--primary);
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -227,9 +227,9 @@
 }
 
 .color-label {
-    color: var(--accent);
+    color: #FFFFFF;
     font-size: 0.8rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     margin-bottom: 8px;
     font-weight: 500;
 }
@@ -286,7 +286,7 @@
     padding: 16px 24px;
     font-size: 1rem;
     font-weight: 700;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
@@ -350,9 +350,9 @@
 }
 
 .terms-checkbox label {
-    color: var(--accent);
+    color: #FFFFFF;
     font-size: 0.8rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     line-height: 1.4;
     cursor: pointer;
 }
@@ -361,7 +361,7 @@
     color: var(--primary);
     text-decoration: none;
     font-weight: 600;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     transition: color 0.3s ease;
 }
 
@@ -379,9 +379,9 @@
 }
 
 .login-link p {
-    color: var(--accent);
+    color: #FFFFFF;
     font-size: 0.85rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     margin-bottom: 12px;
     font-weight: 400;
 }
@@ -390,7 +390,7 @@
     color: #FF69B4;
     text-decoration: none;
     font-weight: 700;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     transition: all 0.3s ease;
     font-size: 0.9rem;
     text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
@@ -420,7 +420,7 @@
     border-radius: 12px;
     margin-bottom: 24px;
     font-size: 0.9rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-align: center;
 }
 

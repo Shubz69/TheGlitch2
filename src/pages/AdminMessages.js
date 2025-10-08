@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AdminMessages.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 import AdminApi from '../services/AdminApi';
 import SharedBackground from '../components/SharedBackground';
 

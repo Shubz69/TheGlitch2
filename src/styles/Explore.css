@@ -22,7 +22,7 @@
     color: var(--primary);
     padding: 120px 3rem 3rem; /* Consistent top padding for navbar */
     min-height: 100vh;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 /* Chart Background Styling */
@@ -97,20 +97,20 @@
     font-weight: bold;
     color: var(--primary);
     margin-right: 10px;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .stock-price {
     margin-right: 10px;
     color: var(--accent);
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .stock-change {
     font-weight: bold;
     padding: 3px 8px;
     border-radius: 4px;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .stock-change.positive {
@@ -140,7 +140,7 @@
     font-size: 3.5rem;
     font-weight: 700;
     color: var(--primary);
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 
         0 0 15px rgba(99, 102, 241, 0.6),
         0 0 30px rgba(139, 92, 246, 0.3);
@@ -158,7 +158,7 @@
 .explore-subtitle {
     font-size: 1.2rem;
     color: var(--accent);
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -167,7 +167,7 @@
 .explore-subtitle .highlight {
     color: var(--primary);
     font-weight: 600;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 /* Page Title */
@@ -182,7 +182,7 @@
     font-size: 3.5rem;
     font-weight: 700;
     color: var(--primary);
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 
         0 0 15px rgba(99, 102, 241, 0.6),
         0 0 30px rgba(139, 92, 246, 0.3);
@@ -193,7 +193,7 @@
 .explore-title p {
     font-size: 1.2rem;
     color: var(--accent);
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -205,7 +205,7 @@
     color: var(--primary);
     text-align: center;
     margin-bottom: 2rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
     position: relative;
 }
@@ -265,14 +265,14 @@
     font-size: 1.5rem;
     color: var(--primary);
     margin-bottom: 1rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
 .feature-card p {
     color: var(--accent);
     line-height: 1.6;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 /* Team Section */
@@ -324,7 +324,7 @@
     color: white;
     font-size: 2rem;
     font-weight: bold;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .expertise-tag {
@@ -337,7 +337,7 @@
     border-radius: 12px;
     font-size: 0.7rem;
     font-weight: 600;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
@@ -347,7 +347,7 @@
     color: var(--primary);
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
@@ -355,14 +355,14 @@
     color: var(--accent);
     font-weight: 600;
     margin-bottom: 1rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 0.9rem;
 }
 
 .team-member .member-description {
     color: var(--accent);
     line-height: 1.6;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 0.9rem;
 }
 
@@ -407,7 +407,7 @@
     position: absolute;
     top: 1rem;
     left: 1.5rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     opacity: 0.3;
     line-height: 1;
 }
@@ -417,7 +417,7 @@
     font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     padding-top: 1rem;
 }
 
@@ -431,14 +431,14 @@
     color: var(--primary);
     font-weight: 600;
     font-size: 1rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
 .author-title {
     color: var(--accent);
     font-size: 0.9rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 /* Job Cards */
@@ -468,14 +468,14 @@
     font-size: 1.3rem;
     color: var(--primary);
     margin-bottom: 1rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
 .job-description {
     color: var(--accent);
     line-height: 1.6;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 /* Stats Section */
@@ -503,7 +503,7 @@
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--primary);
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
     margin-bottom: 0.5rem;
 }
@@ -511,7 +511,7 @@
 .stat-label {
     color: var(--accent);
     font-size: 1rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -530,7 +530,7 @@
     font-size: 2.5rem;
     color: var(--primary);
     margin-bottom: 1rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
 }
 
@@ -538,7 +538,7 @@
     color: var(--accent);
     font-size: 1.2rem;
     margin-bottom: 2rem;
-    font-family: var(--font-secondary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -552,7 +552,7 @@
     padding: 15px 30px;
     font-size: 1.1rem;
     font-weight: 600;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;

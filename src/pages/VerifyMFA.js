@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/VerifyMFA.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import SharedBackground from '../components/SharedBackground';
 
 const VerifyMFA = () => {

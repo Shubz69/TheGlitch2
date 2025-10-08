@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Register.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import SharedBackground from '../components/SharedBackground';
 import Api from '../services/Api';
 // Import avatar images

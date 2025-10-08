@@ -16,7 +16,7 @@ body, html {
     scroll-behavior: smooth;
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-dark) 100%);
     color: var(--primary);
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .home-container {
@@ -27,48 +27,7 @@ body, html {
     overflow-x: hidden;
 }
 
-/* Enhanced Floating Particles Background */
-.floating-particles {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.particle {
-    position: absolute;
-    width: var(--size, 4px);
-    height: var(--size, 4px);
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.4) 100%);
-    border-radius: 50%;
-    animation: particleFloat 12s infinite linear;
-    animation-delay: var(--delay);
-    left: var(--x);
-    top: var(--y);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-}
-
-@keyframes particleFloat {
-    0% {
-        transform: translateY(0) translateX(0) scale(0);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-        transform: translateY(-10vh) translateX(10px) scale(1);
-    }
-    90% {
-        opacity: 1;
-        transform: translateY(-90vh) translateX(50px) scale(1);
-    }
-    100% {
-        transform: translateY(-100vh) translateX(100px) scale(0);
-        opacity: 0;
-    }
-}
+/* Removed floating particles for cleaner design */
 
 /* Enhanced Hero Section */
 .hero-section {

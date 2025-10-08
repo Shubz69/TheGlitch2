@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/AdminUserList.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import AdminApi from "../services/AdminApi";

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/PaymentSuccess.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import SharedBackground from '../components/SharedBackground';
 
 // Define API base URL with fallback

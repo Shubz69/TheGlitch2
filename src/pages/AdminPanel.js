@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../utils/useWebSocket';
 import '../styles/AdminPanel.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 import SharedBackground from '../components/SharedBackground';
 
 const AdminPanel = () => {

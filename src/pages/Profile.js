@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/Profile.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 import { useNavigate } from 'react-router-dom';
 import SharedBackground from '../components/SharedBackground';
 
