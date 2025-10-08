@@ -538,26 +538,7 @@ a:hover {
     opacity: 0.1;
 }
 
-.binary-digit {
-    position: absolute;
-    color: var(--primary);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    animation: binaryFloat 3s ease-in-out infinite;
-    user-select: none;
-    pointer-events: none;
-}
-
-@keyframes binaryFloat {
-    0%, 100% {
-        opacity: 0;
-        transform: translateY(0);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(-20px);
-    }
-}
+/* Removed binary digit effects for clean design */
 
 .loading-content {
     text-align: center;
@@ -570,7 +551,7 @@ a:hover {
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 1rem;
-    font-family: var(--font-main);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     letter-spacing: 1px;
 }
 
@@ -583,6 +564,7 @@ a:hover {
     font-weight: 300;
     letter-spacing: 1px;
     text-transform: uppercase;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .loading-progress {
@@ -594,7 +576,7 @@ a:hover {
     font-size: 1rem;
     color: var(--text-primary);
     margin-bottom: 1rem;
-    font-family: var(--font-mono);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     letter-spacing: 1px;
 }
 
@@ -617,77 +599,7 @@ a:hover {
     background: linear-gradient(90deg, var(--primary), var(--secondary));
     border-radius: 2px;
     width: 63%;
-    animation: loadingProgress 2s ease-in-out infinite;
     position: relative;
 }
 
-.loading-bar-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes loadingProgress {
-    0% { width: 0%; }
-    100% { width: 63%; }
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.loading-rings {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-}
-
-.ring {
-    position: absolute;
-    border: 2px solid rgba(99, 102, 241, 0.3);
-    border-radius: 50%;
-    animation: ringPulse 2s ease-in-out infinite;
-}
-
-.ring-1 {
-    width: 100px;
-    height: 100px;
-    top: -50px;
-    left: -50px;
-    animation-delay: 0s;
-}
-
-.ring-2 {
-    width: 150px;
-    height: 150px;
-    top: -75px;
-    left: -75px;
-    animation-delay: 0.5s;
-}
-
-.ring-3 {
-    width: 200px;
-    height: 200px;
-    top: -100px;
-    left: -100px;
-    animation-delay: 1s;
-}
-
-@keyframes ringPulse {
-    0%, 100% {
-        opacity: 0.3;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-}
+/* Removed loading animations and rings for clean design */

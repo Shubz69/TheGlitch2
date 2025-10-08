@@ -1,30 +1,18 @@
 import React from 'react';
 import './LoadingSpinner.css';
 
-// LoadingSpinner component - styles consolidated in index.css for better performance
+// Clean LoadingSpinner component - no effects, Arial fonts
 const LoadingSpinner = () => {
     return (
         <div className="loading-screen">
-            {/* Animated background with binary code */}
+            {/* Clean background - no binary effects */}
             <div className="loading-background">
-                {Array.from({ length: 200 }, (_, i) => (
-                    <div 
-                        key={i} 
-                        className="binary-digit"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 3}s`,
-                            animationDuration: `${2 + Math.random() * 3}s`
-                        }}
-                    >
-                        {Math.random() > 0.5 ? '1' : '0'}
-                    </div>
-                ))}
+                {/* Removed binary digit effects for clean design */}
             </div>
             
             {/* Main content */}
             <div className="loading-content">
-                <div className="loading-title glitch-brand" data-text="THE GLITCH">THE GLITCH</div>
+                <div className="loading-title">THE GLITCH</div>
                 <div className="loading-subtitle">WEALTH REVOLUTION</div>
                 
                 {/* Loading progress */}
@@ -36,12 +24,7 @@ const LoadingSpinner = () => {
                 </div>
             </div>
             
-            {/* Pulsing rings */}
-            <div className="loading-rings">
-                <div className="ring ring-1"></div>
-                <div className="ring ring-2"></div>
-                <div className="ring ring-3"></div>
-            </div>
+            {/* Removed pulsing rings for clean design */}
         </div>
     );
 };
