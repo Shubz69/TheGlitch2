@@ -5,9 +5,21 @@ import './LoadingSpinner.css';
 const LoadingSpinner = () => {
     return (
         <div className="loading-screen">
-            {/* Clean background - no binary effects */}
+            {/* Binary digits background - clean, no effects */}
             <div className="loading-background">
-                {/* Removed binary digit effects for clean design */}
+                {Array.from({ length: 200 }, (_, i) => (
+                    <div 
+                        key={i} 
+                        className="binary-digit"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${2 + Math.random() * 3}s`
+                        }}
+                    >
+                        {Math.random() > 0.5 ? '1' : '0'}
+                    </div>
+                ))}
             </div>
             
             {/* Main content */}

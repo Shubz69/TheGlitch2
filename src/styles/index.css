@@ -538,7 +538,26 @@ a:hover {
     opacity: 0.1;
 }
 
-/* Removed binary digit effects for clean design */
+.binary-digit {
+    position: absolute;
+    color: var(--primary);
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 0.8rem;
+    animation: binaryFloat 3s ease-in-out infinite;
+    user-select: none;
+    pointer-events: none;
+}
+
+@keyframes binaryFloat {
+    0%, 100% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+}
 
 .loading-content {
     text-align: center;
@@ -553,6 +572,7 @@ a:hover {
     margin-bottom: 1rem;
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     letter-spacing: 1px;
+    text-shadow: none;
 }
 
 /* Removed titleGlow animation for cleaner design */
@@ -565,6 +585,7 @@ a:hover {
     letter-spacing: 1px;
     text-transform: uppercase;
     font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    text-shadow: none;
 }
 
 .loading-progress {
