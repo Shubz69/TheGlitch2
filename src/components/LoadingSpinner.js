@@ -1,5 +1,5 @@
 import React from 'react';
-import './LoadingSpinner.css';
+// LoadingSpinner styles are in index.css
 
 // Clean LoadingSpinner component - no effects, Arial fonts
 const LoadingSpinner = () => {
