@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import '../styles/PublicProfile.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 import { useAuth } from "../context/AuthContext";
 import SharedBackground from '../components/SharedBackground';
 

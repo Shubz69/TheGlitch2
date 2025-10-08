@@ -188,7 +188,7 @@ const Explore = () => {
 
       {/* Team Section */}
       <section className="team-section">
-        <h2 className="glitch-brand" data-text="OUR EXPERT TEAM">OUR EXPERT TEAM</h2>
+        <h2>OUR EXPERT TEAM</h2>
         <div className="team-grid">
           {teamMembers.map((member) => (
             <div key={member.id} className="team-member">

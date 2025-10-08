@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/Chatbot.css";
-import "../styles/GlitchBranding.css";
+// Removed GlitchBranding.css for cleaner design
 
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +25,7 @@ const Chatbot = () => {
             setMessages([
                 {
                     from: "bot",
-                    text: "👋 Welcome to <span className='glitch-brand' data-text='THE GLITCH'>THE GLITCH</span>! How can I help you today?\nChoose a question or type your own.",
+                    text: "👋 Welcome to THE GLITCH! How can I help you today?\nChoose a question or type your own.",
                 },
             ]);
             setShowOptions(true);

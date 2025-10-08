@@ -174,31 +174,7 @@
         0 0 30px rgba(167, 139, 250, 0.3);
 }
 
-.glitch.glitch-brand {
-    animation: title-glitch 4s ease-in-out infinite alternate;
-}
-
-.glitch.glitch-brand::before,
-.glitch.glitch-brand::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.glitch.glitch-brand::before {
-    animation: glitch-effect 3s infinite linear alternate-reverse;
-    color: #ff0000;
-    z-index: -1;
-}
-
-.glitch.glitch-brand::after {
-    animation: glitch-effect 2s infinite linear alternate-reverse;
-    color: #00ffff;
-    z-index: -2;
-}
+/* Removed glitch-brand styles for clean design */
 
 .glitch::before,
 .glitch::after {

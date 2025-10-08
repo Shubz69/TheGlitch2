@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/LightningEffect.css';
-import '../styles/GlitchBranding.css';
+// Removed GlitchBranding.css for cleaner design
 
 const LightningEffect = ({ onLightningComplete }) => {
     const [lightningPhase, setLightningPhase] = useState(0);

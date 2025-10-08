@@ -27,32 +27,7 @@
 }
 
 /* Apply glitch effect to the title */
-.gradient-text.glitch-brand {
-    animation: title-glitch 4s ease-in-out infinite alternate;
-}
-
-.gradient-text.glitch-brand::before,
-.gradient-text.glitch-brand::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
-
-.gradient-text.glitch-brand::before {
-    animation: glitch-effect 3s infinite linear alternate-reverse;
-    color: #ff0000;
-    z-index: -1;
-}
-
-.gradient-text.glitch-brand::after {
-    animation: glitch-effect 2s infinite linear alternate-reverse;
-    color: #00ffff;
-    z-index: -2;
-}
+/* Removed glitch-brand styles for clean design */
 
 /* Glitch effect animation from Contact Us */
 @keyframes glitch-effect {

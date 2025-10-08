@@ -256,7 +256,7 @@ const Profile = () => {
             <SharedBackground />
             <div className="profile-content">
                 <div className="profile-header">
-                    <h1 className="profile-title glitch-brand" data-text="MY PROFILE">MY PROFILE</h1>
+                    <h1 className="profile-title">MY PROFILE</h1>
                 </div>
                 
                 <div className="profile-box">

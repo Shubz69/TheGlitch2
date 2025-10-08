@@ -105,7 +105,7 @@ const MyCourses = () => {
             <div className="my-courses-container">
                 <SharedBackground />
                 <div className="page-header">
-                    <h1 className="glitch-brand" data-text={userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}>
+                    <h1>
                         {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}
                     </h1>
                 </div>
@@ -120,7 +120,7 @@ const MyCourses = () => {
         <div className="my-courses-container">
             <SharedBackground />
             <div className="page-header">
-                <h1 className="glitch-brand" data-text={userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}>
+                <h1>
                     {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}
                 </h1>
             </div>

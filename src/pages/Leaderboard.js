@@ -214,7 +214,7 @@ const Leaderboard = () => {
             
             {/* Header */}
             <div className="leaderboard-header">
-                <h1 className="glitch-title glitch-brand" data-text="LEADERBOARD">LEADERBOARD</h1>
+                <h1 className="glitch-title">LEADERBOARD</h1>
                 <p className="leaderboard-subtitle">Compete with the best traders in the cyber realm</p>
                 
                 {/* Timeframe Selector */}

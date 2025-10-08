@@ -149,7 +149,7 @@ const Courses = () => {
             <SharedBackground />
             <div className="stars"></div>
             <div className="courses-header">
-                <h1 className="glitch glitch-brand" data-text="COURSES">COURSES</h1>
+                <h1 className="glitch">COURSES</h1>
                 <p>Expand your knowledge with our comprehensive trading courses</p>
             </div>
             
