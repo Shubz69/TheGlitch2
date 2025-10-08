@@ -8,7 +8,7 @@ const MOCK_USERS = [
     {
         id: 1,
         email: 'shubzfx@gmail.com',
-        password: 'password123', // In real app, this would be hashed
+        password: 'newpassword123', // Updated password - change this to whatever you want
         name: 'Shubz',
         username: 'shubz',
         role: 'ADMIN'
