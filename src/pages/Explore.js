@@ -178,8 +178,8 @@ const Explore = () => {
 
       {/* Header */}
       <header className="explore-header">
-        <h1 className="explore-title glitch-brand" data-text="WELCOME TO THE GLITCH">
-          WELCOME TO <span className="highlight glitch-brand" data-text="THE GLITCH">THE GLITCH</span>
+        <h1 className="explore-title">
+          WELCOME TO THE GLITCH
         </h1>
         <p className="explore-subtitle">
           Experience our <span className="highlight">AI-POWERED</span> trading platform with advanced predictive analytics, real-time market insights, and proprietary algorithms designed by elite quantitative analysts for serious investors.
@@ -208,7 +208,7 @@ const Explore = () => {
 
       {/* Testimonials */}
       <section className="testimonials">
-        <h2 className="glitch-brand" data-text="TRADER TESTIMONIALS">TRADER TESTIMONIALS</h2>
+        <h2>TRADER TESTIMONIALS</h2>
         <div className="testimonial-container">
           <div className="testimonial-card">
             <div className="quote-mark">"</div>
@@ -245,7 +245,7 @@ const Explore = () => {
 
       {/* Platform Highlights */}
       <section className="feature-highlights">
-        <h2 className="glitch-brand" data-text="PLATFORM FEATURES">PLATFORM FEATURES</h2>
+        <h2>PLATFORM FEATURES</h2>
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-icon">📊</div>
