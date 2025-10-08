@@ -131,7 +131,7 @@
 
 .sign-in {
     padding: 0.8rem 2rem;
-    background: transparent;
+    background: rgba(99, 102, 241, 0.1);
     border: 1px solid var(--primary);
     color: var(--primary);
     font-weight: 600;
@@ -139,13 +139,16 @@
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 .sign-in:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--secondary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
     transform: translateY(-3px);
+    color: white;
 }
 
 .start-trading {

@@ -173,27 +173,35 @@
     transform: translateY(0);
 }
 
-/* Clean links */
+/* Enhanced link styling with better visibility */
 .forgot-password {
     text-align: center;
     margin-top: 16px;
 }
 
 .forgot-password a {
-    color: var(--primary);
+    color: #00CED1;
     text-decoration: none;
     font-size: 0.85rem;
     font-family: var(--font-secondary);
     font-weight: 600;
     transition: all 0.3s ease;
-    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
+    text-shadow: 0 0 8px rgba(0, 206, 209, 0.4);
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(0, 206, 209, 0.1);
+    border: 1px solid rgba(0, 206, 209, 0.3);
+    display: inline-block;
 }
 
 .forgot-password a:hover {
-    color: var(--secondary);
-    text-decoration: underline;
-    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 0 12px rgba(0, 206, 209, 0.8);
     transform: translateY(-1px);
+    background: rgba(0, 206, 209, 0.2);
+    border-color: #00CED1;
+    box-shadow: 0 4px 12px rgba(0, 206, 209, 0.3);
 }
 
 .signup-link {
@@ -207,25 +215,33 @@
     color: var(--accent);
     font-size: 0.85rem;
     font-family: var(--font-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     font-weight: 400;
 }
 
 .signup-link a {
-    color: var(--primary);
+    color: #FF69B4;
     text-decoration: none;
     font-weight: 700;
     font-family: var(--font-main);
     transition: all 0.3s ease;
-    font-size: 0.85rem;
-    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
+    font-size: 0.9rem;
+    text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(255, 105, 180, 0.1);
+    border: 1px solid rgba(255, 105, 180, 0.3);
+    display: inline-block;
 }
 
 .signup-link a:hover {
-    color: var(--secondary);
-    text-decoration: underline;
-    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 0 12px rgba(255, 105, 180, 0.8);
     transform: translateY(-1px);
+    background: rgba(255, 105, 180, 0.2);
+    border-color: #FF69B4;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
 }
 
 /* Error message */
