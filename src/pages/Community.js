@@ -1464,7 +1464,7 @@ const Community = () => {
             .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto;" />')
             // Mentions: @username -> <span class="mention">@username</span>
             .replace(/@(\w+)/g, '<span class="mention">@$1</span>')
-            // Line breaks
+            // Line breaks - handle both \n and literal <br /> tags
             .replace(/\n/g, '<br />');
         
         return formattedText;
