@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Function to get token from localStorage
+  // eslint-disable-next-line no-unused-vars
   const getToken = useCallback(() => {
     return localStorage.getItem('token');
   }, []);
@@ -110,6 +111,7 @@ export const AuthProvider = ({ children }) => {
       // Check which login method is being used
       if (userData) {
         // This is a direct login with token (from MFA verification)
+        // eslint-disable-next-line no-unused-vars
         const token = emailOrToken;
         const role = passwordOrRole;
         

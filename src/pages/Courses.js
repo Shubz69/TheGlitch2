@@ -20,7 +20,7 @@ const Courses = () => {
     const [usingMockData, setUsingMockData] = useState(false);
     const [processingPayment, setProcessingPayment] = useState(false);
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuth();
+    const auth = useAuth(); // Get auth context without destructuring unused variables
 
     useEffect(() => {
         const fetchCourses = async () => {

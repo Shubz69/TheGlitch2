@@ -6,7 +6,7 @@ import "../styles/SharedBackground.css";
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
-import Api from '../services/Api';
+// import Api from '../services/Api'; // Unused import
 
 const Login = () => {
     const [email, setEmail] = useState('');

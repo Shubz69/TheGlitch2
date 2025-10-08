@@ -11,7 +11,7 @@ import Api from '../services/Api';
 import SharedBackground from '../components/SharedBackground';
 
 // Icons - only keep the ones actually used in the code
-import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrown, FaShieldAlt, FaBan, FaVolumeMute, FaTrash } from 'react-icons/fa';
+import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaCrown, FaShieldAlt, FaBan, FaVolumeMute, FaTrash } from 'react-icons/fa';
 import { BsStars } from 'react-icons/bs';
 import { RiAdminFill } from 'react-icons/ri';
 
