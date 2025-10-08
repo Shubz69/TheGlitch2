@@ -26,41 +26,6 @@ const Home = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentFeature((prev) => (prev + 1) % features.length);
-        }, 4000); // Increased interval for better readability
-
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect(() => {
-        const handleMouseMove = (e) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
-
-    const handleLightningComplete = () => {
-        setShowLightning(false);
-        setShowContent(true);
-    };
-
-    const handleStartTrading = () => {
-        if (isAuthenticated) {
-            navigate("/dashboard");
-        } else {
-            navigate("/register");
-        }
-    };
-
-    const handleAiHeadInteraction = (state) => {
-        setAiHeadState(state);
-        setTimeout(() => setAiHeadState('idle'), 3000);
-    };
-
     const features = [
         {
             icon: "🧠",
@@ -91,6 +56,41 @@ const Home = () => {
             gradient: "linear-gradient(135deg, #FF69B4, #FF1493)"
         }
     ];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentFeature((prev) => (prev + 1) % features.length);
+        }, 4000); // Increased interval for better readability
+
+        return () => clearInterval(interval);
+    }, [features.length]);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setMousePosition({ x: e.clientX, y: e.clientY });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+
+    const handleLightningComplete = () => {
+        setShowLightning(false);
+        setShowContent(true);
+    };
+
+    const handleStartTrading = () => {
+        if (isAuthenticated) {
+            navigate("/dashboard");
+        } else {
+            navigate("/register");
+        }
+    };
+
+    const handleAiHeadInteraction = (state) => {
+        setAiHeadState(state);
+        setTimeout(() => setAiHeadState('idle'), 3000);
+    };
 
     const stats = [
         { number: "20,000+", label: "Active Traders", icon: "👥" },
