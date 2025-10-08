@@ -36,6 +36,8 @@ import './styles/SharedBackground.css';
 
 import GDPRModal from './components/GDPRModal';
 
+// Force deployment update - clean build
+
 function AppRoutes() {
     const { user, loading } = useAuth();
     const showChatbot = true;
