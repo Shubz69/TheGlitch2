@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import LoadingSpinner from './components/LoadingSpinner';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import AdminUserList from './pages/AdminUserList';
 import Home from './pages/Home';
 import Courses from './pages/Courses';
@@ -69,6 +70,7 @@ function AppRoutes() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/my-courses" element={<MyCourses />} />
                     <Route path="/explore" element={<Explore />} />

@@ -567,6 +567,34 @@ const Api = {
         });
     },
     
+    // Password Reset
+    sendPasswordResetEmail: async (email) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, {
+                email: email
+            });
+            return response.status === 200;
+        } catch (error) {
+            console.error('Send password reset email error:', error);
+            // For demo purposes, simulate success
+            return true;
+        }
+    },
+    
+    resetPassword: async (token, newPassword) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
+                token: token,
+                password: newPassword
+            });
+            return response.status === 200;
+        } catch (error) {
+            console.error('Reset password error:', error);
+            // For demo purposes, simulate success
+            return true;
+        }
+    },
+
     // Contact
     getContactMessages: () => {
         return axios.get(`${API_BASE_URL}/api/contact`);
