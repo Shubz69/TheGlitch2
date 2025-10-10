@@ -73,15 +73,14 @@ const MOCK_DATA = {
         { id: 37, name: "feedback-bugs", description: "Report bugs and provide feedback", accessLevel: "open" },
         { id: 38, name: "course-help", description: "Get help with courses", accessLevel: "open" },
         { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only" },
-        { id: 40, name: "intro-to-trading", description: "Introduction to Trading course channel", accessLevel: "course", courseId: 1 },
-        { id: 41, name: "technical-analysis", description: "Technical Analysis course channel", accessLevel: "course", courseId: 2 },
-        { id: 42, name: "fundamental-analysis", description: "Fundamental Analysis course channel", accessLevel: "course", courseId: 3 },
-        { id: 43, name: "crypto-trading", description: "Cryptocurrency Trading course channel", accessLevel: "course", courseId: 4 },
-        { id: 44, name: "day-trading", description: "Day Trading course channel", accessLevel: "course", courseId: 5 },
-        { id: 45, name: "swing-trading", description: "Swing Trading course channel", accessLevel: "course", courseId: 6 },
-        { id: 46, name: "trading-psychology", description: "Trading Psychology course channel", accessLevel: "course", courseId: 7 },
-        { id: 47, name: "risk-management", description: "Risk Management course channel", accessLevel: "course", courseId: 8 },
-        { id: 48, name: "trading-plan", description: "Trading Plan course channel", accessLevel: "course", courseId: 9 }
+        { id: 40, name: "health-fitness", description: "Health & Fitness course channel - Master peak physical performance and biohacking", accessLevel: "course", courseId: 1 },
+        { id: 41, name: "e-commerce", description: "E-Commerce course channel - Build and scale profitable online businesses", accessLevel: "course", courseId: 2 },
+        { id: 42, name: "forex-trading", description: "Forex Trading course channel - Master professional currency trading strategies", accessLevel: "course", courseId: 3 },
+        { id: 43, name: "crypto-blockchain", description: "Crypto & Blockchain course channel - Navigate the digital asset revolution", accessLevel: "course", courseId: 4 },
+        { id: 44, name: "algorithmic-fx", description: "Algorithmic FX course channel - Develop automated trading systems", accessLevel: "course", courseId: 5 },
+        { id: 45, name: "intelligent-systems", description: "Intelligent Systems Development course channel - Create AI applications and bots", accessLevel: "course", courseId: 6 },
+        { id: 46, name: "social-media", description: "Social Media course channel - Build personal brands and monetize influence", accessLevel: "course", courseId: 7 },
+        { id: 47, name: "real-estate", description: "Real Estate course channel - Master strategic property investment", accessLevel: "course", courseId: 8 }
     ],
     messages: {
         25: [
@@ -106,21 +105,37 @@ const MOCK_DATA = {
             { id: 2, content: "Yes, it's a good combo for confirmation", senderId: "user2", senderUsername: "InvestorGuru", timestamp: Date.now() - 3600000, senderLevel: 4 }
         ],
         40: [
-            { id: 1, content: "Welcome to the Intro to Trading course channel!", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
-            { id: 2, content: "TESTKSJDNFLK F", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 },
-            { id: 3, content: "SDFRG", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+            { id: 1, content: "Welcome to the Health & Fitness course channel! 💪", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Ready to optimize my physical performance for better trading decisions!", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 },
+            { id: 3, content: "Biohacking techniques are game-changers for mental clarity", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
         ],
         41: [
-            { id: 1, content: "Welcome to Technical Analysis course channel!", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
-            { id: 2, content: "TYJKD", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+            { id: 1, content: "Welcome to the E-Commerce course channel! 🛒", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Excited to learn about dropshipping and Amazon FBA strategies", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
         ],
         42: [
-            { id: 1, content: "Welcome to Fundamental Analysis course channel!", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
-            { id: 2, content: "DF", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+            { id: 1, content: "Welcome to the Forex Trading course channel! 💱", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Looking forward to mastering professional currency trading", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+        ],
+        43: [
+            { id: 1, content: "Welcome to the Crypto & Blockchain course channel! ₿", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "DeFi and yield farming strategies are fascinating!", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
         ],
         44: [
-            { id: 1, content: "Welcome to Day Trading course channel!", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
-            { id: 2, content: "DF", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+            { id: 1, content: "Welcome to the Algorithmic FX course channel! 🤖", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Ready to build automated trading systems!", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+        ],
+        45: [
+            { id: 1, content: "Welcome to the Intelligent Systems Development course channel! 🧠", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "AI applications for passive income generation - let's go!", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+        ],
+        46: [
+            { id: 1, content: "Welcome to the Social Media course channel! 📱", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Building personal brands across all platforms", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
+        ],
+        47: [
+            { id: 1, content: "Welcome to the Real Estate course channel! 🏠", senderId: "admin", senderUsername: "Admin", timestamp: Date.now() - 86400000, senderLevel: 10 },
+            { id: 2, content: "Strategic property investment strategies here we come!", senderId: "user1", senderUsername: "ShubzFx", timestamp: Date.now() - 86400000, senderLevel: 1 }
         ]
     },
     onlineUsers: [
