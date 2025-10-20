@@ -354,35 +354,14 @@ const WhyInfinity = () => {
     return (
         <div className="why-container">
             <canvas id="matrixCanvas" className="matrix-background"></canvas>
-            {renderChartBg()}
-            
-            {/* Floating elements with enhanced SVGs */}
-            <div className="floating-element el1">
-                <svg width="100%" height="100%" viewBox="0 0 100 100">
-                    <path d="M50,10 L90,50 L50,90 L10,50 Z" stroke="#fff" strokeWidth="1" fill="none" />
-                </svg>
-            </div>
-            
-            <div className="floating-element el2">
-                <svg width="100%" height="100%" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" stroke="#ccc" strokeWidth="1" fill="none" />
-                </svg>
-            </div>
-            
-            <div className="floating-element el3">
-                <svg width="100%" height="100%" viewBox="0 0 100 100">
-                    <path d="M20,20 L80,20 L80,80 L20,80 Z" stroke="#fff" strokeWidth="1" fill="none" />
-                </svg>
-            </div>
             
             <div className="content-wrapper">
-                {/* Logo with enhanced glitch animation */}
-                <div className="why-logo">
-                    <div className="logo-glow"></div>
-                    <div className="glitch-logo-container">
-                        <h1 className="text-logo">Why The Glitch</h1>
-                        <div className="glitch-particles"></div>
-                    </div>
+                {/* Clean header */}
+                <div className="why-header">
+                    <h1 className="why-title">Why The Glitch</h1>
+                    <p className="why-subtitle">
+                        Experience the future of trading technology with our advanced platform
+                    </p>
                 </div>
                 
                 {/* Stock Ticker with real-time feel */}
@@ -400,95 +379,33 @@ const WhyInfinity = () => {
                     </div>
                 </div>
                 
-                <div className="content-grid symmetrical-grid">
-                    <div className="why-content symmetrical-left">
-                        <div className={`paragraph-section ${visibleSections['section-1'] ? 'fade-in-up' : ''}`}
-                            ref={el => sectionRefs.current.paragraphSections[0] = el}
-                        >
-                            <p className="why-paragraph">
-                                The Glitch represents the future of trading technology, combining cutting-edge 
-                                algorithms with a revolutionary user experience. Our platform breaks the conventional 
-                                barriers of trading platforms, offering an intuitive interface that adapts to your trading style.
-                            </p>
-                            <p className="why-paragraph">
-                                Experience the power of our advanced trading simulator, where you can test strategies 
-                                in real-time market conditions without risk. Learn from professional traders who have mastered 
-                                the art of navigating volatile markets across forex, stocks, and cryptocurrencies.
-                            </p>
-                        </div>
-                        <div className={`paragraph-section ${visibleSections['section-2'] ? 'fade-in-up' : ''}`}
-                            ref={el => sectionRefs.current.paragraphSections[1] = el}
-                        >
-                            <p className="why-paragraph">
-                                Join our community of forward-thinking traders where innovation meets execution. 
-                                Share strategies, collaborate on market analysis, and stay ahead of market trends with 
-                                our real-time updates and expert insights.
-                            </p>
-                            <div className="btn-container">
-                                <button className="start-btn">
-                                    Initialize Trading <FaArrowRight />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="symmetrical-right">
-                        <div className="feature-cards-grid">
-                            <div className={`feature-box ${visibleSections['feature-0'] ? 'fade-in-up' : ''}`}
-                                style={{ transitionDelay: '100ms' }}
-                                ref={el => sectionRefs.current.featureBoxes[0] = el}
-                            >
-                                <div className="feature-icon">
-                                    <FaChartLine />
-                                </div>
-                                <h3 className="feature-title">Advanced Analytics</h3>
-                                <p className="feature-description">
-                                    Real-time market data and powerful technical analysis tools to make informed trading decisions.
-                                </p>
-                                {renderFeatureChart(0)}
-                            </div>
-                            <div className={`feature-box ${visibleSections['feature-1'] ? 'fade-in-up' : ''}`}
-                                style={{ transitionDelay: '200ms' }}
-                                ref={el => sectionRefs.current.featureBoxes[1] = el}
-                            >
-                                <div className="feature-icon">
-                                    <FaGraduationCap />
-                                </div>
-                                <h3 className="feature-title">Expert Education</h3>
-                                <p className="feature-description">
-                                    Comprehensive courses from beginner to advanced, taught by professional traders.
-                                </p>
-                                {renderFeatureChart(1)}
-                            </div>
-                            <div className={`feature-box ${visibleSections['feature-2'] ? 'fade-in-up' : ''}`}
-                                style={{ transitionDelay: '300ms' }}
-                                ref={el => sectionRefs.current.featureBoxes[2] = el}
-                            >
-                                <div className="feature-icon">
-                                    <FaUsers />
-                                </div>
-                                <h3 className="feature-title">Community Support</h3>
-                                <p className="feature-description">
-                                    Connect with fellow traders, share strategies, and grow together in our active community.
-                                </p>
-                                {renderFeatureChart(2)}
-                            </div>
-                            {/* Add a fourth card for symmetry, or leave blank for now */}
-                        </div>
+                {/* Main content */}
+                <div className="why-content">
+                    <div className="content-section">
+                        <p className="why-paragraph">
+                            The Glitch represents the future of trading technology, combining cutting-edge 
+                            algorithms with a revolutionary user experience. Our platform breaks the conventional 
+                            barriers of trading platforms, offering an intuitive interface that adapts to your trading style.
+                        </p>
+                        <p className="why-paragraph">
+                            Experience the power of our advanced trading simulator, where you can test strategies 
+                            in real-time market conditions without risk. Learn from professional traders who have mastered 
+                            the art of navigating volatile markets across forex, stocks, and cryptocurrencies.
+                        </p>
+                        <p className="why-paragraph">
+                            Join our community of forward-thinking traders where innovation meets execution. 
+                            Share strategies, collaborate on market analysis, and stay ahead of market trends with 
+                            our real-time updates and expert insights.
+                        </p>
                     </div>
                 </div>
                 
-                <div 
-                    className={`additional-features ${visibleSections['additional-features'] ? 'fade-in-up' : ''}`}
-                    ref={el => sectionRefs.current.additionalFeatures = el}
-                >
+                {/* Features Section */}
+                <div className="features-section">
                     <h2 className="section-heading">Exclusive Platform Features</h2>
                     
                     <div className="features-grid">
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-0'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '150ms' }}
-                            ref={el => sectionRefs.current.featureCards[0] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <RiStockLine />
                             </div>
@@ -498,11 +415,7 @@ const WhyInfinity = () => {
                             </p>
                         </div>
                         
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-1'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '300ms' }}
-                            ref={el => sectionRefs.current.featureCards[1] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <FaLock />
                             </div>
@@ -512,11 +425,7 @@ const WhyInfinity = () => {
                             </p>
                         </div>
                         
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-2'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '450ms' }}
-                            ref={el => sectionRefs.current.featureCards[2] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <BiCodeAlt />
                             </div>
@@ -526,11 +435,7 @@ const WhyInfinity = () => {
                             </p>
                         </div>
                         
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-3'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '600ms' }}
-                            ref={el => sectionRefs.current.featureCards[3] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <FaRocket />
                             </div>
@@ -540,11 +445,7 @@ const WhyInfinity = () => {
                             </p>
                         </div>
                         
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-4'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '750ms' }}
-                            ref={el => sectionRefs.current.featureCards[4] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <FaChartPie />
                             </div>
@@ -554,11 +455,7 @@ const WhyInfinity = () => {
                             </p>
                         </div>
                         
-                        <div 
-                            className={`feature-card ${visibleSections['feature-card-5'] ? 'fade-in-up' : ''}`} 
-                            style={{ transitionDelay: '900ms' }}
-                            ref={el => sectionRefs.current.featureCards[5] = el}
-                        >
+                        <div className="feature-card">
                             <div className="feature-card-icon">
                                 <FaUsers />
                             </div>

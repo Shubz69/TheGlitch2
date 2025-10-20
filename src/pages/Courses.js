@@ -149,8 +149,8 @@ const Courses = () => {
             <SharedBackground />
             <div className="stars"></div>
             <div className="courses-header">
-                <h1 className="glitch">COURSES</h1>
-                <p>Expand your knowledge with our comprehensive trading courses</p>
+                <h1 className="courses-title">COURSES</h1>
+                <p className="courses-subtitle">Expand your knowledge with our comprehensive trading courses</p>
             </div>
             
             {usingMockData && (
