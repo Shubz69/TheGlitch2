@@ -8,7 +8,7 @@ const LoadingSpinner = () => {
         left: 0,
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-dark) 100%)',
+        background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 50%, #0A0A0F 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -45,7 +45,7 @@ const LoadingSpinner = () => {
     const titleStyle = {
         fontSize: '4rem',
         fontWeight: '700',
-        color: 'var(--primary)',
+        color: '#6366F1',
         marginBottom: '1rem',
         fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
         letterSpacing: '1px',
@@ -54,7 +54,7 @@ const LoadingSpinner = () => {
 
     const subtitleStyle = {
         fontSize: '1.5rem',
-        color: 'var(--accent)',
+        color: '#A78BFA',
         marginBottom: '3rem',
         fontWeight: '400',
         letterSpacing: '1px',
@@ -88,7 +88,7 @@ const LoadingSpinner = () => {
 
     const barFillStyle = {
         height: '100%',
-        background: 'var(--primary)',
+        background: '#6366F1',
         borderRadius: '3px',
         width: '38%',
         position: 'relative'
@@ -120,7 +120,7 @@ const LoadingSpinner = () => {
                 
                 {/* Loading progress */}
                 <div style={progressStyle}>
-                    <div style={textStyle}>SYSTEM INITIALIZING... <span style={{color: 'var(--primary)', fontWeight: '600'}}>38%</span></div>
+                    <div style={textStyle}>SYSTEM INITIALIZING... <span style={{color: '#6366F1', fontWeight: '600'}}>38%</span></div>
                     <div style={barStyle}>
                         <div style={barFillStyle}></div>
                     </div>

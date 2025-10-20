@@ -1,24 +1,28 @@
 /* Professional Design System - THE GLITCH */
 
-/* Enhanced Color Palette - More Vibrant */
+/* Original Color Palette - THE GLITCH */
 :root {
-    /* Primary Professional Colors */
+    /* Original Primary Colors */
     --primary: #6366F1;      /* Indigo */
     --secondary: #8B5CF6;    /* Purple-Blue */
     --accent: #A78BFA;       /* Light Purple */
-    --dark-purple: #4C1D95;  /* Deep Purple */
     
-    /* Background Colors - Lighter Greys */
-    --bg-primary: #1A1A2E;   /* Dark Background */
-    --bg-secondary: #252541; /* Secondary Background */
-    --bg-tertiary: #2A2A4A;  /* Tertiary Background */
-    --bg-card: #3A3A5A;      /* Card Background */
+    /* Original Background Colors */
+    --bg-dark: #0A0A0F;      /* Dark Background */
+    --bg-medium: #1A1A2E;    /* Medium Background */
+    --bg-light: #252541;     /* Light Background */
     
-    /* Text Colors - More Contrast */
-    --text-primary: #FFFFFF;    /* Pure White Text */
+    /* Text Colors */
+    --text-primary: #FFFFFF;    /* White Text */
     --text-secondary: #E0E0E0; /* Light Grey Text */
     --text-muted: #B0B0B0;     /* Muted Text */
     --text-accent: #A78BFA;     /* Accent Text */
+    
+    /* Legacy Support */
+    --bg-primary: var(--bg-dark);
+    --bg-secondary: var(--bg-medium);
+    --bg-tertiary: var(--bg-light);
+    --bg-card: var(--bg-light);
     
     /* Professional Typography - Arial Only */
     --font-primary: Arial, sans-serif;
@@ -66,7 +70,7 @@ html, body, #root {
     margin: 0;
     padding: 0;
     height: 100%;
-    background: var(--bg-primary);
+    background: var(--bg-dark);
     color: var(--text-primary);
     font-family: var(--font-primary);
     font-weight: var(--font-weight-normal);
@@ -83,7 +87,7 @@ html, body, #root {
 
 /* Footer Styles */
 footer {
-    background: var(--bg-secondary);
+    background: var(--bg-medium);
     color: var(--text-secondary);
     text-align: center;
     padding: 2rem 0;
