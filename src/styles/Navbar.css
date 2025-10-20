@@ -340,7 +340,7 @@
 .logo-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -354,7 +354,7 @@
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     font-family: Arial, sans-serif;
     letter-spacing: 0.5px;
 }
@@ -374,7 +374,7 @@
 }
 
 .nav-links li a {
-    color: #ffffff;
+    color: var(--text-primary);
     text-decoration: none;
     font-weight: 500;
     font-size: 14px;
@@ -385,7 +385,7 @@
 }
 
 .nav-links li a:hover {
-    color: #6366f1;
+    color: var(--primary);
 }
 
 .nav-actions {
@@ -398,8 +398,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #ffffff;
-    color: #0a0a0a;
+    background: var(--text-primary);
+    color: var(--bg-dark);
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     text-decoration: none;
@@ -411,7 +411,7 @@
 }
 
 .account-btn:hover {
-    background: #f3f4f6;
+    background: var(--bg-light);
     transform: translateY(-1px);
 }
 
@@ -420,8 +420,8 @@
 }
 
 .menu-toggle {
-    background: #ffffff;
-    color: #0a0a0a;
+    background: var(--text-primary);
+    color: var(--bg-dark);
     border: none;
     padding: 0.75rem;
     border-radius: 8px;
@@ -433,7 +433,7 @@
 }
 
 .menu-toggle:hover {
-    background: #f3f4f6;
+    background: var(--bg-light);
 }
 
 .user-profile {
@@ -473,7 +473,7 @@
 }
 
 .user-dropdown p {
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 1rem 0;
     font-size: 14px;
     font-weight: 600;
@@ -485,7 +485,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    color: #ffffff;
+    color: var(--text-primary);
     text-decoration: none;
     padding: 0.75rem 0;
     font-size: 14px;
@@ -499,7 +499,7 @@
 }
 
 .dropdown-item:hover {
-    color: #6366f1;
+    color: var(--primary);
 }
 
 .dropdown-icon {
@@ -532,7 +532,7 @@
     right: 2rem;
     background: none;
     border: none;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 24px;
     cursor: pointer;
 }
@@ -548,7 +548,7 @@
 }
 
 .mobile-nav-links li a {
-    color: #ffffff;
+    color: var(--text-primary);
     text-decoration: none;
     font-size: 18px;
     font-weight: 600;
@@ -576,13 +576,13 @@
 }
 
 .mobile-sign-in {
-    background: #ffffff;
-    color: #0a0a0a;
+    background: var(--text-primary);
+    color: var(--bg-dark);
 }
 
 .mobile-start-trading {
     background: #6366f1;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 /* Responsive */
