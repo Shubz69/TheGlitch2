@@ -7,6 +7,7 @@ const path = require('path');
 const { Server } = require('socket.io');
 const sanitizeHtml = require('sanitize-html');
 const Database = require('better-sqlite3');
+const crypto = require('crypto');
 
 const app = express();
 const server = http.createServer(app);
@@ -74,7 +75,8 @@ CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   email TEXT,
   name TEXT,
-  role TEXT
+  role TEXT,
+  passwordHash TEXT
 );
 
 CREATE TABLE IF NOT EXISTS admin_user_threads (
@@ -115,6 +117,26 @@ CREATE TABLE IF NOT EXISTS channel_messages (
   status TEXT DEFAULT 'sent'
 );
 CREATE INDEX IF NOT EXISTS idx_channel_messages_channel_created ON channel_messages(channelId, createdAt);
+
+CREATE TABLE IF NOT EXISTS mfa_codes (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  codeHash TEXT NOT NULL,
+  purpose TEXT NOT NULL,
+  expiresAt INTEGER NOT NULL,
+  createdAt INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_mfa_codes_user_purpose ON mfa_codes(userId, purpose);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  tokenHash TEXT NOT NULL,
+  expiresAt INTEGER NOT NULL,
+  used INTEGER DEFAULT 0,
+  createdAt INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reset_tokens_user ON password_reset_tokens(userId);
 `);
 
 function nowMs() { return Date.now(); }
@@ -124,6 +146,12 @@ function sanitizeBody(text) {
   const max = 5000;
   const trimmed = String(text || '').slice(0, max);
   return sanitizeHtml(trimmed, { allowedTags: [], allowedAttributes: {} });
+}
+function sha256Hex(value) { return crypto.createHash('sha256').update(String(value)).digest('hex'); }
+function generateNumericCode(length = 6) {
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+  return String(Math.floor(min + Math.random() * (max - min + 1)));
 }
 
 // --- Simple metrics ---
@@ -199,6 +227,109 @@ app.post('/api/payments/complete', (req, res) => {
     success: true, 
     message: 'Payment completed successfully' 
   });
+});
+
+// --- Auth: Forgot Password + MFA + Reset ---
+const resetRate = new Map(); // key: email, value: { windowStart, count }
+const resetWindowMs = 10 * 60 * 1000; // 10 minutes
+const maxResetRequests = 5;
+
+function canRequestReset(email) {
+  const now = nowMs();
+  const bucket = resetRate.get(email) || { windowStart: now, count: 0 };
+  if (now - bucket.windowStart > resetWindowMs) { bucket.windowStart = now; bucket.count = 0; }
+  bucket.count += 1; resetRate.set(email, bucket); return bucket.count <= maxResetRequests;
+}
+
+// Step 1: Request reset (sends MFA code and/or prepares token)
+app.post('/api/auth/forgot-password', (req, res) => {
+  try {
+    const email = (req.body && req.body.email || '').toLowerCase().trim();
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    if (!canRequestReset(email)) return res.status(429).json({ error: 'Too many requests' });
+
+    // Find or create user by email for demo purposes
+    let user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+    if (!user) {
+      user = { id: newId(), email, name: email.split('@')[0], role: 'USER', passwordHash: sha256Hex('password') };
+      db.prepare(`INSERT INTO users (id, email, name, role, passwordHash) VALUES (@id, @email, @name, @role, @passwordHash)`).run(user);
+    }
+
+    const code = generateNumericCode(6);
+    const codeHash = sha256Hex(code);
+    const expiresAt = nowMs() + 15 * 60 * 1000; // 15 minutes
+    const codeRow = { id: newId(), userId: user.id, codeHash, purpose: 'password_reset', expiresAt, createdAt: nowMs() };
+    db.prepare(`INSERT INTO mfa_codes (id, userId, codeHash, purpose, expiresAt, createdAt) VALUES (@id, @userId, @codeHash, @purpose, @expiresAt, @createdAt)`).run(codeRow);
+
+    console.log('[AUTH] Password reset code for', email, 'is', code);
+    // In production: send email/SMS here
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('POST /api/auth/forgot-password error', e);
+    return res.status(500).json({ error: 'Failed to initiate reset' });
+  }
+});
+
+// Step 2: Verify MFA code and issue short-lived reset token
+app.post('/api/auth/verify-reset', (req, res) => {
+  try {
+    const email = (req.body && req.body.email || '').toLowerCase().trim();
+    const code = (req.body && req.body.code || '').trim();
+    if (!email || !code) return res.status(400).json({ error: 'Email and code required' });
+    const user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+    if (!user) return res.status(400).json({ error: 'Invalid code' });
+    const codeHash = sha256Hex(code);
+    const row = db.prepare(`SELECT * FROM mfa_codes WHERE userId = ? AND purpose = 'password_reset' ORDER BY createdAt DESC`).get(user.id);
+    if (!row || row.codeHash !== codeHash || row.expiresAt < nowMs()) {
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+    // Issue token
+    const token = newId();
+    const tokenRow = { id: newId(), userId: user.id, tokenHash: sha256Hex(token), expiresAt: nowMs() + 15 * 60 * 1000, used: 0, createdAt: nowMs() };
+    db.prepare(`INSERT INTO password_reset_tokens (id, userId, tokenHash, expiresAt, used, createdAt) VALUES (@id, @userId, @tokenHash, @expiresAt, @used, @createdAt)`).run(tokenRow);
+    // In production: email link with /reset-password?token=token
+    console.log('[AUTH] Reset link for', email, `is /reset-password?token=${token}`);
+    return res.json({ success: true, token });
+  } catch (e) {
+    console.error('POST /api/auth/verify-reset error', e);
+    return res.status(500).json({ error: 'Failed to verify code' });
+  }
+});
+
+// Step 3: Reset password using token or code
+app.post('/api/auth/reset-password', (req, res) => {
+  try {
+    const tokenOrCode = req.body && (req.body.token || req.body.code || req.body.resetCode || req.body.sessionToken || req.body.tokenOrCode);
+    const newPassword = req.body && (req.body.password || req.body.newPassword);
+    if (!tokenOrCode || !newPassword) return res.status(400).json({ error: 'Token/code and new password required' });
+    if (String(newPassword).length < 8) return res.status(400).json({ error: 'Password too short' });
+
+    const now = nowMs();
+    let userId = null;
+    // Try token path
+    const tokenHash = sha256Hex(tokenOrCode);
+    const tokenRow = db.prepare(`SELECT * FROM password_reset_tokens WHERE tokenHash = ?`).get(tokenHash);
+    if (tokenRow && !tokenRow.used && tokenRow.expiresAt > now) {
+      userId = tokenRow.userId;
+      db.prepare(`UPDATE password_reset_tokens SET used = 1 WHERE id = ?`).run(tokenRow.id);
+    } else {
+      // Try code path (latest code)
+      const codeHash = sha256Hex(tokenOrCode);
+      const candidate = db.prepare(`SELECT * FROM mfa_codes WHERE codeHash = ? AND purpose = 'password_reset' ORDER BY createdAt DESC`).get(codeHash);
+      if (!candidate || candidate.expiresAt < now) return res.status(400).json({ error: 'Invalid or expired token' });
+      userId = candidate.userId;
+    }
+    if (!userId) return res.status(400).json({ error: 'Invalid reset request' });
+
+    const passwordHash = sha256Hex(newPassword);
+    db.prepare(`UPDATE users SET passwordHash = ? WHERE id = ?`).run(passwordHash, userId);
+    console.log('[AUTH] Password changed for user', userId, 'at', new Date().toISOString());
+    // In production: send confirmation email
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('POST /api/auth/reset-password error', e);
+    return res.status(500).json({ error: 'Failed to reset password' });
+  }
 });
 
 // --- Admin <-> User Threads ---

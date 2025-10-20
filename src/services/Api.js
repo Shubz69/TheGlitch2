@@ -605,9 +605,7 @@ const Api = {
     // Password Reset
     sendPasswordResetEmail: async (email) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, {
-                email: email
-            });
+            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
             return response.status === 200;
         } catch (error) {
             console.error('Send password reset email error:', error);
@@ -616,17 +614,17 @@ const Api = {
         }
     },
     
-    resetPassword: async (token, newPassword) => {
+    verifyResetCode: async (email, code) => {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/verify-reset`, { email, code });
+        return response.data; // { success, token }
+    },
+    resetPassword: async (tokenOrCode, newPassword) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
-                token: token,
-                password: newPassword
-            });
+            const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { token: tokenOrCode, password: newPassword });
             return response.status === 200;
         } catch (error) {
             console.error('Reset password error:', error);
-            // For demo purposes, simulate success
-            return true;
+            return false;
         }
     },
 

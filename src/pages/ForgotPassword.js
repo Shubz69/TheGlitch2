@@ -46,12 +46,16 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            // Mock verification - in real implementation, verify the code with backend
-            if (resetCode.length === 6) {
+            if (resetCode.length !== 6) { setError('Please enter a valid 6-digit code.'); setIsLoading(false); return; }
+            const resp = await Api.verifyResetCode(email, resetCode);
+            if (resp && resp.success && resp.token) {
                 setSuccess('Code verified successfully!');
-                setStep(3);
+                // Prefer redirecting to /reset-password with token
+                setTimeout(() => {
+                    navigate(`/reset-password?token=${resp.token}`);
+                }, 800);
             } else {
-                setError('Please enter a valid 6-digit code.');
+                setError('Invalid or expired code.');
             }
         } catch (err) {
             setError('Invalid code. Please try again.');

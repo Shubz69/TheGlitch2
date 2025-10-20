@@ -31,6 +31,7 @@ import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
 import PaymentSuccess from './pages/PaymentSuccess';
 import VerifyMFA from './pages/VerifyMFA';
+import ResetPassword from './pages/ResetPassword';
 
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -73,6 +74,7 @@ function AppRoutes() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/my-courses" element={<MyCourses />} />
                     <Route path="/explore" element={<Explore />} />
