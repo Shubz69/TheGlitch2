@@ -8,7 +8,7 @@ const LoadingSpinner = () => {
         left: 0,
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(135deg, #0F0F1E 0%, #1A1A2E 50%, #0F0F1E 100%)',
+        background: 'linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-dark) 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -28,12 +28,12 @@ const LoadingSpinner = () => {
 
     const binaryDigitStyle = {
         position: 'absolute',
-        color: '#00BFFF',
+        color: 'rgba(255,255,255,0.5)',
         fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
         fontSize: '0.8rem',
         userSelect: 'none',
         pointerEvents: 'none',
-        opacity: 0.3
+        opacity: 0.18
     };
 
     const contentStyle = {
@@ -45,23 +45,22 @@ const LoadingSpinner = () => {
     const titleStyle = {
         fontSize: '4rem',
         fontWeight: '700',
-        color: '#00BFFF',
+        color: 'var(--primary)',
         marginBottom: '1rem',
         fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-        letterSpacing: '2px',
-        textShadow: '0 0 20px rgba(0, 191, 255, 0.8)',
+        letterSpacing: '1px',
         textTransform: 'uppercase'
     };
 
     const subtitleStyle = {
         fontSize: '1.5rem',
-        color: '#87CEEB',
+        color: 'var(--accent)',
         marginBottom: '3rem',
         fontWeight: '400',
-        letterSpacing: '2px',
+        letterSpacing: '1px',
         textTransform: 'uppercase',
         fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-        textShadow: '0 0 15px rgba(135, 206, 235, 0.6)'
+        textShadow: 'none'
     };
 
     const progressStyle = {
@@ -80,17 +79,17 @@ const LoadingSpinner = () => {
 
     const barStyle = {
         width: '100%',
-        height: '4px',
-        background: 'rgba(0, 191, 255, 0.2)',
-        borderRadius: '2px',
+        height: '3px',
+        background: 'rgba(255,255,255,0.15)',
+        borderRadius: '3px',
         overflow: 'hidden',
         position: 'relative'
     };
 
     const barFillStyle = {
         height: '100%',
-        background: 'linear-gradient(90deg, #00BFFF, #87CEEB)',
-        borderRadius: '2px',
+        background: 'var(--primary)',
+        borderRadius: '3px',
         width: '38%',
         position: 'relative'
     };
@@ -121,7 +120,7 @@ const LoadingSpinner = () => {
                 
                 {/* Loading progress */}
                 <div style={progressStyle}>
-                    <div style={textStyle}>SYSTEM INITIALIZING... <span style={{color: '#00BFFF', fontWeight: '600'}}>38%</span></div>
+                    <div style={textStyle}>SYSTEM INITIALIZING... <span style={{color: 'var(--primary)', fontWeight: '600'}}>38%</span></div>
                     <div style={barStyle}>
                         <div style={barFillStyle}></div>
                     </div>

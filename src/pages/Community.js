@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Api from '../services/Api';
+import WebSocketService from '../services/WebSocketService';
 import SharedBackground from '../components/SharedBackground';
 
 // Icons - only keep the ones actually used in the code
@@ -825,10 +826,21 @@ const Community = () => {
     const effectiveMockMode = MOCK_MODE;
     
     // ===== Get WebSocket connection =====
-    // Call both hooks unconditionally to comply with React hooks rules
+    // Use mock WebSocket for development/testing
     const mockWebSocketResult = useMockWebSocket(selectedChannel?.id, onMessageReceived);
-    // Always call useWebSocket unconditionally, but pass a shouldConnect parameter
-    const realWebSocketResult = useWebSocket(selectedChannel?.id, onMessageReceived, !effectiveMockMode);
+    
+    // For real WebSocket, we'll use the WebSocketService directly
+    const realWebSocketResult = {
+        sendMessage: (message) => {
+            // Use WebSocketService for real-time messaging
+            WebSocketService.send('channel:message', {
+                channelId: selectedChannel?.id,
+                message: message
+            });
+        },
+        isConnected: true, // WebSocketService handles connection internally
+        connectionError: null
+    };
     
     // Then choose which one's values to use based on effective mock mode
     const { 
