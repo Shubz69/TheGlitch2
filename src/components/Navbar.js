@@ -23,7 +23,6 @@ const Navbar = () => {
             <div className="navbar-container">
                 <div className="logo-container">
                     <Link to="/" className="logo-link">
-                        <div className="logo-icon">TG</div>
                         <span className="logo-text">THE GLITCH</span>
                     </Link>
                 </div>

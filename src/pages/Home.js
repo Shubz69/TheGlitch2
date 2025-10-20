@@ -1,261 +1,133 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../styles/Home.css";
-import "../styles/SharedBackground.css";
-import { useAuth } from "../context/AuthContext";
-import Chatbot from "../components/Chatbot";
-import SharedBackground from "../components/SharedBackground";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Home.css';
+import Chatbot from '../components/Chatbot';
 
 const Home = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-    const [showContent, setShowContent] = useState(false);
-    const [currentFeature, setCurrentFeature] = useState(0);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowContent(true);
-        }, 1000); // Quick load for clean experience
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    const features = [
-        {
-            icon: "🧠",
-            title: "Neural Intelligence",
-            description: "Advanced AI algorithms that learn and adapt in real-time, providing unprecedented market insights",
-            color: "#6366F1",
-            gradient: "linear-gradient(135deg, #6366F1, #8B5CF6)"
-        },
-        {
-            icon: "⚡",
-            title: "Quantum Speed",
-            description: "Ultra-low latency execution with sub-millisecond response times for optimal trading performance",
-            color: "#00CED1",
-            gradient: "linear-gradient(135deg, #00CED1, #20B2AA)"
-        },
-        {
-            icon: "🔒",
-            title: "Military Security",
-            description: "Bank-grade encryption with blockchain verification ensuring your data and investments are secure",
-            color: "#32CD32",
-            gradient: "linear-gradient(135deg, #32CD32, #228B22)"
-        },
-        {
-            icon: "📊",
-            title: "Predictive Analytics",
-            description: "Advanced pattern recognition and trend prediction algorithms for smarter trading decisions",
-            color: "#FF69B4",
-            gradient: "linear-gradient(135deg, #FF69B4, #FF1493)"
-        }
-    ];
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentFeature((prev) => (prev + 1) % features.length);
-        }, 4000); // Increased interval for better readability
-
-        return () => clearInterval(interval);
-    }, [features.length]);
-
-        // Removed mouse tracking for cleaner design
-
-    // Removed lightning effects for cleaner design
-
-    const handleStartTrading = () => {
-        if (isAuthenticated) {
-            navigate("/dashboard");
-        } else {
-            navigate("/register");
-        }
-    };
-
-    // Removed AI head interactions for cleaner design
-
-    const stats = [
-        { number: "20,000+", label: "Active Traders", icon: "👥" },
-        { number: "99.9%", label: "Uptime", icon: "⚡" },
-        { number: "247%", label: "Average ROI", icon: "📈" },
-        { number: "24/7", label: "AI Support", icon: "🤖" }
-    ];
-
     return (
         <div className="home-container">
-            <SharedBackground />
-            
-            {showContent && (
-                <>
-
-                    {/* Enhanced Hero Section */}
-                    <section className="hero-section">
-                        <div className="hero-background">
-                            {/* Clean background without effects */}
+            {/* Professional Hero Section */}
+            <section className="hero-section">
+                <div className="hero-content">
+                    <div className="hero-left">
+                        <div className="hero-eyebrow">Professional Trading Platform</div>
+                        <h1 className="hero-title">THE GLITCH</h1>
+                        <p className="hero-subtitle">
+                            Advanced algorithmic trading platform designed for serious traders. 
+                            Experience institutional-grade tools with AI-powered analytics and 
+                            real-time market intelligence.
+                        </p>
+                        <div className="hero-cta">
+                            <Link to="/register" className="hero-btn-primary">
+                                Start Trading
+                            </Link>
+                            <Link to="/explore" className="hero-btn-secondary">
+                                View Platform
+                            </Link>
                         </div>
-                        
-                        <div className="hero-content">
-                            <div className="hero-left">
-                                <div className="hero-badge">
-                                    <span className="badge-icon">⚡</span>
-                                    <span className="badge-text">AI-POWERED TRADING</span>
+                    </div>
+                    <div className="hero-right">
+                        <div className="hero-visual">
+                            <div className="feature-grid">
+                                <div className="feature-item">
+                                    <div className="feature-icon">📊</div>
+                                    <span>Analytics</span>
                                 </div>
-                                
-                                <h1 className="hero-title">
-                                    THE GLITCH PLATFORM
-                                </h1>
-                                
-                                <p className="hero-description">
-                                    Your comprehensive platform for building generational wealth across 8 powerful domains: 
-                                    <span className="highlight-text">Health & Fitness</span>, <span className="highlight-text">E-Commerce</span>, 
-                                    <span className="highlight-text">Forex</span>, <span className="highlight-text">Crypto</span>, 
-                                    <span className="highlight-text">Algorithmic FX</span>, <span className="highlight-text">Intelligent Systems Development</span>, 
-                                    <span className="highlight-text">Social Media</span>, and <span className="highlight-text">Real Estate</span>. 
-                                    Multiple income streams powered by cutting-edge knowledge.
-                                </p>
-                                
-                                <div className="hero-actions">
-                                    <button className="primary-button" onClick={handleStartTrading}>
-                                        <span className="button-text">Start Trading</span>
-                                    </button>
-                                    <button className="secondary-button" onClick={() => navigate("/explore")}>
-                                        <span className="button-text">Explore Features</span>
-                                        <span className="button-arrow">→</span>
-                                    </button>
+                                <div className="feature-item">
+                                    <div className="feature-icon">💼</div>
+                                    <span>Trading</span>
                                 </div>
-
-                                {/* Enhanced Stats Row */}
-                                <div className="hero-stats">
-                                    {stats.map((stat, index) => (
-                                        <div key={index} className="stat-item">
-                                            <div className="stat-icon">{stat.icon}</div>
-                                            <div className="stat-number">{stat.number}</div>
-                                            <div className="stat-label">{stat.label}</div>
-                                        </div>
-                                    ))}
+                                <div className="feature-item">
+                                    <div className="feature-icon">🎯</div>
+                                    <span>Strategy</span>
                                 </div>
-                            </div>
-                            
-                            {/* AI Graphic */}
-                            <div className="hero-right">
-                                <div className="ai-graphic">
-                                    <div className="ai-orb">
-                                        <div className="ai-core"></div>
-                                        <div className="ai-particles">
-                                            <div className="particle"></div>
-                                            <div className="particle"></div>
-                                            <div className="particle"></div>
-                                            <div className="particle"></div>
-                                        </div>
-                                    </div>
+                                <div className="feature-item">
+                                    <div className="feature-icon">📈</div>
+                                    <span>Growth</span>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Enhanced Features Section */}
-                    <section className="features-section">
-                        <div className="features-container">
-                            <div className="features-header">
-                                <h2 className="section-title">Advanced Capabilities</h2>
-                                <p className="section-subtitle">Discover what makes THE GLITCH the most advanced trading platform</p>
-                            </div>
-                            
-                            <div className="features-showcase">
-                                <div className="feature-display">
-                                    <div className="feature-icon-large" style={{ background: features[currentFeature].gradient }}>
-                                        <span>{features[currentFeature].icon}</span>
-                                    </div>
-                                    <div className="feature-info">
-                                        <h3 className="feature-title">{features[currentFeature].title}</h3>
-                                        <p className="feature-description">{features[currentFeature].description}</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="feature-indicators">
-                                    {features.map((feature, index) => (
-                                        <div 
-                                            key={index}
-                                            className={`feature-indicator ${index === currentFeature ? 'active' : ''}`}
-                                            onClick={() => setCurrentFeature(index)}
-                                            style={{ '--feature-color': feature.color }}
-                                        >
-                                            <span className="indicator-icon">{feature.icon}</span>
-                                            <span className="indicator-title">{feature.title}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+            {/* Professional Stats Section */}
+            <section className="stats-section">
+                <div className="stats-container">
+                    <div className="stats-grid">
+                        <div className="stat-item">
+                            <div className="stat-number">15K+</div>
+                            <div className="stat-label">Active Traders</div>
                         </div>
-                    </section>
+                        <div className="stat-item">
+                            <div className="stat-number">$5.2B</div>
+                            <div className="stat-label">Volume Traded</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-number">99.9%</div>
+                            <div className="stat-label">Uptime</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-number">24/7</div>
+                            <div className="stat-label">Support</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Enhanced Wealth Impact Section */}
-                    <section className="wealth-impact-section">
-                        <div className="wealth-impact-container">
-                            <div className="wealth-impact-header">
-                                <h2 className="wealth-impact-title">WEALTH IMPACT</h2>
-                                <p className="wealth-impact-subtitle">Real results across all wealth-building domains</p>
-                            </div>
-                            
-                            <div className="wealth-stats-grid">
-                                <div className="wealth-stat-card">
-                                    <div className="wealth-stat-icon">🎯</div>
-                                    <div className="wealth-stat-number">8.00</div>
-                                    <div className="wealth-stat-label">WEALTH DOMAINS</div>
-                                </div>
-                                <div className="wealth-stat-card">
-                                    <div className="wealth-stat-icon">💰</div>
-                                    <div className="wealth-stat-number">247</div>
-                                    <div className="wealth-stat-label">% AVG ROI</div>
-                                </div>
-                                <div className="wealth-stat-card">
-                                    <div className="wealth-stat-icon">📈</div>
-                                    <div className="wealth-stat-number">15</div>
-                                    <div className="wealth-stat-label">INCOME STREAMS</div>
-                                </div>
-                                <div className="wealth-stat-card">
-                                    <div className="wealth-stat-icon">🏆</div>
-                                    <div className="wealth-stat-number">99</div>
-                                    <div className="wealth-stat-label">SUCCESS RATE</div>
-                                </div>
-                            </div>
+            {/* Professional Features Section */}
+            <section className="features-section">
+                <div className="features-container">
+                    <div className="features-header">
+                        <h2 className="features-title">Professional Trading Solutions</h2>
+                        <p className="features-subtitle">
+                            Institutional-grade trading infrastructure with advanced analytics, 
+                            risk management, and execution capabilities.
+                        </p>
+                    </div>
+                    <div className="features-grid">
+                        <div className="feature-card">
+                            <div className="feature-card-icon">📊</div>
+                            <h3 className="feature-card-title">Advanced Analytics</h3>
+                            <p className="feature-card-description">
+                                Real-time market analysis with AI-powered insights, predictive modeling, 
+                                and comprehensive risk assessment tools.
+                            </p>
                         </div>
-                    </section>
+                        <div className="feature-card">
+                            <div className="feature-card-icon">🔒</div>
+                            <h3 className="feature-card-title">Enterprise Security</h3>
+                            <p className="feature-card-description">
+                                Bank-grade security infrastructure with multi-layer encryption, 
+                                secure authentication, and compliance standards.
+                            </p>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-card-icon">⚡</div>
+                            <h3 className="feature-card-title">Ultra-Low Latency</h3>
+                            <p className="feature-card-description">
+                                Sub-millisecond execution with direct market access and 
+                                co-location services for professional traders.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Enhanced CTA Section */}
-                    <section className="cta-section">
-                        <div className="cta-container">
-                            <div className="cta-content">
-                                <h2 className="cta-title">Ready to Experience the Future?</h2>
-                                <p className="cta-description">Join thousands of traders who trust THE GLITCH for their automated trading needs</p>
-                                
-                                <div className="cta-actions">
-                                    <button className="cta-primary" onClick={handleStartTrading}>
-                                        Get Started Now
-                                    </button>
-                                    <button className="cta-secondary" onClick={() => navigate("/explore")}>
-                                        Learn More
-                                    </button>
-                                </div>
-                                
-                                <div className="trust-indicators">
-                                    <div className="trust-item">
-                                        <span className="trust-icon">🔒</span>
-                                        <span>Bank-Level Security</span>
-                                    </div>
-                                    <div className="trust-item">
-                                        <span className="trust-icon">⚡</span>
-                                        <span>Lightning Fast</span>
-                                    </div>
-                                    <div className="trust-item">
-                                        <span className="trust-icon">🧠</span>
-                                        <span>AI-Powered</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </>
-            )}
+            {/* Professional CTA Section */}
+            <section className="cta-section">
+                <div className="cta-container">
+                    <h2 className="cta-title">Ready to Trade Professionally?</h2>
+                    <p className="cta-description">
+                        Join THE GLITCH and access institutional-grade trading tools 
+                        designed for serious traders and financial professionals.
+                    </p>
+                    <Link to="/register" className="cta-button">
+                        Start Professional Trading
+                    </Link>
+                </div>
+            </section>
+
             <Chatbot />
         </div>
     );
