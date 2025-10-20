@@ -23,7 +23,7 @@ const port = process.env.PORT || 8080;
 const enableAdminDMs = process.env.ENABLE_ADMIN_DMS !== 'false';
 
 // Email configuration
-const emailTransporter = nodemailer.createTransporter({
+const emailTransporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER || 'your-email@gmail.com',
