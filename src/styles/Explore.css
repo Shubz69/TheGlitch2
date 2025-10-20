@@ -1,4 +1,4 @@
-/* BEAUTIFUL EXPLORE PAGE - PURPLE BOXES */
+/* BEAUTIFUL EXPLORE PAGE - EXACT COLORS FROM MAIN WEBSITE */
 .explore-container {
     min-height: 100vh;
     background: var(--bg-dark);
@@ -6,15 +6,15 @@
     border: none;
 }
 
-/* BEAUTIFUL STOCK TICKER BOX */
+/* BEAUTIFUL STOCK TICKER BOX - INDIGO */
 .stock-ticker {
-    background: var(--primary) !important; /* Beautiful purple background */
-    border: 2px solid var(--secondary) !important; /* Light purple border */
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
     border-radius: 12px;
     padding: 1.5rem;
     margin: 2rem auto;
     max-width: 1000px;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
 }
 
 .ticker-item {
@@ -23,442 +23,217 @@
     border-radius: 8px;
     padding: 0.75rem 1rem;
     margin: 0.5rem;
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .ticker-symbol {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-weight: 700;
     margin-right: 0.5rem;
 }
 
 .ticker-price {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-weight: 600;
     margin-right: 0.5rem;
 }
 
 .ticker-change.up {
-    color: var(--secondary) !important; /* Light purple for up */
+    color: var(--secondary) !important; /* Purple-Blue for up */
     font-weight: 700;
 }
 
 .ticker-change.down {
-    color: var(--accent) !important; /* Very light purple for down */
+    color: var(--accent) !important; /* Light purple for down */
     font-weight: 700;
 }
 
-/* BEAUTIFUL TEAM CARDS */
+/* BEAUTIFUL TEAM CARDS - INDIGO */
 .team-card {
-    background: var(--primary) !important; /* Beautiful purple background */
-    border: 2px solid var(--secondary) !important; /* Light purple border */
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
     border-radius: 16px;
     padding: 2rem;
     text-align: center;
+    color: var(--text-primary) !important; /* Indigo text */
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
 }
 
 .team-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 16px 48px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 16px 48px rgba(99, 102, 241, 0.5);
     border-color: var(--accent) !important;
+    background: var(--secondary) !important; /* Purple-Blue on hover */
 }
 
 .team-avatar {
     width: 80px;
     height: 80px;
     background: var(--bg-light) !important; /* Dark grey background */
-    border: 3px solid var(--secondary) !important; /* Light purple border */
+    border: 2px solid var(--accent) !important; /* Light purple border */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     margin: 0 auto 1rem;
 }
 
 .team-name {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+    font-family: Arial, sans-serif;
 }
 
 .team-role {
-    color: var(--text-secondary) !important;
+    color: var(--secondary) !important; /* Purple-Blue text */
     font-size: 1rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    font-family: Arial, sans-serif;
 }
 
 .team-description {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important; /* Indigo text */
     font-size: 0.9rem;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-.skill-tag {
-    background: var(--bg-light) !important; /* Dark grey background */
-    color: var(--text-primary) !important;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border: 1px solid var(--accent) !important; /* Light purple border */
-}
-
-/* BEAUTIFUL SERVICE CARDS */
-.service-card {
-    background: var(--primary) !important; /* Beautiful purple background */
-    border: 2px solid var(--secondary) !important; /* Light purple border */
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
-}
-
-.service-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 48px rgba(139, 92, 246, 0.5);
-    border-color: var(--accent) !important;
-}
-
-.service-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.service-title {
-    color: var(--text-primary) !important;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-}
-
-.service-description {
-    color: var(--text-secondary) !important;
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
-.explore-header {
-    text-align: center;
-    margin-bottom: 4rem;
-    padding: 0 var(--spacing-lg);
-}
-
-.explore-title {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-family: Arial, sans-serif;
-}
-
-.explore-subtitle {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-}
-
-/* Professional Ticker */
-.ticker-section {
-    background: var(--bg-secondary);
-    padding: 2rem 0;
-    margin-bottom: 4rem;
-    overflow: hidden;
-}
-
-.ticker-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-.ticker-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 2rem;
-    text-align: center;
-    font-family: Arial, sans-serif;
-}
-
-.ticker-wrapper {
-    display: flex;
-    gap: 2rem;
-    animation: tickerScroll 30s linear infinite;
-}
-
-.ticker-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--bg-card);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: 8px;
-    min-width: 200px;
-    flex-shrink: 0;
-}
-
-.ticker-symbol {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-family: Arial, sans-serif;
-}
-
-.ticker-price {
-    font-weight: 600;
-    font-family: Arial, sans-serif;
-}
-
-.ticker-price.up {
-    color: #10B981;
-}
-
-.ticker-price.down {
-    color: #EF4444;
-}
-
-.ticker-change {
-    font-size: 0.875rem;
-    font-weight: 500;
-    font-family: Arial, sans-serif;
-}
-
-.ticker-change.up {
-    color: #10B981;
-}
-
-.ticker-change.down {
-    color: #EF4444;
-}
-
-@keyframes tickerScroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-}
-
-/* Professional Team Section */
-.team-section {
-    padding: 4rem 0;
-}
-
-.team-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-.team-header {
-    text-align: center;
-    margin-bottom: 4rem;
-}
-
-.team-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-family: Arial, sans-serif;
-}
-
-.team-subtitle {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-}
-
-.team-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.team-card {
-    background: var(--bg-card);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.team-card:hover {
-    border-color: rgba(99, 102, 241, 0.2);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-}
-
-.team-avatar {
-    width: 80px;
-    height: 80px;
-    background: var(--primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    font-size: 2rem;
-    color: var(--text-primary);
-}
-
-.team-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    font-family: Arial, sans-serif;
-}
-
-.team-role {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-accent);
-    margin-bottom: 1rem;
-    font-family: Arial, sans-serif;
-}
-
-.team-description {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 1.5rem;
     font-family: Arial, sans-serif;
 }
 
-.team-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
 .skill-tag {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--text-primary);
-    padding: 0.25rem 0.75rem;
+    background: var(--bg-light) !important; /* Dark grey background */
+    color: var(--primary) !important; /* Indigo text */
+    border: 1px solid var(--accent) !important; /* Light purple border */
+    padding: 0.5rem 1rem;
     border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: 600;
     font-family: Arial, sans-serif;
 }
 
-/* Professional Services Section */
-.services-section {
-    padding: 4rem 0;
-    background: var(--bg-secondary);
-}
-
-.services-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
-
-.services-header {
-    text-align: center;
-    margin-bottom: 4rem;
-}
-
-.services-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-family: Arial, sans-serif;
-}
-
-.services-subtitle {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-}
-
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
+/* BEAUTIFUL SERVICE CARDS - INDIGO */
 .service-card {
-    background: var(--bg-card);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: 12px;
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
+    border-radius: 16px;
     padding: 2rem;
     text-align: center;
+    color: var(--text-primary) !important; /* Indigo text */
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
     transition: all 0.3s ease;
 }
 
 .service-card:hover {
-    border-color: rgba(99, 102, 241, 0.2);
-    transform: translateY(-2px);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(99, 102, 241, 0.5);
+    border-color: var(--accent) !important;
+    background: var(--secondary) !important; /* Purple-Blue on hover */
 }
 
 .service-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    font-size: 1.5rem;
-    color: var(--primary);
+    font-size: 3rem;
+    margin-bottom: 1rem;
 }
 
 .service-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    color: var(--primary) !important; /* Indigo text */
+    font-size: 1.5rem;
+    font-weight: 700;
     margin-bottom: 1rem;
     font-family: Arial, sans-serif;
 }
 
 .service-description {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
+    color: var(--text-primary) !important; /* Indigo text */
+    font-size: 0.9rem;
     line-height: 1.6;
     font-family: Arial, sans-serif;
 }
 
+/* BEAUTIFUL TICKER CONTAINER - INDIGO */
+.ticker-container {
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+}
+
+.ticker-title {
+    color: var(--primary) !important; /* Indigo text */
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+/* BEAUTIFUL HEADERS - INDIGO */
+.explore-title {
+    color: var(--primary) !important; /* Indigo text */
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.explore-subtitle {
+    color: var(--secondary) !important; /* Purple-Blue text */
+    font-size: 1.125rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+.team-title {
+    color: var(--primary) !important; /* Indigo text */
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.services-title {
+    color: var(--primary) !important; /* Indigo text */
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .explore-title {
-        font-size: 2.5rem;
+    .explore-container {
+        padding: 1rem 0;
     }
     
-    .team-title,
-    .services-title {
+    .explore-title {
         font-size: 2rem;
     }
     
-    .ticker-wrapper {
-        gap: 1rem;
-    }
-    
-    .ticker-item {
-        min-width: 150px;
-        padding: 0.5rem 1rem;
-    }
-    
-    .team-grid,
-    .services-grid {
-        grid-template-columns: 1fr;
+    .team-card,
+    .service-card {
+        padding: 1.5rem;
     }
 }

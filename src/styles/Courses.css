@@ -1,4 +1,4 @@
-/* BEAUTIFUL COURSES PAGE - PURPLE ONLY */
+/* BEAUTIFUL COURSES PAGE - EXACT COLORS FROM MAIN WEBSITE */
 .courses-container {
     min-height: 100vh;
     width: 100%;
@@ -9,7 +9,7 @@
     background: var(--bg-dark);
     overflow: hidden;
     padding: 120px 20px 40px;
-    color: var(--primary);
+    color: var(--primary) !important; /* Indigo text */
     border: none;
 }
 
@@ -21,7 +21,7 @@
 .courses-title {
     font-size: 3rem;
     font-weight: 700;
-    color: var(--primary) !important; /* Beautiful purple */
+    color: var(--primary) !important; /* Indigo text */
     margin-bottom: 1rem;
     font-family: Arial, sans-serif;
     text-transform: uppercase;
@@ -33,14 +33,14 @@
     font-size: 1.125rem;
     max-width: 600px;
     margin: 0 auto;
-    color: var(--text-secondary) !important; /* Light grey */
+    color: var(--secondary) !important; /* Purple-Blue text */
     font-family: Arial, sans-serif;
     line-height: 1.6;
 }
 
 .mock-data-banner {
-    background: var(--primary) !important; /* Beautiful purple background */
-    border: 2px solid var(--secondary) !important; /* Light purple border */
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
     border-radius: 8px;
     padding: 15px 20px;
     margin: 20px auto;
@@ -53,7 +53,7 @@
 .mock-data-banner p {
     margin: 0;
     font-size: 14px;
-    color: var(--text-primary) !important; /* White text */
+    color: var(--text-primary) !important; /* Indigo text */
     font-family: Arial, sans-serif;
 }
 
@@ -64,29 +64,29 @@
     justify-content: center;
 }
 
-/* BEAUTIFUL COURSE CARDS - PURPLE BOXES */
+/* BEAUTIFUL COURSE CARDS - INDIGO */
 .course-card {
     width: 300px;
-    background: var(--primary) !important; /* Beautiful purple background */
-    border: 2px solid var(--secondary) !important; /* Light purple border */
+    background: var(--primary) !important; /* Indigo background */
+    border: 2px solid var(--secondary) !important; /* Purple-Blue border */
     border-radius: 20px;
     padding: 20px;
     text-align: center;
-    color: var(--text-primary) !important;
+    color: var(--text-primary) !important; /* Indigo text */
     text-decoration: none;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
     transition: all 0.3s ease;
 }
 
 .course-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 16px 48px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 16px 48px rgba(99, 102, 241, 0.5);
     border-color: var(--accent) !important;
-    background: var(--secondary) !important; /* Light purple on hover */
+    background: var(--secondary) !important; /* Purple-Blue on hover */
 }
 
 .course-title {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -94,7 +94,7 @@
 }
 
 .course-description {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important; /* Indigo text */
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1rem;
@@ -102,7 +102,7 @@
 }
 
 .course-price {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
@@ -111,7 +111,7 @@
 
 .buy-now-btn {
     background: var(--bg-light) !important; /* Dark grey background */
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     border: 2px solid var(--accent) !important; /* Light purple border */
     padding: 12px 24px;
     border-radius: 8px;
@@ -127,7 +127,7 @@
     background: var(--accent) !important; /* Light purple background on hover */
     color: var(--bg-dark) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(196, 181, 253, 0.3);
+    box-shadow: 0 8px 16px rgba(167, 139, 250, 0.3);
 }
 
 /* Course content alignment */
@@ -143,19 +143,19 @@
 }
 
 .course-card h3 {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     margin-bottom: 10px;
     font-family: Arial, sans-serif;
 }
 
 .course-card p {
-    color: var(--text-secondary) !important;
+    color: var(--text-primary) !important; /* Indigo text */
     margin-bottom: 15px;
     font-family: Arial, sans-serif;
 }
 
 .course-card .price {
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-size: 1.2em;
     font-weight: bold;
     margin-bottom: 15px;
@@ -163,9 +163,9 @@
 }
 
 .course-card button {
-    background: var(--bg-light) !important;
-    color: var(--text-primary) !important;
-    border: 2px solid var(--accent) !important;
+    background: var(--bg-light) !important; /* Dark grey background */
+    color: var(--primary) !important; /* Indigo text */
+    border: 2px solid var(--accent) !important; /* Light purple border */
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
@@ -174,7 +174,7 @@
 }
 
 .course-card button:hover {
-    background: var(--accent) !important;
+    background: var(--accent) !important; /* Light purple background */
     color: var(--bg-dark) !important;
 }
 

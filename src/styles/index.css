@@ -1,34 +1,28 @@
-/* BEAUTIFUL PURPLE & DARK GREY COLOR SCHEME - THE GLITCH */
+/* ========== EXACT COLOR SCHEME FROM MAIN WEBSITE ========== */
 :root {
-    /* BEAUTIFUL PURPLE COLORS */
-    --primary: #8B5CF6;      /* Beautiful Purple */
-    --secondary: #A78BFA;    /* Light Purple */
-    --accent: #C4B5FD;       /* Very Light Purple */
-
-    /* DARK GREY BACKGROUNDS */
-    --bg-dark: #0F0F23;      /* Dark Grey Background */
-    --bg-medium: #1A1A2E;    /* Medium Dark Grey */
-    --bg-light: #252541;     /* Light Dark Grey */
-
-    /* TEXT COLORS - PURPLE THEME */
-    --text-primary: #A78BFA;    /* Light Purple Text */
-    --text-secondary: #8B5CF6;  /* Beautiful Purple Text */
-    --text-muted: #C4B5FD;      /* Very Light Purple Text */
-    --text-accent: #A78BFA;     /* Light Purple Accent Text */
+    /* EXACT Purple-Blue Colors from Main Website */
+    --primary: #6366F1;      /* Indigo */
+    --secondary: #8B5CF6;    /* Purple-Blue */
+    --accent: #A78BFA;       /* Light Purple */
+    --dark-purple: #4C1D95;  /* Deep Purple */
+    
+    /* EXACT Greys from Main Website */
+    --bg-dark: #0F0F1E;
+    --bg-medium: #1A1A2E;
+    --bg-light: #252541;
+    
+    /* Text Colors - ALL PURPLE */
+    --text-primary: #6366F1;    /* Indigo text */
+    --text-secondary: #8B5CF6;  /* Purple-Blue text */
+    --text-muted: #A78BFA;      /* Light Purple text */
+    --text-accent: #8B5CF6;     /* Purple-Blue accent text */
     
     /* Legacy Support */
     --bg-primary: var(--bg-dark);
     --bg-secondary: var(--bg-medium);
     --bg-tertiary: var(--bg-light);
-    --bg-card: var(--bg-light);
-    
-    /* Professional Typography - Arial Only */
+    --font-main: Arial, sans-serif;
     --font-primary: Arial, sans-serif;
-    --font-weight-light: 300;
-    --font-weight-normal: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
     
     /* Professional Spacing System */
     --spacing-xs: 0.25rem;   /* 4px */
@@ -55,21 +49,15 @@
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-    
-    /* Legacy Support */
-    --bg-dark: var(--bg-primary);
-    --bg-medium: var(--bg-secondary);
-    --bg-light: var(--bg-tertiary);
-    --font-main: var(--font-primary);
 }
 
-/* BEAUTIFUL BASE STYLES - NO WHITE BORDERS */
+/* EXACT BASE STYLES FROM MAIN WEBSITE */
 html, body, #root {
     margin: 0 !important;
     padding: 0 !important;
     height: 100%;
     background: var(--bg-dark) !important;
-    color: var(--text-primary) !important;
+    color: var(--primary) !important; /* Indigo text */
     font-family: Arial, sans-serif !important;
     font-weight: 400;
     overflow-x: hidden;
@@ -84,144 +72,7 @@ html, body, #root {
     box-sizing: border-box;
 }
 
-/* REMOVE ALL WHITE BORDERS FROM EVERYTHING */
-*, *::before, *::after {
-    border: none !important;
-    outline: none !important;
-}
-
-/* Footer Styles */
-footer {
-    background: var(--bg-medium) !important;
-    color: var(--text-accent) !important;
-    text-align: center;
-    padding: 2rem 0;
-    border-top: 1px solid rgba(139, 92, 246, 0.1);
-    font-family: Arial, sans-serif;
-    font-size: 0.875rem;
-}
-
-footer p {
-    margin: 0;
-    color: var(--text-accent) !important;
-}
-
-/* Professional Card Utility */
-.card {
-    background: var(--bg-light);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-md);
-}
-
-/* Professional Button Styles */
-.btn-primary {
-    background: var(--primary);
-    color: var(--text-primary);
-    border: 2px solid var(--secondary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-weight: var(--font-weight-semibold);
-    font-family: Arial, sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-primary:hover {
-    background: var(--secondary);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-secondary {
-    background: var(--bg-light);
-    color: var(--text-primary);
-    border: 2px solid var(--accent);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-weight: var(--font-weight-semibold);
-    font-family: Arial, sans-serif;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-secondary:hover {
-    background: var(--accent);
-    color: var(--bg-dark);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* Professional Typography */
-h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
-    font-family: Arial, sans-serif;
-    font-weight: var(--font-weight-bold);
-    line-height: 1.2;
-    margin-bottom: var(--spacing-md);
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
-h5 { font-size: 1.125rem; }
-h6 { font-size: 1rem; }
-
-p {
-    color: var(--text-secondary);
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin-bottom: var(--spacing-md);
-}
-
-/* Professional Form Styles */
-input, textarea, select {
-    background: var(--bg-light);
-    border: 2px solid var(--accent);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    color: var(--text-primary);
-    font-family: Arial, sans-serif;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--secondary);
-    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
-}
-
-input::placeholder, textarea::placeholder {
-    color: var(--text-muted);
-}
-
-/* Professional Link Styles */
-a {
-    color: var(--accent);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: var(--text-primary);
-}
-
-/* Professional Page Wrapper */
-.page-wrapper {
-    padding-top: 100px;
-    min-height: 100vh;
-    background: var(--bg-dark);
-    border: none !important;
-}
-
-/* BEAUTIFUL PURPLE SCROLLBARS */
+/* EXACT PURPLE SCROLLBARS FROM MAIN WEBSITE */
 ::-webkit-scrollbar {
     width: 12px;
 }
@@ -246,13 +97,144 @@ a:hover {
     scrollbar-color: var(--primary) var(--bg-dark);
 }
 
-/* REMOVE ALL RED/GREEN/BLUE COLORS FROM EVERYWHERE */
-* {
-    /* Override any non-purple colors */
-    color: inherit !important;
+/* REMOVE ALL NON-PURPLE COLORS */
+*, *::before, *::after {
+    border: none !important;
+    outline: none !important;
 }
 
-/* Force purple colors on all elements that might have blue */
+/* Footer Styles - EXACT from Main Website */
+footer {
+    background: var(--primary) !important;
+    color: var(--text-primary) !important;
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 0.875rem;
+}
+
+footer p {
+    margin: 0;
+    color: var(--text-primary) !important;
+}
+
+/* Professional Card Utility - PURPLE BOXES */
+.card {
+    background: var(--bg-light);
+    border: 1px solid var(--secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+/* Professional Button Styles - PURPLE */
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-primary);
+    border: 2px solid var(--secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background: var(--secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Professional Typography - ALL PURPLE */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary) !important; /* Indigo headings */
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+    color: var(--secondary) !important; /* Purple-Blue text */
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Professional Form Styles - PURPLE */
+input, textarea, select {
+    background: var(--bg-light);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--primary) !important; /* Indigo text */
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-muted) !important; /* Light purple placeholder */
+}
+
+/* Professional Link Styles - PURPLE */
+a {
+    color: var(--accent) !important; /* Light purple links */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--primary) !important; /* Indigo on hover */
+}
+
+/* Professional Page Wrapper */
+.page-wrapper {
+    padding-top: 100px;
+    min-height: 100vh;
+    background: var(--bg-dark);
+    border: none !important;
+}
+
+/* FORCE PURPLE COLORS ON ALL ELEMENTS */
 .courses-title,
 .courses-subtitle,
 .mock-data-banner,
@@ -263,18 +245,30 @@ a:hover {
 .contact-form,
 .contact-info,
 .login-form-container,
-.register-form-container {
-    background: var(--primary) !important;
-    border-color: var(--secondary) !important;
-    color: var(--text-primary) !important;
+.register-form-container,
+.explore-title,
+.explore-subtitle,
+.team-title,
+.services-title,
+.why-title,
+.contact-title {
+    background: var(--primary) !important; /* Indigo background */
+    border-color: var(--secondary) !important; /* Purple-Blue border */
+    color: var(--text-primary) !important; /* Indigo text */
 }
 
-/* Remove any blue backgrounds or borders */
+/* Remove any non-purple colors */
 [style*="blue"],
 [style*="#00CED1"],
 [style*="#1E90FF"],
 [style*="rgba(30, 144, 255"],
-[style*="rgba(0, 206, 209"] {
+[style*="rgba(0, 206, 209"],
+[style*="red"],
+[style*="green"],
+[style*="#ff0000"],
+[style*="#00ff00"],
+[style*="#10B981"],
+[style*="#EF4444"] {
     background: var(--primary) !important;
     border-color: var(--secondary) !important;
     color: var(--text-primary) !important;
