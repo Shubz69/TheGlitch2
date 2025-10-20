@@ -41,12 +41,12 @@
 }
 
 .ticker-change.up {
-    color: #10B981 !important; /* Green for up */
+    color: var(--secondary) !important; /* Light purple for up */
     font-weight: 700;
 }
 
 .ticker-change.down {
-    color: #EF4444 !important; /* Red for down */
+    color: var(--accent) !important; /* Very light purple for down */
     font-weight: 700;
 }
 

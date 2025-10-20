@@ -31,7 +31,7 @@
 .login-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--text-primary) !important; /* White title */
+    color: var(--text-primary) !important; /* Purple title */
     margin-bottom: 8px;
     font-family: Arial, sans-serif;
     letter-spacing: -0.5px;
@@ -40,7 +40,7 @@
 }
 
 .login-subtitle {
-    color: var(--text-secondary) !important; /* Light grey subtitle */
+    color: var(--text-secondary) !important; /* Purple subtitle */
     font-size: 0.9rem;
     font-weight: 500;
     font-family: Arial, sans-serif;
@@ -52,7 +52,7 @@
 
 .form-label {
     display: block;
-    color: var(--text-primary) !important; /* White labels */
+    color: var(--text-primary) !important; /* Purple labels */
     font-size: 0.85rem;
     font-weight: 600;
     font-family: Arial, sans-serif;
@@ -67,7 +67,7 @@
     border: 2px solid var(--accent) !important; /* Light purple border */
     border-radius: 8px;
     padding: 16px 20px;
-    color: var(--text-primary) !important; /* White text */
+    color: var(--text-primary) !important; /* Purple text */
     font-size: 1rem;
     font-family: Arial, sans-serif;
     font-weight: 500;
@@ -93,7 +93,7 @@
 .login-button {
     width: 100%;
     background: var(--bg-light) !important; /* Dark grey background */
-    color: var(--text-primary) !important; /* White text */
+    color: var(--text-primary) !important; /* Purple text */
     border: 2px solid var(--accent) !important; /* Light purple border */
     border-radius: 8px;
     padding: 16px 24px;

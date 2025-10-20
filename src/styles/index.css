@@ -10,11 +10,11 @@
     --bg-medium: #1A1A2E;    /* Medium Dark Grey */
     --bg-light: #252541;     /* Light Dark Grey */
 
-    /* TEXT COLORS */
-    --text-primary: #FFFFFF;    /* Pure White Text */
-    --text-secondary: #E0E0E0; /* Light Grey Text */
-    --text-muted: #B0B0B0;     /* Muted Text */
-    --text-accent: #A78BFA;     /* Purple Accent Text */
+    /* TEXT COLORS - PURPLE THEME */
+    --text-primary: #A78BFA;    /* Light Purple Text */
+    --text-secondary: #8B5CF6;  /* Beautiful Purple Text */
+    --text-muted: #C4B5FD;      /* Very Light Purple Text */
+    --text-accent: #A78BFA;     /* Light Purple Accent Text */
     
     /* Legacy Support */
     --bg-primary: var(--bg-dark);
@@ -221,9 +221,34 @@ a:hover {
     border: none !important;
 }
 
-/* REMOVE ALL BLUE COLORS FROM EVERYWHERE */
+/* BEAUTIFUL PURPLE SCROLLBARS */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 6px;
+    border: 2px solid var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* Firefox scrollbar */
 * {
-    /* Override any blue colors */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--bg-dark);
+}
+
+/* REMOVE ALL RED/GREEN/BLUE COLORS FROM EVERYWHERE */
+* {
+    /* Override any non-purple colors */
     color: inherit !important;
 }
 
