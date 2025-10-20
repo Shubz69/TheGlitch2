@@ -98,33 +98,6 @@ const Explore = () => {
     <div className="explore-container">
       <SharedBackground />
 
-      {/* Stock Ticker */}
-      <div className="stock-ticker">
-        <div className="ticker-wrap">
-          <div className="ticker">
-            {stockData.map((stock, index) => (
-              <div key={index} className="ticker-item">
-                <span className="stock-symbol">{stock.symbol}</span>
-                <span className="stock-price">{stock.price}</span>
-                <span className={`stock-change ${stock.positive ? 'positive' : 'negative'}`}>
-                  {stock.change}
-                </span>
-              </div>
-            ))}
-            {/* Duplicate ticker items for seamless animation */}
-            {stockData.map((stock, index) => (
-              <div key={`dup-${index}`} className="ticker-item">
-                <span className="stock-symbol">{stock.symbol}</span>
-                <span className="stock-price">{stock.price}</span>
-                <span className={`stock-change ${stock.positive ? 'positive' : 'negative'}`}>
-                  {stock.change}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Header */}
       <div className="explore-header">
         <h1 className="explore-title">
