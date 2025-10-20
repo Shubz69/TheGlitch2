@@ -1,26 +1,16 @@
-/* CLEAN MODERN LOGIN PAGE - BEAUTIFUL DESIGN */
-:root {
-    --primary: #6366F1;
-    --secondary: #8B5CF6;
-    --accent: #A78BFA;
-    --bg-dark: #0A0A0F;
-    --bg-medium: #1A1A2E;
-    --bg-light: #252541;
-    --font-main: 'Space Grotesk', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
-}
+/* Professional Login Page */
 
 .login-container {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
+    background: var(--bg-primary);
     position: relative;
     overflow: hidden;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     padding: 20px;
-    padding-top: 80px;
+    padding-top: 100px;
 }
 
 /* Subtle background pattern */
@@ -37,20 +27,18 @@
     z-index: 1;
 }
 
-/* Clean modern form container */
+/* Professional form container */
 .login-form-container {
-    background: rgba(26, 26, 46, 0.9);
+    background: var(--bg-card);
     backdrop-filter: blur(20px);
-    border-radius: 24px;
-    padding: 48px 40px;
+    border-radius: 16px;
+    padding: 2.5rem;
     width: 100%;
     max-width: 420px;
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(99, 102, 241, 0.2);
+    box-shadow: var(--shadow-lg);
     position: relative;
     z-index: 10;
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 /* Clean header */
@@ -62,19 +50,18 @@
 .login-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--text-primary);
     margin-bottom: 8px;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    font-family: Arial, sans-serif;
     letter-spacing: -0.5px;
     line-height: 1.1;
 }
 
 .login-subtitle {
-    color: #FFFFFF;
+    color: var(--text-secondary);
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: 24px;
@@ -88,10 +75,10 @@
 
 .form-label {
     display: block;
-    color: var(--primary);
+    color: var(--text-primary);
     font-size: 0.85rem;
     font-weight: 600;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     margin-bottom: 8px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -99,149 +86,125 @@
 
 .form-input {
     width: 100%;
-    background: rgba(37, 37, 65, 0.8);
-    border: 2px solid rgba(99, 102, 241, 0.3);
-    border-radius: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 8px;
     padding: 16px 20px;
-    color: #FFFFFF;
+    color: var(--text-primary);
     font-size: 1rem;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
 }
 
 .form-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 
-        0 0 0 4px rgba(99, 102, 241, 0.15), 
-        0 8px 24px rgba(99, 102, 241, 0.2);
-    background: rgba(37, 37, 65, 0.9);
-    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: var(--bg-tertiary);
 }
 
 .form-input::placeholder {
-    color: rgba(167, 139, 250, 0.6);
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    color: var(--text-muted);
+    font-family: Arial, sans-serif;
     font-weight: 400;
 }
 
-/* Beautiful modern button */
+/* Professional button */
 .login-button {
     width: 100%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
+    background: var(--primary);
+    color: var(--text-primary);
     border: none;
-    border-radius: 16px;
+    border-radius: 8px;
     padding: 16px 24px;
     font-size: 1rem;
-    font-weight: 700;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-    position: relative;
-    overflow: hidden;
+    box-shadow: var(--shadow-md);
     margin-top: 8px;
 }
 
-.login-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-}
-
 .login-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
-}
-
-.login-button:hover::before {
-    left: 100%;
+    background: var(--secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
 }
 
 .login-button:active {
     transform: translateY(0);
 }
 
-/* Enhanced link styling with better visibility */
+/* Professional link styling */
 .forgot-password {
     text-align: center;
     margin-top: 16px;
 }
 
 .forgot-password a {
-    color: #00CED1;
+    color: var(--text-accent);
     text-decoration: none;
     font-size: 0.85rem;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     font-weight: 600;
     transition: all 0.3s ease;
-    text-shadow: 0 0 8px rgba(0, 206, 209, 0.4);
     padding: 8px 16px;
     border-radius: 8px;
-    background: rgba(0, 206, 209, 0.1);
-    border: 1px solid rgba(0, 206, 209, 0.3);
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     display: inline-block;
 }
 
 .forgot-password a:hover {
-    color: white;
+    color: var(--text-primary);
     text-decoration: none;
-    text-shadow: 0 0 12px rgba(0, 206, 209, 0.8);
     transform: translateY(-1px);
-    background: rgba(0, 206, 209, 0.2);
-    border-color: #00CED1;
-    box-shadow: 0 4px 12px rgba(0, 206, 209, 0.3);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
 }
 
-.signup-link {
+.register-link {
     text-align: center;
     margin-top: 24px;
     padding-top: 20px;
     border-top: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-.signup-link p {
-    color: #FFFFFF;
+.register-link p {
+    color: var(--text-secondary);
     font-size: 0.85rem;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
     margin-bottom: 12px;
     font-weight: 400;
 }
 
-.signup-link a {
-    color: #FF69B4;
+.register-link a {
+    color: var(--text-accent);
     text-decoration: none;
-    font-weight: 700;
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
     padding: 10px 20px;
-    border-radius: 10px;
-    background: rgba(255, 105, 180, 0.1);
-    border: 1px solid rgba(255, 105, 180, 0.3);
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     display: inline-block;
 }
 
-.signup-link a:hover {
-    color: white;
+.register-link a:hover {
+    color: var(--text-primary);
     text-decoration: none;
-    text-shadow: 0 0 12px rgba(255, 105, 180, 0.8);
     transform: translateY(-1px);
-    background: rgba(255, 105, 180, 0.2);
-    border-color: #FF69B4;
-    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Error message */

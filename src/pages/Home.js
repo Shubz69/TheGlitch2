@@ -10,19 +10,20 @@ const Home = () => {
             <section className="hero-section">
                 <div className="hero-content">
                     <div className="hero-left">
-                        <div className="hero-eyebrow">Professional Trading Platform</div>
+                        <div className="hero-eyebrow">Create Generational Wealth</div>
                         <h1 className="hero-title">THE GLITCH</h1>
                         <p className="hero-subtitle">
-                            Advanced algorithmic trading platform designed for serious traders. 
-                            Experience institutional-grade tools with AI-powered analytics and 
-                            real-time market intelligence.
+                            Break free from bad habits and make money work for you. Our platform provides 
+                            multiple streams of knowledge across 8 powerful domains: Health & Fitness, 
+                            E-Commerce, Forex, Crypto, Algorithmic Trading, Intelligent Systems Development, 
+                            Social Media, and Real Estate.
                         </p>
                         <div className="hero-cta">
                             <Link to="/register" className="hero-btn-primary">
-                                Start Trading
+                                Start Building Wealth
                             </Link>
-                            <Link to="/explore" className="hero-btn-secondary">
-                                View Platform
+                            <Link to="/courses" className="hero-btn-secondary">
+                                View Courses
                             </Link>
                         </div>
                     </div>
@@ -30,19 +31,19 @@ const Home = () => {
                         <div className="hero-visual">
                             <div className="feature-grid">
                                 <div className="feature-item">
-                                    <div className="feature-icon">📊</div>
-                                    <span>Analytics</span>
-                                </div>
-                                <div className="feature-item">
-                                    <div className="feature-icon">💼</div>
-                                    <span>Trading</span>
-                                </div>
-                                <div className="feature-item">
-                                    <div className="feature-icon">🎯</div>
-                                    <span>Strategy</span>
+                                    <div className="feature-icon">💰</div>
+                                    <span>Wealth Building</span>
                                 </div>
                                 <div className="feature-item">
                                     <div className="feature-icon">📈</div>
+                                    <span>Multiple Streams</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-icon">🎯</div>
+                                    <span>Smart Habits</span>
+                                </div>
+                                <div className="feature-item">
+                                    <div className="feature-icon">🚀</div>
                                     <span>Growth</span>
                                 </div>
                             </div>
@@ -56,16 +57,16 @@ const Home = () => {
                 <div className="stats-container">
                     <div className="stats-grid">
                         <div className="stat-item">
-                            <div className="stat-number">15K+</div>
-                            <div className="stat-label">Active Traders</div>
+                            <div className="stat-number">8</div>
+                            <div className="stat-label">Wealth Domains</div>
                         </div>
                         <div className="stat-item">
-                            <div className="stat-number">$5.2B</div>
-                            <div className="stat-label">Volume Traded</div>
+                            <div className="stat-number">15+</div>
+                            <div className="stat-label">Income Streams</div>
                         </div>
                         <div className="stat-item">
-                            <div className="stat-number">99.9%</div>
-                            <div className="stat-label">Uptime</div>
+                            <div className="stat-number">247%</div>
+                            <div className="stat-label">Average ROI</div>
                         </div>
                         <div className="stat-item">
                             <div className="stat-number">24/7</div>
@@ -79,35 +80,35 @@ const Home = () => {
             <section className="features-section">
                 <div className="features-container">
                     <div className="features-header">
-                        <h2 className="features-title">Professional Trading Solutions</h2>
+                        <h2 className="features-title">Multiple Wealth Streams</h2>
                         <p className="features-subtitle">
-                            Institutional-grade trading infrastructure with advanced analytics, 
-                            risk management, and execution capabilities.
+                            Stop trading time for money. Learn how to make money work for you 
+                            across multiple domains with our comprehensive knowledge base.
                         </p>
                     </div>
                     <div className="features-grid">
                         <div className="feature-card">
+                            <div className="feature-card-icon">🏠</div>
+                            <h3 className="feature-card-title">Real Estate</h3>
+                            <p className="feature-card-description">
+                                Build passive income through property investment, rental income, 
+                                and real estate development strategies.
+                            </p>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-card-icon">💻</div>
+                            <h3 className="feature-card-title">E-Commerce</h3>
+                            <p className="feature-card-description">
+                                Create online businesses and digital products that generate 
+                                revenue while you sleep.
+                            </p>
+                        </div>
+                        <div className="feature-card">
                             <div className="feature-card-icon">📊</div>
-                            <h3 className="feature-card-title">Advanced Analytics</h3>
+                            <h3 className="feature-card-title">Algorithmic Trading</h3>
                             <p className="feature-card-description">
-                                Real-time market analysis with AI-powered insights, predictive modeling, 
-                                and comprehensive risk assessment tools.
-                            </p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="feature-card-icon">🔒</div>
-                            <h3 className="feature-card-title">Enterprise Security</h3>
-                            <p className="feature-card-description">
-                                Bank-grade security infrastructure with multi-layer encryption, 
-                                secure authentication, and compliance standards.
-                            </p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="feature-card-icon">⚡</div>
-                            <h3 className="feature-card-title">Ultra-Low Latency</h3>
-                            <p className="feature-card-description">
-                                Sub-millisecond execution with direct market access and 
-                                co-location services for professional traders.
+                                Automated trading systems that work 24/7 to capture market 
+                                opportunities and build wealth.
                             </p>
                         </div>
                     </div>
@@ -117,13 +118,13 @@ const Home = () => {
             {/* Professional CTA Section */}
             <section className="cta-section">
                 <div className="cta-container">
-                    <h2 className="cta-title">Ready to Trade Professionally?</h2>
+                    <h2 className="cta-title">Ready to Build Generational Wealth?</h2>
                     <p className="cta-description">
-                        Join THE GLITCH and access institutional-grade trading tools 
-                        designed for serious traders and financial professionals.
+                        Join THE GLITCH and learn how to create multiple income streams 
+                        that work for you, not against you.
                     </p>
                     <Link to="/register" className="cta-button">
-                        Start Professional Trading
+                        Start Your Wealth Journey
                     </Link>
                 </div>
             </section>

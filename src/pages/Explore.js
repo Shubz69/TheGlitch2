@@ -95,59 +95,8 @@ const Explore = () => {
   }, [dataPoints.length]);
 
   return (
-    <div className="explore-page">
+    <div className="explore-container">
       <SharedBackground />
-      {/* SVG Background Chart */}
-      <svg className="chart-background" viewBox="0 0 100 100" preserveAspectRatio="none" ref={chartRef}>
-        {/* Grid Lines */}
-        {[...Array(20)].map((_, i) => (
-          <line
-            key={`h-${i}`}
-            x1="0"
-            y1={i * 5}
-            x2="100"
-            y2={i * 5}
-            className="grid-line"
-          />
-        ))}
-        {[...Array(20)].map((_, i) => (
-          <line
-            key={`v-${i}`}
-            x1={i * 5}
-            y1="0"
-            x2={i * 5}
-            y2="100"
-            className="grid-line"
-          />
-        ))}
-        
-        {/* Support and Resistance Lines */}
-        <line x1="0" y1="30" x2="100" y2="30" className="resistance-line" />
-        <line x1="0" y1="70" x2="100" y2="70" className="support-line" />
-        
-        {/* Moving Average Line */}
-        <path
-          d="M0,55 L100,45"
-          className="ma-line"
-        />
-        
-        {/* Trend Line */}
-        <path
-          d={`M0,${dataPoints.length > 0 ? dataPoints[0].y : 50} ${dataPoints.map(p => `L${p.x},${p.y}`).join(' ')}`}
-          className="trend-line"
-        />
-        
-        {/* Data Points */}
-        {dataPoints.map((point, i) => (
-          <circle
-            key={i}
-            cx={point.x}
-            cy={point.y}
-            r="0.4"
-            className="data-point"
-          />
-        ))}
-      </svg>
 
       {/* Stock Ticker */}
       <div className="stock-ticker">
@@ -177,105 +126,94 @@ const Explore = () => {
       </div>
 
       {/* Header */}
-      <header className="explore-header">
+      <div className="explore-header">
         <h1 className="explore-title">
           WELCOME TO THE GLITCH
         </h1>
         <p className="explore-subtitle">
           Experience our <span className="highlight">AI-POWERED</span> trading platform with advanced predictive analytics, real-time market insights, and proprietary algorithms designed by elite quantitative analysts for serious investors.
         </p>
-      </header>
+      </div>
+
+      {/* Stock Ticker */}
+      <div className="ticker-section">
+        <div className="ticker-container">
+          <h2 className="ticker-title">Live Market Data</h2>
+          <div className="ticker-wrapper">
+            {stockData.map((stock, index) => (
+              <div key={index} className="ticker-item">
+                <span className="ticker-symbol">{stock.symbol}</span>
+                <span className={`ticker-price ${stock.positive ? 'up' : 'down'}`}>{stock.price}</span>
+                <span className={`ticker-change ${stock.positive ? 'up' : 'down'}`}>
+                  {stock.change}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Team Section */}
       <section className="team-section">
-        <h2>OUR EXPERT TEAM</h2>
-        <div className="team-grid">
-          {teamMembers.map((member) => (
-            <div key={member.id} className="team-member">
-              <div className="member-image-container">
-                <div className="member-image">
-                  <div className="image-placeholder">{member.name.charAt(0)}</div>
+        <div className="team-container">
+          <div className="team-header">
+            <h2 className="team-title">OUR EXPERT TEAM</h2>
+            <p className="team-subtitle">Meet the professionals behind THE GLITCH platform</p>
+          </div>
+          <div className="team-grid">
+            {teamMembers.map((member) => (
+              <div key={member.id} className="team-card">
+                <div className="team-avatar">{member.name.charAt(0)}</div>
+                <h3 className="team-name">{member.name}</h3>
+                <p className="team-role">{member.role}</p>
+                <p className="team-description">{member.description}</p>
+                <div className="team-skills">
+                  <span className="skill-tag">{member.expertise}</span>
                 </div>
-                <div className="expertise-tag">{member.expertise}</div>
               </div>
-              <h3>{member.name}</h3>
-              <p className="member-role">{member.role}</p>
-              <p className="member-description">{member.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials">
-        <h2>TRADER TESTIMONIALS</h2>
-        <div className="testimonial-container">
-          <div className="testimonial-card">
-            <div className="quote-mark">"</div>
-            <p>
-              The AI-powered predictive analytics have completely transformed my trading strategy. My win rate increased from 52% to 68% within the first month of using this platform.
-            </p>
-            <div className="testimonial-author">
-              <span className="author-name">Michael T.</span>
-              <span className="author-title">Professional Day Trader | 5+ years experience</span>
-            </div>
-          </div>
-          <div className="testimonial-card">
-            <div className="quote-mark">"</div>
-            <p>
-              As an institutional portfolio manager, I need tools that can process vast amounts of market data quickly. This platform's risk models deliver insights that have helped me optimize several multi-million dollar portfolios.
-            </p>
-            <div className="testimonial-author">
-              <span className="author-name">Sophia R.</span>
-              <span className="author-title">Hedge Fund Analyst | AUM $150M+</span>
-            </div>
-          </div>
-          <div className="testimonial-card">
-            <div className="quote-mark">"</div>
-            <p>
-              The community insights combined with AI-driven technical analysis create a powerful edge. I've reduced my research time by 70% while improving my position sizing and risk management tremendously.
-            </p>
-            <div className="testimonial-author">
-              <span className="author-name">David K.</span>
-              <span className="author-title">Swing Trader | Crypto Specialist</span>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Platform Highlights */}
-      <section className="feature-highlights">
-        <h2>PLATFORM FEATURES</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">📊</div>
-            <h3>AI Predictive Analytics</h3>
-            <p>Proprietary machine learning algorithms that identify complex market patterns and predict price movements with up to 76% accuracy.</p>
+      {/* Platform Features */}
+      <section className="services-section">
+        <div className="services-container">
+          <div className="services-header">
+            <h2 className="services-title">PLATFORM FEATURES</h2>
+            <p className="services-subtitle">Advanced tools for serious traders</p>
           </div>
-          <div className="feature-card">
-            <div className="feature-icon">🤖</div>
-            <h3>Automated Trading Systems</h3>
-            <p>Deploy sophisticated trading algorithms with custom parameters that execute precisely when your conditions are met, with microsecond precision.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📱</div>
-            <h3>Real-time Alerts</h3>
-            <p>Never miss a trading opportunity with customizable push notifications for price movements, technical indicators, and AI-detected patterns.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🔒</div>
-            <h3>Enterprise Security</h3>
-            <p>Military-grade encryption, multi-factor authentication, and 24/7 monitoring ensures your data and funds remain completely secure.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📈</div>
-            <h3>Advanced Charting</h3>
-            <p>Professional-grade technical analysis tools with over 100+ indicators and drawing tools for precise market visualization.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🧠</div>
-            <h3>Sentiment Analysis</h3>
-            <p>Real-time processing of news, social media, and market data to gauge market sentiment and identify potential catalysts.</p>
+          <div className="services-grid">
+            <div className="service-card">
+              <div className="service-icon">📊</div>
+              <h3 className="service-title">AI Predictive Analytics</h3>
+              <p className="service-description">Proprietary machine learning algorithms that identify complex market patterns and predict price movements with up to 76% accuracy.</p>
+            </div>
+            <div className="service-card">
+              <div className="service-icon">🤖</div>
+              <h3 className="service-title">Automated Trading Systems</h3>
+              <p className="service-description">Deploy sophisticated trading algorithms with custom parameters that execute precisely when your conditions are met.</p>
+            </div>
+            <div className="service-card">
+              <div className="service-icon">📱</div>
+              <h3 className="service-title">Real-time Alerts</h3>
+              <p className="service-description">Never miss a trading opportunity with customizable push notifications for price movements and technical indicators.</p>
+            </div>
+            <div className="service-card">
+              <div className="service-icon">🔒</div>
+              <h3 className="service-title">Enterprise Security</h3>
+              <p className="service-description">Military-grade encryption, multi-factor authentication, and 24/7 monitoring ensures your data and funds remain secure.</p>
+            </div>
+            <div className="service-card">
+              <div className="service-icon">📈</div>
+              <h3 className="service-title">Advanced Charting</h3>
+              <p className="service-description">Professional-grade technical analysis tools with over 100+ indicators and drawing tools for precise market visualization.</p>
+            </div>
+            <div className="service-card">
+              <div className="service-icon">🧠</div>
+              <h3 className="service-title">Sentiment Analysis</h3>
+              <p className="service-description">Real-time processing of news, social media, and market data to gauge market sentiment and identify potential catalysts.</p>
+            </div>
           </div>
         </div>
       </section>

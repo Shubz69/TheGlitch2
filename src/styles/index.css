@@ -1,23 +1,23 @@
 /* Professional Design System - THE GLITCH */
 
-/* Professional Color Palette - Strict & Authoritative */
+/* Enhanced Color Palette - More Vibrant */
 :root {
     /* Primary Professional Colors */
-    --primary: #6366F1;      /* Professional Indigo */
-    --secondary: #8B5CF6;    /* Authority Purple */
-    --accent: #A78BFA;       /* Accent Purple */
-    --dark-purple: #4C1D95;  /* Deep Authority */
+    --primary: #6366F1;      /* Indigo */
+    --secondary: #8B5CF6;    /* Purple-Blue */
+    --accent: #A78BFA;       /* Light Purple */
+    --dark-purple: #4C1D95;  /* Deep Purple */
     
-    /* Professional Background Hierarchy */
-    --bg-primary: #0A0A0F;   /* Deep Professional Black */
-    --bg-secondary: #111118; /* Secondary Professional */
-    --bg-tertiary: #1A1A23;  /* Tertiary Professional */
-    --bg-card: #1E1E28;      /* Card Background */
+    /* Background Colors - Lighter Greys */
+    --bg-primary: #1A1A2E;   /* Dark Background */
+    --bg-secondary: #252541; /* Secondary Background */
+    --bg-tertiary: #2A2A4A;  /* Tertiary Background */
+    --bg-card: #3A3A5A;      /* Card Background */
     
-    /* Professional Text Colors - No White */
-    --text-primary: #E8E8F0;    /* Professional Light */
-    --text-secondary: #B8B8C8; /* Professional Medium */
-    --text-muted: #8B8B9B;     /* Professional Muted */
+    /* Text Colors - More Contrast */
+    --text-primary: #FFFFFF;    /* Pure White Text */
+    --text-secondary: #E0E0E0; /* Light Grey Text */
+    --text-muted: #B0B0B0;     /* Muted Text */
     --text-accent: #A78BFA;     /* Accent Text */
     
     /* Professional Typography - Arial Only */
@@ -77,6 +77,24 @@ html, body, #root {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    border: none;
+    outline: none;
+}
+
+/* Footer Styles */
+footer {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 0.875rem;
+}
+
+footer p {
+    margin: 0;
+    color: var(--text-secondary);
 }
 
 /* Page wrapper for floating navbar */
