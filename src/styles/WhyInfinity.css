@@ -54,12 +54,13 @@
 
 /* Stock ticker */
 .ticker-container {
-    background: var(--bg-medium);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 8px;
-    padding: 1rem;
+    background: var(--primary) !important; /* Beautiful purple background */
+    border: 2px solid var(--secondary) !important; /* Light purple border */
+    border-radius: 12px;
+    padding: 1.5rem;
     margin-bottom: 3rem;
     overflow: hidden;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
 }
 
 .ticker {

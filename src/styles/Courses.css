@@ -18,24 +18,70 @@
     justify-content: center;
 }
 
+/* BEAUTIFUL COURSE CARDS - PURPLE BOXES */
 .course-card {
     width: 300px;
-    background: linear-gradient(135deg, var(--bg-medium), var(--bg-light));
+    background: var(--primary) !important; /* Beautiful purple background */
+    border: 2px solid var(--secondary) !important; /* Light purple border */
     border-radius: 20px;
     padding: 20px;
     text-align: center;
-    color: var(--primary);
+    color: var(--text-primary) !important;
     text-decoration: none;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
 }
 
 .course-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-    background: linear-gradient(135deg, var(--bg-light), var(--bg-medium));
-    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 16px 48px rgba(139, 92, 246, 0.5);
+    border-color: var(--accent) !important;
+    background: var(--secondary) !important; /* Light purple on hover */
+}
+
+.course-title {
+    color: var(--text-primary) !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.course-description {
+    color: var(--text-secondary) !important;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.course-price {
+    color: var(--text-primary) !important;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.buy-now-btn {
+    background: var(--bg-light) !important; /* Dark grey background */
+    color: var(--text-primary) !important;
+    border: 2px solid var(--accent) !important; /* Light purple border */
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.buy-now-btn:hover {
+    background: var(--accent) !important; /* Light purple background on hover */
+    color: var(--bg-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(196, 181, 253, 0.3);
 }
 
 /* Course content alignment */

@@ -1,22 +1,22 @@
 /* Professional Design System - THE GLITCH */
 
-/* Original Color Palette - THE GLITCH (10x Better) */
+/* BEAUTIFUL PURPLE & DARK GREY COLOR SCHEME - THE GLITCH */
 :root {
-    /* Original Purple Colors */
-    --primary: #6366F1;      /* Indigo */
-    --secondary: #8B5CF6;    /* Purple-Blue */
-    --accent: #A78BFA;       /* Light Purple */
-    
-    /* Original Background Colors */
-    --bg-dark: #0A0A0F;      /* Dark Background */
-    --bg-medium: #1A1A2E;    /* Medium Background */
-    --bg-light: #252541;     /* Light Background */
-    
-    /* Text Colors */
-    --text-primary: #FFFFFF;    /* White Text */
+    /* BEAUTIFUL PURPLE COLORS */
+    --primary: #8B5CF6;      /* Beautiful Purple */
+    --secondary: #A78BFA;    /* Light Purple */
+    --accent: #C4B5FD;       /* Very Light Purple */
+
+    /* DARK GREY BACKGROUNDS */
+    --bg-dark: #0F0F23;      /* Dark Grey Background */
+    --bg-medium: #1A1A2E;    /* Medium Dark Grey */
+    --bg-light: #252541;     /* Light Dark Grey */
+
+    /* TEXT COLORS */
+    --text-primary: #FFFFFF;    /* Pure White Text */
     --text-secondary: #E0E0E0; /* Light Grey Text */
     --text-muted: #B0B0B0;     /* Muted Text */
-    --text-accent: #A78BFA;     /* Accent Text */
+    --text-accent: #A78BFA;     /* Purple Accent Text */
     
     /* Legacy Support */
     --bg-primary: var(--bg-dark);
@@ -67,13 +67,13 @@
 
 /* Professional Base Styles - No White Borders */
 html, body, #root {
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
     height: 100%;
-    background: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: var(--font-primary);
-    font-weight: var(--font-weight-normal);
+    background: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+    font-family: Arial, sans-serif !important;
+    font-weight: 400;
     overflow-x: hidden;
     line-height: 1.6;
     letter-spacing: 0.01em;

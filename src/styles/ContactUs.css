@@ -1,4 +1,4 @@
-/* Professional Contact Page */
+/* BEAUTIFUL CONTACT PAGE - PURPLE BOXES */
 .contact-container {
     min-height: 100vh;
     background: var(--bg-dark);
@@ -6,44 +6,133 @@
     border: none;
 }
 
-.contact-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
-}
-
-.contact-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    grid-column: 1 / -1;
-}
-
-.contact-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-family: Arial, sans-serif;
-}
-
-.contact-subtitle {
-    font-size: 1.125rem;
-    color: var(--text-secondary);
-    max-width: 600px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-}
-
-/* Professional Contact Form */
+/* BEAUTIFUL CONTACT FORM BOX */
 .contact-form {
-    background: var(--bg-card);
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    background: var(--primary) !important; /* Beautiful purple background */
+    border: 2px solid var(--secondary) !important; /* Light purple border */
     border-radius: 16px;
     padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--text-primary) !important; /* White labels */
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.form-input {
+    width: 100%;
+    background: var(--bg-light) !important; /* Dark grey background for inputs */
+    border: 2px solid var(--accent) !important; /* Light purple border */
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: var(--text-primary) !important; /* White text */
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--secondary) !important; /* Light purple on focus */
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+    background: var(--bg-medium) !important;
+}
+
+.form-input::placeholder {
+    color: var(--text-muted) !important;
+    font-family: Arial, sans-serif;
+    font-weight: 400;
+}
+
+.submit-button {
+    width: 100%;
+    background: var(--bg-light) !important; /* Dark grey background */
+    color: var(--text-primary) !important; /* White text */
+    border: 2px solid var(--accent) !important; /* Light purple border */
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.submit-button:hover {
+    background: var(--accent) !important; /* Light purple on hover */
+    color: var(--bg-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* BEAUTIFUL CONTACT INFO BOX */
+.contact-info {
+    background: var(--primary) !important; /* Beautiful purple background */
+    border: 2px solid var(--secondary) !important; /* Light purple border */
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+}
+
+.contact-info h3 {
+    color: var(--text-primary) !important; /* White title */
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    font-family: Arial, sans-serif;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary) !important; /* Light grey text */
+    font-family: Arial, sans-serif;
+}
+
+.contact-item .icon {
+    margin-right: 1rem;
+    color: var(--accent) !important; /* Light purple icons */
+    font-size: 1.2rem;
+}
+
+.contact-item span {
+    color: var(--text-primary) !important; /* White text */
+    font-weight: 600;
+}
+
+/* DIRECT EMAIL LINK */
+.direct-email {
+    color: var(--text-secondary) !important;
+    font-family: Arial, sans-serif;
+    margin-top: 1rem;
+}
+
+.direct-email a {
+    color: var(--accent) !important; /* Light purple link */
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.direct-email a:hover {
+    color: var(--text-primary) !important; /* White on hover */
 }
 
 .form-group {
