@@ -3,11 +3,11 @@
     --background-dark: var(--bg-dark);
     --sidebar-dark: var(--bg-darker);
     --channel-hover: var(--bg-light);
-    --border-color: #1E90FF; /* Blue instead of gold */
-    --text-light: #1E90FF; /* Blue instead of gold */
-    --text-muted: #1E90FF; /* Blue instead of gold */
-    --accent: #1E90FF; /* Blue instead of gold */
-    --accent-hover: #1E90FF; /* Blue instead of gold */
+    --border-color: var(--secondary); /* Light purple */
+    --text-light: var(--text-primary); /* White text */
+    --text-muted: var(--text-muted); /* Muted grey */
+    --accent: var(--accent); /* Light purple accent */
+    --accent-hover: var(--primary); /* Beautiful purple */
 }
 
 /* Community Page Styles - Updated to match grey and blue theme */

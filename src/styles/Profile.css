@@ -178,7 +178,7 @@
     background: rgba(0, 255, 0, 0.1);
     border: 1px solid rgba(0, 255, 0, 0.3);
     border-radius: 8px;
-    color: #00ff00;
+    color: var(--accent);
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -214,7 +214,7 @@
 }
 
 .cancel-button {
-    background: linear-gradient(45deg, #ff0000, #cc0000);
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
 }
 
 .status-msg {
@@ -224,7 +224,7 @@
     border-radius: 8px;
     background: rgba(0, 255, 0, 0.1);
     border: 1px solid rgba(0, 255, 0, 0.3);
-    color: #00ff00;
+    color: var(--accent);
 }
 
 .loading {
@@ -236,7 +236,7 @@
 
 .error {
     text-align: center;
-    color: #ff0000;
+    color: var(--primary);
     font-size: 1.2rem;
     padding: 20px;
     background: rgba(255, 0, 0, 0.1);

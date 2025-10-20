@@ -1,7 +1,7 @@
 .admin-panel-container {
     min-height: 100vh;
-    background: #000;
-    color: #ffffff;
+    background: var(--bg-dark);
+    color: var(--text-primary);
     position: relative;
     overflow: hidden;
     padding: 20px;
@@ -48,7 +48,7 @@
 .admin-title {
     font-size: 3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -56,7 +56,7 @@
 
 .user-summary {
     font-size: 1.2rem;
-    color: #cccccc;
+    color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.1);
     padding: 15px 30px;
     border-radius: 25px;
@@ -152,7 +152,7 @@
 
 .loading-text {
     font-size: 1.2rem;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 /* Users Grid */
@@ -202,13 +202,13 @@
 .user-email {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     margin-bottom: 8px;
 }
 
 .user-name {
     font-size: 1rem;
-    color: #cccccc;
+    color: var(--text-secondary);
     margin-bottom: 8px;
 }
 
@@ -272,7 +272,7 @@
 
 .delete-btn {
     background: linear-gradient(45deg, #ff0000, #cc0000);
-    color: #ffffff;
+    color: var(--text-primary);
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
