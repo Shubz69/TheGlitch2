@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const sanitizeHtml = require('sanitize-html');
 const Database = require('better-sqlite3');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +21,35 @@ const port = process.env.PORT || 8080;
 
 // Feature flag
 const enableAdminDMs = process.env.ENABLE_ADMIN_DMS !== 'false';
+
+// Email configuration
+const emailTransporter = nodemailer.createTransporter({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'your-email@gmail.com',
+    pass: process.env.EMAIL_PASS || 'your-app-password'
+  }
+});
+
+// Email sending function
+async function sendEmail(to, subject, text, html) {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+      to: to,
+      subject: subject,
+      text: text,
+      html: html
+    };
+    
+    const result = await emailTransporter.sendMail(mailOptions);
+    console.log('[EMAIL] Sent successfully:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('[EMAIL] Failed to send:', error);
+    return { success: false, error: error.message };
+  }
+}
 
 // Middleware
 app.use(express.json());
@@ -242,7 +272,7 @@ function canRequestReset(email) {
 }
 
 // Step 1: Request reset (sends MFA code and/or prepares token)
-app.post('/api/auth/forgot-password', (req, res) => {
+app.post('/api/auth/forgot-password', async (req, res) => {
   try {
     const email = (req.body && req.body.email || '').toLowerCase().trim();
     if (!email) return res.status(400).json({ error: 'Email required' });
@@ -262,8 +292,32 @@ app.post('/api/auth/forgot-password', (req, res) => {
     db.prepare(`INSERT INTO mfa_codes (id, userId, codeHash, purpose, expiresAt, createdAt) VALUES (@id, @userId, @codeHash, @purpose, @expiresAt, @createdAt)`).run(codeRow);
 
     console.log('[AUTH] Password reset code for', email, 'is', code);
-    // In production: send email/SMS here
-    return res.json({ success: true });
+    
+    // Send email with reset code
+    const emailSubject = 'THE GLITCH - Password Reset Code';
+    const emailText = `Your password reset code is: ${code}\n\nThis code will expire in 15 minutes.\n\nIf you didn't request this, please ignore this email.`;
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #6366f1;">THE GLITCH - Password Reset</h2>
+        <p>Your password reset code is:</p>
+        <div style="background: #f3f4f6; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; color: #6366f1; border-radius: 8px; margin: 20px 0;">
+          ${code}
+        </div>
+        <p>This code will expire in 15 minutes.</p>
+        <p>If you didn't request this password reset, please ignore this email.</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        <p style="color: #6b7280; font-size: 14px;">© 2023 THE GLITCH. All rights reserved.</p>
+      </div>
+    `;
+    
+    const emailResult = await sendEmail(email, emailSubject, emailText, emailHtml);
+    
+    if (emailResult.success) {
+      return res.json({ success: true, message: 'Password reset code sent to your email' });
+    } else {
+      console.error('[AUTH] Email sending failed:', emailResult.error);
+      return res.json({ success: true, message: 'Password reset code generated (email sending failed)' });
+    }
   } catch (e) {
     console.error('POST /api/auth/forgot-password error', e);
     return res.status(500).json({ error: 'Failed to initiate reset' });
