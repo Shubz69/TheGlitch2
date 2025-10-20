@@ -1,8 +1,9 @@
 /* Professional Contact Page */
 .contact-container {
     min-height: 100vh;
-    background: var(--bg-primary);
+    background: var(--bg-dark);
     padding: 4rem 0;
+    border: none;
 }
 
 .contact-content {

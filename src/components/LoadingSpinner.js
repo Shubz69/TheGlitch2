@@ -14,7 +14,8 @@ const LoadingSpinner = () => {
         justifyContent: 'center',
         zIndex: 9999,
         overflow: 'hidden',
-        fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif'
+        fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+        border: 'none'
     };
 
     const binaryBackgroundStyle = {

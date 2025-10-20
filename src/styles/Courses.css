@@ -104,8 +104,9 @@
     position: relative;
     background: var(--bg-dark);
     overflow: hidden;
-    padding: 120px 20px 40px; /* Increased top padding to account for navbar */
+    padding: 120px 20px 40px;
     color: var(--primary);
+    border: none;
 }
 
 .stars {

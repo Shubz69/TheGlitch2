@@ -1,8 +1,8 @@
 /* Professional Design System - THE GLITCH */
 
-/* Original Color Palette - THE GLITCH */
+/* Original Color Palette - THE GLITCH (10x Better) */
 :root {
-    /* Original Primary Colors */
+    /* Original Purple Colors */
     --primary: #6366F1;      /* Indigo */
     --secondary: #8B5CF6;    /* Purple-Blue */
     --accent: #A78BFA;       /* Light Purple */
@@ -65,7 +65,7 @@
     --font-main: var(--font-primary);
 }
 
-/* Professional Base Styles */
+/* Professional Base Styles - No White Borders */
 html, body, #root {
     margin: 0;
     padding: 0;
@@ -81,14 +81,15 @@ html, body, #root {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    border: none;
-    outline: none;
+    border: none !important;
+    outline: none !important;
+    box-sizing: border-box;
 }
 
 /* Footer Styles */
 footer {
     background: var(--bg-medium);
-    color: var(--text-secondary);
+    color: var(--text-accent);
     text-align: center;
     padding: 2rem 0;
     border-top: 1px solid rgba(99, 102, 241, 0.1);
@@ -98,7 +99,7 @@ footer {
 
 footer p {
     margin: 0;
-    color: var(--text-secondary);
+    color: var(--text-accent);
 }
 
 /* Page wrapper for floating navbar */

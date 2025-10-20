@@ -1,8 +1,9 @@
 /* Professional Explore Page */
 .explore-container {
     min-height: 100vh;
-    background: var(--bg-primary);
+    background: var(--bg-dark);
     padding: 2rem 0;
+    border: none;
 }
 
 .explore-header {
