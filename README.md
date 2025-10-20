@@ -1,5 +1,11 @@
 # Trading Platform Frontend
 
+## Latest Updates (v0.1.1)
+- Complete UI cleanup with Arial fonts and professional styling
+- Live messaging system with Admin↔User DMs and Community channels  
+- Password reset with MFA verification
+- All glow/glitch effects removed for clean, professional appearance
+
 This is the frontend application for the Trading Platform. It provides a user-friendly interface for accessing courses, community channels, and trading resources.
 
 ## Features
