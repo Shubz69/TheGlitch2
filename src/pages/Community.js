@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import '../styles/Community.css';
 import '../styles/SharedBackground.css';
 // Removed GlitchBranding.css for cleaner design
-import { useWebSocket } from '../utils/useWebSocket';
+// import { useWebSocket } from '../utils/useWebSocket';
 import { useAuth } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';

@@ -419,33 +419,27 @@ const Api = {
     
     // Community/Channels
     getChannels: async (customHeaders = {}) => {
-        console.log('Attempting to fetch channels from:', `${API_BASE_URL}/api/community/channels`);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/api/community/channels`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    ...customHeaders
-                }
-            });
-            return response;
-        } catch (error) {
-            console.error('Error fetching channels:', error);
-            throw error;
-        }
+        // Minimal: derive from server channels table if endpoint added later
+        // For now, expose a default 'general' channel.
+        return { data: [{ id: 'general', slug: 'general', name: 'General' }] };
     },
     
-    getChannelMessages: async (channelId, customHeaders = {}) => {
+    getChannelMessages: async (channelId, { cursor, limit } = {}, customHeaders = {}) => {
         console.log(`Attempting to fetch messages for channel ${channelId}`);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/api/community/channels/${channelId}/messages`, {
+            const params = new URLSearchParams();
+            if (cursor) params.append('cursor', cursor);
+            if (limit) params.append('limit', String(limit));
+            const url = `${API_BASE_URL}/api/channels/${channelId}/messages${params.toString() ? `?${params.toString()}` : ''}`;
+            const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     ...customHeaders
                 }
             });
-            return response;
+            // Normalize to legacy shape expected by Community.js: data is an array
+            return { data: response.data.messages || [] };
         } catch (error) {
             console.error(`Error fetching messages for channel ${channelId}:`, error);
             throw error;
@@ -455,7 +449,7 @@ const Api = {
     sendMessage: async (channelId, messageData) => {
         console.log(`Attempting to send message to channel ${channelId}`);
         
-        if (!shouldMakeRequest(`${API_BASE_URL}/api/community/channels/${channelId}/messages`)) {
+        if (!shouldMakeRequest(`${API_BASE_URL}/api/channels/${channelId}/messages`)) {
             console.log('Cannot send message: Not authenticated');
             throw new Error('Authentication required to send messages');
         }
@@ -463,10 +457,11 @@ const Api = {
         try {
             const token = localStorage.getItem('token');
             const customAxios = axios.create();
-            
+            // Map legacy messageData.content to backend expected { body }
+            const payload = messageData && messageData.body ? messageData : { body: messageData.content || '' };
             const response = await customAxios.post(
-                `${API_BASE_URL}/api/community/channels/${channelId}/messages`, 
-                messageData,
+                `${API_BASE_URL}/api/channels/${channelId}/messages`, 
+                payload,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -479,6 +474,46 @@ const Api = {
             console.error(`Error sending message to channel ${channelId}:`, error);
             throw error; // Rethrow as sending messages should report errors to user
         }
+    },
+
+    // Admin <-> User Threads (DMs)
+    ensureAdminThread: async () => {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${API_BASE_URL}/api/threads/ensure`, {}, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response;
+    },
+
+    listThreads: async () => {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_BASE_URL}/api/threads`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response;
+    },
+
+    getThreadMessages: async (threadId, { cursor, limit } = {}) => {
+        const token = localStorage.getItem('token');
+        const params = new URLSearchParams();
+        if (cursor) params.append('cursor', cursor);
+        if (limit) params.append('limit', String(limit));
+        const url = `${API_BASE_URL}/api/threads/${threadId}/messages${params.toString() ? `?${params.toString()}` : ''}`;
+        return axios.get(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    },
+
+    sendThreadMessage: async (threadId, body) => {
+        const token = localStorage.getItem('token');
+        return axios.post(`${API_BASE_URL}/api/threads/${threadId}/messages`, { body }, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    },
+
+    markThreadRead: async (threadId) => {
+        const token = localStorage.getItem('token');
+        return axios.post(`${API_BASE_URL}/api/threads/${threadId}/read`, {}, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
     },
     
     deleteMessage: async (channelId, messageId) => {

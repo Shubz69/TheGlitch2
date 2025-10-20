@@ -1,148 +1,62 @@
-import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
-import CryptoJS from 'crypto-js';
+import { io } from 'socket.io-client';
 
 class WebSocketService {
     constructor() {
-        this.stompClient = null;
+        this.socket = null;
         this.isConnected = false;
-        this.subscriptions = new Map();
-        this.messageHandlers = new Map();
-        this.encryptionEnabled = false;
-        this.encryptionKey = process.env.REACT_APP_ENCRYPTION_KEY || 'default-encryption-key';
     }
 
-    connect(endpoint = process.env.REACT_APP_API_URL + '/ws', callback = () => {}) {
+    connect(auth = {}, callback = () => {}) {
         if (this.isConnected) {
-            console.log('WebSocket already connected');
             callback();
             return;
         }
-
-        const socket = new SockJS(endpoint);
-        this.stompClient = Stomp.over(socket);
-        
-        // Disable debug logs
-        this.stompClient.debug = () => {};
-
-        this.stompClient.connect({}, () => {
-            console.log('WebSocket connected');
+        const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        this.socket = io(baseURL, { transports: ['websocket'], auth });
+        this.socket.on('connect', () => {
             this.isConnected = true;
             callback();
-        }, (error) => {
-            console.error('WebSocket connection error:', error);
+        });
+        this.socket.on('disconnect', () => {
             this.isConnected = false;
-            setTimeout(() => this.connect(endpoint, callback), 5000);
         });
     }
 
-    disconnect() {
-        if (this.stompClient) {
-            this.stompClient.disconnect();
-            this.isConnected = false;
-            this.subscriptions.clear();
-            console.log('WebSocket disconnected');
-        }
+    joinThread(threadId) {
+        if (!this.socket) return;
+        this.socket.emit('thread:join', { threadId });
     }
 
-    subscribe(destination, callback) {
-        if (!this.isConnected) {
-            console.warn('WebSocket not connected, connecting now...');
-            this.connect(undefined, () => this.subscribe(destination, callback));
-            return { unsubscribe: () => {} };
-        }
-
-        if (this.subscriptions.has(destination)) {
-            console.log(`Already subscribed to ${destination}`);
-            this.messageHandlers.set(destination, callback);
-            return this.subscriptions.get(destination);
-        }
-
-        const subscription = this.stompClient.subscribe(destination, (message) => {
-            try {
-                let messageBody = message.body;
-                
-                // Decrypt message if encryption is enabled
-                if (this.encryptionEnabled) {
-                    messageBody = this.decryptMessage(messageBody);
-                }
-                
-                let parsedMessage;
-                try {
-                    // Try to parse as direct JSON
-                    parsedMessage = JSON.parse(messageBody);
-                } catch (parseError) {
-                    // Handle case where the message might be a string that contains JSON
-                    if (typeof messageBody === 'string' && 
-                        (messageBody.startsWith('"') && messageBody.endsWith('"'))) {
-                        const unquoted = JSON.parse(messageBody);
-                        if (typeof unquoted === 'string' && 
-                           (unquoted.startsWith('{') || unquoted.startsWith('['))) {
-                            parsedMessage = JSON.parse(unquoted);
-                        } else {
-                            parsedMessage = { content: unquoted, timestamp: Date.now(), sender: "System" };
-                        }
-                    } else {
-                        // Just treat as a plain string message
-                        parsedMessage = { content: messageBody, timestamp: Date.now(), sender: "System" };
-                    }
-                }
-                
-                callback(parsedMessage);
-            } catch (error) {
-                console.error('Error handling WebSocket message:', error);
-                console.log('Raw message content:', message.body);
-            }
-        });
-
-        this.subscriptions.set(destination, subscription);
-        this.messageHandlers.set(destination, callback);
-        console.log(`Subscribed to ${destination}`);
-        return subscription;
+    onThreadMessage(handler) {
+        if (!this.socket) return;
+        this.socket.on('thread:new_message', handler);
     }
 
-    unsubscribe(destination) {
-        if (this.subscriptions.has(destination)) {
-            this.subscriptions.get(destination).unsubscribe();
-            this.subscriptions.delete(destination);
-            this.messageHandlers.delete(destination);
-            console.log(`Unsubscribed from ${destination}`);
-        }
+    onThreadRead(handler) {
+        if (!this.socket) return;
+        this.socket.on('thread:read', handler);
     }
 
-    send(destination, message) {
-        if (!this.isConnected) {
-            console.warn('WebSocket not connected, connecting now...');
-            this.connect(undefined, () => this.send(destination, message));
-            return;
-        }
-
-        let messageToSend = JSON.stringify(message);
-        
-        // Encrypt message if encryption is enabled
-        if (this.encryptionEnabled) {
-            messageToSend = this.encryptMessage(messageToSend);
-        }
-        
-        this.stompClient.send(destination, {}, messageToSend);
+    offThreadEvents() {
+        if (!this.socket) return;
+        this.socket.off('thread:new_message');
+        this.socket.off('thread:read');
     }
 
-    encryptMessage(message) {
-        return CryptoJS.AES.encrypt(message, this.encryptionKey).toString();
+    joinChannel(channelId) {
+        if (!this.socket) return;
+        this.socket.emit('channel:join', { channelId });
     }
 
-    decryptMessage(encryptedMessage) {
-        const bytes = CryptoJS.AES.decrypt(encryptedMessage, this.encryptionKey);
-        return bytes.toString(CryptoJS.enc.Utf8);
+    onChannelMessage(handler) {
+        if (!this.socket) return;
+        this.socket.on('channel:new_message', handler);
     }
 
-    setEncryptionEnabled(enabled) {
-        this.encryptionEnabled = enabled;
-    }
-
-    setEncryptionKey(key) {
-        this.encryptionKey = key;
+    offChannelEvents() {
+        if (!this.socket) return;
+        this.socket.off('channel:new_message');
     }
 }
 
-export default new WebSocketService(); 
+export default new WebSocketService();

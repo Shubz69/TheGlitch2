@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, Paper, Avatar, Divider, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import WebSocketService from '../services/WebSocketService';
+import Api from '../services/Api';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -20,64 +21,64 @@ const Chat = ({ channelId, channelName }) => {
   };
   
   useEffect(() => {
-    // Connect to WebSocket
-    WebSocketService.connect(undefined, () => {
-      // Ensure we unsubscribe first to prevent duplicate subscriptions
-      WebSocketService.unsubscribe(`/topic/chat/${channelId}`);
-      
-      // Subscribe to channel messages
-      WebSocketService.subscribe(`/topic/chat/${channelId}`, (newMessage) => {
-        console.log('Message received:', newMessage);
-        setMessages(prevMessages => {
-          // Check for duplicates by comparing content and timestamp
-          const isDuplicate = prevMessages.some(
-            msg => msg.content === newMessage.content && 
-                  msg.sender === newMessage.sender &&
-                  Math.abs(msg.timestamp - newMessage.timestamp) < 1000
-          );
-          if (isDuplicate) {
-            return prevMessages;
-          }
-          return [...prevMessages, newMessage];
+    let mounted = true;
+    setLoading(true);
+    // Connect socket and join channel room
+    WebSocketService.connect({ userId: user?.id, role: user?.role }, async () => {
+      WebSocketService.offChannelEvents();
+      WebSocketService.joinChannel(channelId);
+      WebSocketService.onChannelMessage(({ channelId: incomingChannelId, message: incoming }) => {
+        if (!mounted) return;
+        if (incomingChannelId !== channelId) return;
+        setMessages(prev => {
+          const exists = prev.some(m => m.id && incoming.id && m.id === incoming.id);
+          if (exists) return prev;
+          return [...prev, incoming];
         });
         scrollToBottom();
       });
-      
-      // Join the channel
-      WebSocketService.send('/app/chat/' + channelId, {
-        sender: user.username,
-        channelId: channelId,
-        type: 'JOIN'
-      });
-      
-      setLoading(false);
+      try {
+        const resp = await Api.getChannelMessages(channelId, { limit: 50 });
+        if (!mounted) return;
+        setMessages(resp.data.messages || []);
+      } catch (e) {
+        console.error('Failed to load channel messages', e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     });
-    
-    // Cleanup on unmount
+
     return () => {
-      WebSocketService.unsubscribe(`/topic/chat/${channelId}`);
+      mounted = false;
+      WebSocketService.offChannelEvents();
     };
-  }, [channelId, user.username]);
+  }, [channelId, user?.id, user?.role]);
   
   // Scroll on new messages
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
   
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    
-    if (message.trim() !== '') {
-      const chatMessage = {
-        content: message,
-        sender: user.username,
-        channelId: channelId,
-        timestamp: Date.now(),
-        type: 'CHAT'
-      };
-      
-      WebSocketService.send('/app/chat/' + channelId, chatMessage);
-      setMessage('');
+    const body = message.trim();
+    if (!body) return;
+    const optimistic = {
+      id: `tmp_${Date.now()}`,
+      channelId,
+      senderId: String(user?.id || ''),
+      body,
+      createdAt: Date.now(),
+      status: 'sending'
+    };
+    setMessages(prev => [...prev, optimistic]);
+    setMessage('');
+    try {
+      await Api.sendMessage(channelId, { body });
+      // The server broadcast will append the persisted message
+      // Optionally remove the optimistic once acked by replacing on duplicate id not feasible; keep both minimalistic
+    } catch (err) {
+      console.error('Send failed', err);
     }
   };
   
@@ -144,17 +145,7 @@ const Chat = ({ channelId, channelName }) => {
           </Box>
         ) : (
           messages.map((msg, index) => {
-            if (msg.type === 'JOIN' || msg.type === 'LEAVE') {
-              return (
-                <Box key={index} sx={{ textAlign: 'center', my: 1 }}>
-                  <Typography variant="caption" color="#999">
-                    {msg.sender} has {msg.type === 'JOIN' ? 'joined' : 'left'} the channel
-                  </Typography>
-                </Box>
-              );
-            }
-            
-            const isCurrentUser = msg.sender === user.username;
+            const isCurrentUser = String(msg.senderId) === String(user?.id) || msg.sender === user?.username;
             
             return (
               <Box key={index} sx={getMessageStyle(msg.sender)}>
@@ -190,9 +181,9 @@ const Chat = ({ channelId, channelName }) => {
                       border: isCurrentUser ? 'none' : '1px solid rgba(255, 255, 255, 0.2)'
                     }}
                   >
-                    <Typography variant="body1">{msg.content}</Typography>
+                    <Typography variant="body1">{msg.body || msg.content}</Typography>
                     <Typography variant="caption" color={isCurrentUser ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)'} sx={{ display: 'block', textAlign: 'right', mt: 0.5 }}>
-                      {formatTime(msg.timestamp)}
+                      {formatTime(msg.createdAt || msg.timestamp)}
                     </Typography>
                   </Paper>
                 </Box>
@@ -208,7 +199,7 @@ const Chat = ({ channelId, channelName }) => {
                       fontSize: '0.875rem' 
                     }}
                   >
-                    {getUserInitials(msg.sender)}
+                    {getUserInitials(msg.sender || user?.username)}
                   </Avatar>
                 )}
               </Box>

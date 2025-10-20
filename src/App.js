@@ -24,6 +24,8 @@ import EditAddress from './pages/EditAddress';
 import EditPhone from './pages/EditPhone';
 import EditPassword from './pages/EditPassword';
 import AdminMessages from './pages/AdminMessages';
+import AdminInbox from './pages/AdminInbox';
+import SupportInbox from './pages/SupportInbox';
 import PublicProfile from './pages/PublicProfile';
 import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
@@ -93,6 +95,7 @@ function AppRoutes() {
                         <>
                             <Route path="/community" element={<Community />} />
                             <Route path="/community/:channelId" element={<Community />} />
+                            <Route path="/support" element={<SupportInbox />} />
                             <Route path="/leaderboard" element={<Leaderboard />} />
                         </>
                     )}
@@ -100,6 +103,7 @@ function AppRoutes() {
                     {/* Admin-only Routes */}
                     <Route path="/admin/messages" element={user?.role === "ADMIN" ? <AdminMessages /> : <Navigate to="/" />} />
                     <Route path="/admin" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
+                    <Route path="/admin/inbox" element={user?.role === "ADMIN" ? <AdminInbox /> : <Navigate to="/" />} />
                     <Route path="/admin/users" element={user?.role === "ADMIN" ? <AdminUserList /> : <Navigate to="/" />} />
                     <Route path="/admin/tools" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
 

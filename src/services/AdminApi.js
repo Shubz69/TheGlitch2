@@ -24,24 +24,14 @@ const AdminApi = {
         });
     },
 
-    getContactMessages: () => {
+    getContactMessages: async () => {
+        const base = process.env.REACT_APP_API_URL || 'http://localhost:8080';
         const token = localStorage.getItem('token');
-        return axios.get(`${API_BASE_URL}/api/contact`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
+        const res = await fetch(`${base}/api/contact`, {
+            headers: { Authorization: `Bearer ${token}` }
         });
-    },
-
-    deleteContactMessage: (messageId) => {
-        const token = localStorage.getItem('token');
-        return axios.delete(`${API_BASE_URL}/api/contact/${messageId}`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        if (!res.ok) throw new Error(`Failed: ${res.status}`);
+        return { data: await res.json() };
     }
 };
 

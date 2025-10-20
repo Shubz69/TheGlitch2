@@ -64,6 +64,15 @@ const Navbar = () => {
                                 <Link to="/profile" className="dropdown-item">
                                     <FaUserCircle className="dropdown-icon" /> Profile
                                 </Link>
+                                {user?.role?.toUpperCase() === "ADMIN" ? (
+                                    <Link to="/admin/inbox" className="dropdown-item">
+                                        <FaHeadset className="dropdown-icon" /> Messages
+                                    </Link>
+                                ) : (
+                                    <Link to="/support" className="dropdown-item">
+                                        <FaHeadset className="dropdown-icon" /> Messages
+                                    </Link>
+                                )}
                                 <Link to="/my-courses" className="dropdown-item">
                                     <FaBook className="dropdown-icon" /> My Courses
                                 </Link>
