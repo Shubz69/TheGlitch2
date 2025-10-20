@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useWebSocket } from '../utils/useWebSocket';
+// Legacy websocket hook removed; admin online status will refresh via polling for now
 import '../styles/AdminPanel.css';
 import '../styles/SharedBackground.css';
 // Removed GlitchBranding.css for cleaner design
@@ -15,8 +15,8 @@ const AdminPanel = () => {
     const [error, setError] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState(new Set());
 
-    // WebSocket connection for real-time updates
-    const { isConnected } = useWebSocket(null, handleOnlineStatusUpdate, true);
+    // Realtime disabled here; rely on periodic polling
+    const isConnected = false;
 
     // Check if user is authenticated and is an admin
     useEffect(() => {
