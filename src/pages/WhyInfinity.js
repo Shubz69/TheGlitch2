@@ -380,9 +380,7 @@ const WhyInfinity = () => {
                 <div className="why-logo">
                     <div className="logo-glow"></div>
                     <div className="glitch-logo-container">
-                        <h1 className="text-logo glitch-text" data-text="Why The Glitch">Why The Glitch</h1>
-                        <h1 className="text-logo glitch-text glitch-layer-1" data-text="Why The Glitch">Why The Glitch</h1>
-                        <h1 className="text-logo glitch-text glitch-layer-2" data-text="Why The Glitch">Why The Glitch</h1>
+                        <h1 className="text-logo">Why The Glitch</h1>
                         <div className="glitch-particles"></div>
                     </div>
                 </div>
@@ -402,7 +400,6 @@ const WhyInfinity = () => {
                     </div>
                 </div>
                 
-                <h1 className="why-heading">Why Choose The Glitch</h1>
                 <div className="content-grid symmetrical-grid">
                     <div className="why-content symmetrical-left">
                         <div className={`paragraph-section ${visibleSections['section-1'] ? 'fade-in-up' : ''}`}

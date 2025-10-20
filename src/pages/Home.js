@@ -101,7 +101,7 @@ const Home = () => {
                                 </div>
                                 
                                 <h1 className="hero-title">
-                                    WELCOME TO THE GLITCH PLATFORM
+                                    THE GLITCH PLATFORM
                                 </h1>
                                 
                                 <p className="hero-description">
@@ -135,7 +135,20 @@ const Home = () => {
                                 </div>
                             </div>
                             
-                            {/* Removed AI head component for cleaner design */}
+                            {/* AI Graphic */}
+                            <div className="hero-right">
+                                <div className="ai-graphic">
+                                    <div className="ai-orb">
+                                        <div className="ai-core"></div>
+                                        <div className="ai-particles">
+                                            <div className="particle"></div>
+                                            <div className="particle"></div>
+                                            <div className="particle"></div>
+                                            <div className="particle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
