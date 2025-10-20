@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
-// Removed GlitchBranding.css for cleaner design
-import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes, FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -20,78 +19,79 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="navbar">
-            <div className="logo-container">
-                <Link to="/" className="logo-link">
-                    <span className="logo">THE GLITCH</span>
-                </Link>
-            </div>
+        <nav className="navbar algopro-style">
+            <div className="navbar-container">
+                <div className="logo-container">
+                    <Link to="/" className="logo-link">
+                        <div className="logo-icon">TG</div>
+                        <span className="logo-text">THE GLITCH</span>
+                    </Link>
+                </div>
 
-            <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
-                {mobileMenuOpen ? <FaTimes /> : <FaBars />}
-            </button>
-
-            <ul className={`nav-links ${mobileMenuOpen ? 'show' : ''}`}>
-                <li><Link to="/">Home</Link></li>
-                {user && <li><Link to="/community">Community</Link></li>}
-                <li><Link to="/courses">Courses</Link></li>
-                <li><Link to="/explore">Explore</Link></li>
-                <li><Link to="/why-glitch">Why Glitch</Link></li>
-                <li><Link to="/contact">Contact Us</Link></li>
-                {user && <li><Link to="/leaderboard">Leaderboard</Link></li>}
-                {user?.role?.toUpperCase() === "ADMIN" && (
-                    <>
-                        <li><Link to="/admin">Admin Panel</Link></li>
-                        <li><Link to="/admin/messages"><FaHeadset className="dropdown-icon" /> Contact Submissions</Link></li>
-                    </>
-                )}
-            </ul>
-
-            <div className="nav-buttons">
-                {!user ? (
-                    <>
-                        <button className="sign-in" onClick={() => window.location.href='/login'}>Sign In</button>
-                        <button className="start-trading" onClick={() => window.location.href='/register'}>Start Trading</button>
-                    </>
-                ) : (
-                    <div className="user-profile">
-                        <div className="user-icon" onClick={toggleDropdown}>
-                            <FaUserCircle />
-                        </div>
-                        {dropdownOpen && (
-                            <div className="user-dropdown">
-                                <p>{user.email}</p>
-                                <Link to="/profile" className="dropdown-item">
-                                    <FaUserCircle className="dropdown-icon" /> Profile
-                                </Link>
-                                {user?.role?.toUpperCase() === "ADMIN" ? (
-                                    <Link to="/admin/inbox" className="dropdown-item">
-                                        <FaHeadset className="dropdown-icon" /> Messages
-                                    </Link>
-                                ) : (
-                                    <Link to="/support" className="dropdown-item">
-                                        <FaHeadset className="dropdown-icon" /> Messages
-                                    </Link>
-                                )}
-                                <Link to="/my-courses" className="dropdown-item">
-                                    <FaBook className="dropdown-icon" /> My Courses
-                                </Link>
-
-                                <Link to="/leaderboard" className="dropdown-item">
-                                    <FaTrophy className="dropdown-icon" /> Leaderboard
-                                </Link>
-                                {user?.role?.toUpperCase() === "ADMIN" && (
-                                    <Link to="/admin" className="dropdown-item">
-                                        <FaCog className="dropdown-icon" /> Admin Panel
-                                    </Link>
-                                )}
-                                <button onClick={logout} className="dropdown-item">
-                                    <FaSignOutAlt className="dropdown-icon" /> Logout
-                                </button>
-                            </div>
+                <div className="nav-links-container">
+                    <ul className="nav-links">
+                        <li><Link to="/">HOME</Link></li>
+                        <li><Link to="/courses">COURSES</Link></li>
+                        <li><Link to="/explore">EXPLORE</Link></li>
+                        <li><Link to="/why-glitch">WHY GLITCH</Link></li>
+                        <li><Link to="/contact">CONTACT</Link></li>
+                        {user && <li><Link to="/community">COMMUNITY</Link></li>}
+                        {user?.role?.toUpperCase() === "ADMIN" && (
+                            <li><Link to="/admin">ADMIN</Link></li>
                         )}
-                    </div>
-                )}
+                    </ul>
+                </div>
+
+                <div className="nav-actions">
+                    {!user ? (
+                        <>
+                            <Link to="/login" className="account-btn">
+                                <FaUser className="btn-icon" />
+                                ACCOUNT
+                            </Link>
+                            <button className="menu-toggle" onClick={toggleMobileMenu}>
+                                <FaBars />
+                            </button>
+                        </>
+                    ) : (
+                        <div className="user-profile">
+                            <div className="user-icon" onClick={toggleDropdown}>
+                                <FaUserCircle />
+                            </div>
+                            {dropdownOpen && (
+                                <div className="user-dropdown">
+                                    <p>{user.email}</p>
+                                    <Link to="/profile" className="dropdown-item">
+                                        <FaUserCircle className="dropdown-icon" /> Profile
+                                    </Link>
+                                    {user?.role?.toUpperCase() === "ADMIN" ? (
+                                        <Link to="/admin/inbox" className="dropdown-item">
+                                            <FaHeadset className="dropdown-icon" /> Messages
+                                        </Link>
+                                    ) : (
+                                        <Link to="/support" className="dropdown-item">
+                                            <FaHeadset className="dropdown-icon" /> Messages
+                                        </Link>
+                                    )}
+                                    <Link to="/my-courses" className="dropdown-item">
+                                        <FaBook className="dropdown-icon" /> My Courses
+                                    </Link>
+                                    <Link to="/leaderboard" className="dropdown-item">
+                                        <FaTrophy className="dropdown-icon" /> Leaderboard
+                                    </Link>
+                                    {user?.role?.toUpperCase() === "ADMIN" && (
+                                        <Link to="/admin" className="dropdown-item">
+                                            <FaCog className="dropdown-icon" /> Admin Panel
+                                        </Link>
+                                    )}
+                                    <button onClick={logout} className="dropdown-item">
+                                        <FaSignOutAlt className="dropdown-icon" /> Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Mobile Menu */}
@@ -100,29 +100,25 @@ const Navbar = () => {
                     <FaTimes />
                 </button>
                 <ul className="mobile-nav-links">
-                    <li><Link to="/" onClick={toggleMobileMenu}>Home</Link></li>
-                    {user && <li><Link to="/community" onClick={toggleMobileMenu}>Community</Link></li>}
-                    <li><Link to="/courses" onClick={toggleMobileMenu}>Courses</Link></li>
-                    <li><Link to="/explore" onClick={toggleMobileMenu}>Explore</Link></li>
-                    <li><Link to="/why-glitch" onClick={toggleMobileMenu}>Why Glitch</Link></li>
-                    <li><Link to="/contact" onClick={toggleMobileMenu}>Contact Us</Link></li>
-                    {user && <li><Link to="/leaderboard" onClick={toggleMobileMenu}>Leaderboard</Link></li>}
+                    <li><Link to="/" onClick={toggleMobileMenu}>HOME</Link></li>
+                    <li><Link to="/courses" onClick={toggleMobileMenu}>COURSES</Link></li>
+                    <li><Link to="/explore" onClick={toggleMobileMenu}>EXPLORE</Link></li>
+                    <li><Link to="/why-glitch" onClick={toggleMobileMenu}>WHY GLITCH</Link></li>
+                    <li><Link to="/contact" onClick={toggleMobileMenu}>CONTACT</Link></li>
+                    {user && <li><Link to="/community" onClick={toggleMobileMenu}>COMMUNITY</Link></li>}
                     {user?.role?.toUpperCase() === "ADMIN" && (
-                        <>
-                            <li><Link to="/admin" onClick={toggleMobileMenu}>Admin Panel</Link></li>
-                            <li><Link to="/admin/messages" onClick={toggleMobileMenu}><FaHeadset className="dropdown-icon" /> Contact Submissions</Link></li>
-                        </>
+                        <li><Link to="/admin" onClick={toggleMobileMenu}>ADMIN</Link></li>
                     )}
                 </ul>
                 <div className="mobile-buttons">
                     {!user ? (
                         <>
-                            <button className="mobile-sign-in" onClick={() => window.location.href='/login'}>Sign In</button>
-                            <button className="mobile-start-trading" onClick={() => window.location.href='/register'}>Start Trading</button>
+                            <Link to="/login" className="mobile-sign-in" onClick={toggleMobileMenu}>SIGN IN</Link>
+                            <Link to="/register" className="mobile-start-trading" onClick={toggleMobileMenu}>START TRADING</Link>
                         </>
                     ) : (
                         <button onClick={logout} className="mobile-sign-in">
-                            <FaSignOutAlt className="dropdown-icon" /> Logout
+                            <FaSignOutAlt className="dropdown-icon" /> LOGOUT
                         </button>
                     )}
                 </div>

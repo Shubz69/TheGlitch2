@@ -584,6 +584,110 @@ io.on('connection', (socket) => {
   });
 });
 
+// Chatbot API endpoint
+app.post('/api/chatbot', (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Get user context if available
+    const user = req.user || null;
+    const isLoggedIn = !!user;
+    
+    // Generate AI response based on message and user context
+    const response = generateChatbotResponse(message, isLoggedIn, user);
+    
+    res.json({ 
+      success: true,
+      reply: response,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Chatbot API error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to process message' 
+    });
+  }
+});
+
+// Chatbot response generation function
+function generateChatbotResponse(message, isLoggedIn, user) {
+  const msg = message.toLowerCase();
+  
+  // Greetings
+  if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
+    return isLoggedIn 
+      ? `Hello ${user?.name || 'there'}! Welcome back to THE GLITCH. How can I assist you today?`
+      : "Hello! Welcome to THE GLITCH. I'm here to help you learn about our trading platform. How can I assist you?";
+  }
+  
+  // Course related queries
+  if (msg.includes("course") || msg.includes("learn") || msg.includes("study")) {
+    if (msg.includes("beginner") || msg.includes("start")) {
+      return "Perfect! We offer several beginner-friendly courses. Start with our free 'Introduction to Trading' course. Visit the Courses page to explore all available options.";
+    }
+    if (msg.includes("price") || msg.includes("cost")) {
+      return "We have courses ranging from free to $79.99. Our premium membership ($19.99/month) gives you access to all courses plus exclusive features.";
+    }
+    return "We offer comprehensive trading courses covering stocks, forex, crypto, and more. Each course includes video lessons, quizzes, and practical exercises.";
+  }
+  
+  // Platform features
+  if (msg.includes("feature") || msg.includes("tool") || msg.includes("what can")) {
+    return "THE GLITCH offers: 📚 Educational courses, 💬 Community discussions, 📊 Trading insights, 🎯 Personalized learning paths, and 24/7 AI support. What interests you most?";
+  }
+  
+  // Community related
+  if (msg.includes("community") || msg.includes("chat") || msg.includes("discuss")) {
+    return isLoggedIn 
+      ? "Great! You can access our community through the Community tab. Connect with other traders, share strategies, and get help from experienced members."
+      : "Our community is available after you sign up! It's a great place to connect with fellow traders and learn from their experiences.";
+  }
+  
+  // Trading related
+  if (msg.includes("trade") || msg.includes("trading") || msg.includes("market")) {
+    return "THE GLITCH focuses on education and strategy development. We teach you how to analyze markets, manage risk, and develop profitable trading strategies. We don't provide direct trading - we teach you how to trade successfully!";
+  }
+  
+  // Support
+  if (msg.includes("help") || msg.includes("support") || msg.includes("problem")) {
+    return "I'm here to help! For technical issues, contact our support team via the Contact page. For trading questions or platform guidance, feel free to ask me anything!";
+  }
+  
+  // About the platform
+  if (msg.includes("about") || msg.includes("what is") || msg.includes("platform")) {
+    return "THE GLITCH is your comprehensive trading education platform. We help you build generational wealth through 8 powerful domains: Health & Fitness, E-Commerce, Forex, Crypto, Algorithmic FX, Intelligent Systems, Social Media, and Real Estate.";
+  }
+  
+  // Pricing
+  if (msg.includes("price") || msg.includes("cost") || msg.includes("subscription")) {
+    return "We offer flexible pricing: Free courses available, Premium membership at $19.99/month, and individual courses from free to $79.99. Start with our free content and upgrade as you grow!";
+  }
+  
+  // Default response
+  return "That's an interesting question! I'm here to help you learn about THE GLITCH platform, our courses, and trading strategies. Could you be more specific about what you'd like to know?";
+}
+
+// Courses API endpoint
+app.get('/api/courses', (req, res) => {
+  try {
+    res.json({ 
+      success: true,
+      data: courses 
+    });
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch courses' 
+    });
+  }
+});
+
 // Metrics endpoint
 app.get('/api/metrics', (req, res) => {
   res.json(metrics);
