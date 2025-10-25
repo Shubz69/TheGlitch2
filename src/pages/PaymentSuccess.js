@@ -6,7 +6,7 @@ import "../styles/SharedBackground.css";
 import SharedBackground from '../components/SharedBackground';
 
 // Define API base URL with fallback
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
 
 const PaymentSuccess = () => {
     const [message, setMessage] = useState("Processing your purchase...");

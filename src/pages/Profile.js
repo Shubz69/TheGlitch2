@@ -91,7 +91,7 @@ const Profile = () => {
                 const token = localStorage.getItem("token");
                 if (token) {
                     const response = await axios.get(
-                        `http://localhost:8080/api/users/${user.id}`,
+                        `https://theglitch.world/api/users/${user.id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -153,7 +153,7 @@ const Profile = () => {
 
         try {
             const res = await axios.put(
-                `http://localhost:8080/api/users/${user.id}/update`,
+                `https://theglitch.world/api/users/${user.id}/update`,
                 { [field]: formData[field] },
                 {
                     headers: {
@@ -201,7 +201,7 @@ const Profile = () => {
     const handleSaveChanges = async () => {
         try {
             const res = await axios.put(
-                `http://localhost:8080/api/users/${user.id}/update`,
+                `https://theglitch.world/api/users/${user.id}/update`,
                 editedUserData,
                 {
                     headers: {

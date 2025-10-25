@@ -43,7 +43,7 @@ const AdminPanel = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/community/users', {
+            const response = await fetch('https://theglitch.world/api/community/users', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -67,7 +67,7 @@ const AdminPanel = () => {
     const fetchOnlineStatus = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/admin/user-status', {
+            const response = await fetch('https://theglitch.world/api/admin/user-status', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ const AdminPanel = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
+            const response = await fetch(`https://theglitch.world/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

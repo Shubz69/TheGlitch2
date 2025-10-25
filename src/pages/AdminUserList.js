@@ -29,7 +29,7 @@ const AdminUserList = () => {
                 
                 // Fallback to direct axios call
                 const token = localStorage.getItem("token");
-                const res = await axios.get("http://localhost:8080/api/users", {
+                const res = await axios.get("https://theglitch.world/api/users", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(res.data);
@@ -48,7 +48,7 @@ const AdminUserList = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS("https://theglitch.world/ws");
         const client = new Client({
             webSocketFactory: () => socket,
             connectHeaders: {
@@ -81,7 +81,7 @@ const AdminUserList = () => {
                 
                 // Fallback to direct fetch call
                 const token = localStorage.getItem("token");
-                const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+                const res = await fetch(`https://theglitch.world/api/users/${userId}`, {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",

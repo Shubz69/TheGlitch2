@@ -20,7 +20,7 @@ const PublicProfile = () => {
             try {
                 setLoading(true);
                 // For demo, create a mock profile if the API fails
-                const response = await fetch(`http://localhost:8080/api/users/public-profile/${userId}`);
+                const response = await fetch(`https://theglitch.world/api/users/public-profile/${userId}`);
                 if (response.ok) {
                     const data = await response.json();
                     setProfile(data);

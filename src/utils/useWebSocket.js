@@ -4,7 +4,7 @@ import { Client } from '@stomp/stompjs';
 import { useAuth } from '../context/AuthContext';
 
 // Define a fixed API base URL with proper fallback
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
 
 export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true) => {
   const { token, isAuthenticated } = useAuth();

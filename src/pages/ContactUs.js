@@ -52,8 +52,8 @@ const ContactUs = () => {
         setSubmitStatus(null);
         
         try {
-            // Send to backend API using the SMTP configuration in applications.properties
-            const response = await fetch('http://localhost:8080/api/contact', {
+            // Send to backend API using the live domain
+            const response = await fetch('https://theglitch.world/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

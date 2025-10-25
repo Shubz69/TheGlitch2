@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Define a fixed API base URL with proper fallback
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
 
 // Mock user database for demo purposes
 const MOCK_USERS = [
@@ -546,7 +546,7 @@ const Api = {
     },
     
     getUserLevel: (userId) => {
-        const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        const baseUrl = process.env.REACT_APP_API_URL || 'https://theglitch.world';
         const token = localStorage.getItem('token');
         
         if (!token) {

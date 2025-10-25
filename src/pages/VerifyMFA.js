@@ -127,7 +127,7 @@ const VerifyMFA = () => {
         }
 
         try {
-            const res = await axios.post("http://localhost:8080/api/auth/verify-mfa", {
+            const res = await axios.post("https://theglitch.world/api/auth/verify-mfa", {
                 userId,
                 code,
                 email: emailAddress // Send email as a backup if userId is missing
@@ -185,7 +185,7 @@ const VerifyMFA = () => {
             // Send either userId or email depending on what we have
             const payload = userId ? { userId } : { email: emailAddress };
             
-            await axios.post("http://localhost:8080/api/auth/resend-mfa", payload);
+            await axios.post("https://theglitch.world/api/auth/resend-mfa", payload);
             setTimer(30);
             setCanResend(false);
             alert("Code resent to your email.");

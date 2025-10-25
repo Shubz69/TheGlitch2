@@ -32,7 +32,7 @@ const AdminMessages = () => {
                     
                     // Fallback to direct fetch
                     const token = localStorage.getItem("token");
-                    const res = await fetch("http://localhost:8080/api/contact", {
+                    const res = await fetch("https://theglitch.world/api/contact", {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },

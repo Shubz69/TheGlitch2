@@ -44,7 +44,7 @@ const Chatbot = () => {
 
         try {
             // Try to use the live API first
-            const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+            const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
             const res = await fetch(`${API_BASE_URL}/api/chatbot`, {
                 method: "POST",
                 headers: { 
