@@ -27,7 +27,7 @@ const MOCK_USERS = [
 const mockLogin = async (email, password) => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+            const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
             if (user) {
                 // Generate a proper 3-part JWT token
                 const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
@@ -82,8 +82,8 @@ const mockRegister = async (userData) => {
                 profileColor: userData.get('profileColor')
             } : userData;
             
-            // Check if user already exists
-            const existingUser = MOCK_USERS.find(u => u.email === userInfo.email || u.username === userInfo.username);
+            // Check if user already exists (case-insensitive email check)
+            const existingUser = MOCK_USERS.find(u => u.email.toLowerCase() === userInfo.email.toLowerCase() || u.username === userInfo.username);
             if (existingUser) {
                 reject(new Error('User already exists with this email or username'));
                 return;
@@ -540,16 +540,16 @@ const Api = {
     // Password reset methods
     sendPasswordResetEmail: async (email) => {
         try {
-            // Check if email exists in mock users
-            const user = MOCK_USERS.find(u => u.email === email);
+            // Check if email exists in mock users (case-insensitive)
+            const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
             if (!user) {
                 throw new Error('Email not found');
             }
             
             // Simulate sending email with MFA code
             const mfaCode = Math.floor(100000 + Math.random() * 900000).toString();
-            localStorage.setItem(`mfa_${email}`, mfaCode);
-            localStorage.setItem(`mfa_expiry_${email}`, Date.now() + 10 * 60 * 1000); // 10 minutes
+            localStorage.setItem(`mfa_${email.toLowerCase()}`, mfaCode);
+            localStorage.setItem(`mfa_expiry_${email.toLowerCase()}`, Date.now() + 10 * 60 * 1000); // 10 minutes
             
             console.log(`MFA Code for ${email}: ${mfaCode}`); // For demo purposes
             
@@ -561,8 +561,8 @@ const Api = {
 
     verifyResetCode: async (email, code) => {
         try {
-            const storedCode = localStorage.getItem(`mfa_${email}`);
-            const expiry = localStorage.getItem(`mfa_expiry_${email}`);
+            const storedCode = localStorage.getItem(`mfa_${email.toLowerCase()}`);
+            const expiry = localStorage.getItem(`mfa_expiry_${email.toLowerCase()}`);
             
             if (!storedCode || !expiry || Date.now() > parseInt(expiry)) {
                 throw new Error('Code expired or invalid');
@@ -616,7 +616,7 @@ const Api = {
     // Enhanced login with better error handling
     loginWithErrorDetails: async (credentials) => {
         try {
-            const user = MOCK_USERS.find(u => u.email === credentials.email);
+            const user = MOCK_USERS.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
             
             if (!user) {
                 return {
