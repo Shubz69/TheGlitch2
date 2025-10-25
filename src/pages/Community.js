@@ -456,32 +456,50 @@ const Community = () => {
         console.log("MOCK_MODE:", MOCK_MODE);
         
         const storedToken = localStorage.getItem('token');
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
         
         const tokenIsValid = storedToken && storedToken.split('.').length === 3;
         setIsAuthenticated(tokenIsValid);
         
         console.log("Community component initializing");
         console.log("Is authenticated:", tokenIsValid);
-        console.log("User object:", storedUser);
+        console.log("User object:", storedUserData);
         console.log("===========================");
 
         if (tokenIsValid) {
-            setStoredUser(storedUser);
-            setUserId(storedUser.id);
+            // Ensure user has a displayable name
+            // Priority: username > name > email prefix > 'User'
+            let displayName = storedUserData.username || storedUserData.name;
+            if (!displayName && storedUserData.email) {
+                // Extract username from email (everything before @)
+                displayName = storedUserData.email.split('@')[0];
+            }
+            if (!displayName) {
+                displayName = 'User';
+            }
+            
+            // Create enhanced user object with guaranteed username
+            const enhancedUser = {
+                ...storedUserData,
+                username: displayName
+            };
+            
+            setStoredUser(enhancedUser);
+            setUserId(storedUserData.id);
             
             // Check if user is admin
             const adminEmail = 'shubzfx@gmail.com';
-            const userIsAdmin = storedUser.email?.toLowerCase() === adminEmail.toLowerCase() || 
-                               storedUser.role?.toLowerCase() === 'admin';
+            const userIsAdmin = storedUserData.email?.toLowerCase() === adminEmail.toLowerCase() || 
+                               storedUserData.role?.toLowerCase() === 'admin';
             setIsAdmin(userIsAdmin);
             
             // Set user level
-            setUserLevel(storedUser.level || 1);
+            setUserLevel(storedUserData.level || 1);
             
-            console.log("User level:", storedUser.level || 1);
+            console.log("Display name:", displayName);
+            console.log("User level:", storedUserData.level || 1);
             console.log("User is admin:", userIsAdmin);
-            console.log("User role:", storedUser.role);
+            console.log("User role:", storedUserData.role);
         } else {
             console.log("User not authenticated, redirecting to login");
             navigate('/login');
