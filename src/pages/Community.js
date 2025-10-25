@@ -677,16 +677,21 @@ const Community = () => {
                     alignItems: 'center',
                     gap: '12px'
                 }}>
-                    <img 
-                        src={getAvatarPath(storedUser?.avatar)} 
-                        alt="avatar"
-                        style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            border: '2px solid var(--purple-primary)'
-                        }}
-                    />
+                    <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, var(--purple-primary), var(--purple-dark))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        color: 'white',
+                        flexShrink: 0
+                    }}>
+                        {(storedUser?.username || storedUser?.name || 'U').substring(0, 2).toUpperCase()}
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ 
                             fontWeight: 600, 
@@ -732,11 +737,9 @@ const Community = () => {
                             ) : (
                                 messages.map((message, index) => (
                                     <div key={message.id || index} className="message-item">
-                                        <img 
-                                            src={getAvatarPath(message.sender?.avatar)} 
-                                            alt={message.sender?.username}
-                                            className="message-avatar"
-                                        />
+                                        <div className="message-avatar-text">
+                                            {(message.sender?.username || 'U').substring(0, 2).toUpperCase()}
+                                        </div>
                                         <div className="message-content">
                                             <div className="message-header-info">
                                                 <span className="message-author">
@@ -939,11 +942,9 @@ const Community = () => {
                     <ul className="online-users">
                         {onlineUsers.map(user => (
                             <li key={user.id} className="user-item">
-                                <img 
-                                    src={getAvatarPath(user.avatar)} 
-                                    alt={user.username}
-                                    className="user-avatar"
-                                />
+                                <div className="user-avatar-text">
+                                    {(user.username || 'U').substring(0, 2).toUpperCase()}
+                                </div>
                                 <div className="user-info">
                                     <div className="user-name">{user.username}</div>
                                     <div className={`user-role ${user.role}`}>{user.role}</div>

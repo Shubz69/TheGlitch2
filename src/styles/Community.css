@@ -366,6 +366,24 @@
     border: 2px solid var(--bg-secondary);
 }
 
+.message-avatar-text {
+    position: absolute;
+    left: 24px;
+    top: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    border: 2px solid var(--bg-secondary);
+}
+
 .message-header-info {
     display: flex;
     align-items: baseline;
@@ -656,8 +674,30 @@
     transition: border-color 0.2s ease;
 }
 
+.user-avatar-text {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    margin-right: 12px;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
 .user-item:hover .user-avatar {
     border-color: var(--purple-primary);
+}
+
+.user-item:hover .user-avatar-text {
+    border-color: var(--purple-secondary);
+    transform: scale(1.05);
 }
 
 .user-info {
