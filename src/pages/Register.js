@@ -17,9 +17,7 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        name: '',
-        profilePicture: null,
-        profileColor: '#3B82F6'
+        name: ''
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -35,35 +33,26 @@ const Register = () => {
         }));
     };
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                setError('Please select a valid image file.');
-                return;
-            }
-            
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError('Image size must be less than 5MB.');
-                return;
-            }
-            
-            setFormData(prev => ({ ...prev, profilePicture: file, profileColor: null }));
-            setError('');
-        }
-    };
-
-    const handleColorSelect = (color) => {
-        setFormData(prev => ({ ...prev, profileColor: color, profilePicture: null }));
-        setError('');
-    };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Validate username
+        if (formData.username.length < 3) {
+            setError('Username must be at least 3 characters long');
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_-]+$/.test(formData.username)) {
+            setError('Username can only contain letters, numbers, hyphens, and underscores');
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
 
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
@@ -78,18 +67,14 @@ const Register = () => {
         setIsLoading(true);
 
         try {
-            // Create FormData for file upload
-            const submitData = new FormData();
-            submitData.append('username', formData.username);
-            submitData.append('email', formData.email);
-            submitData.append('password', formData.password);
-            submitData.append('name', formData.name);
-            
-            if (formData.profilePicture) {
-                submitData.append('profilePicture', formData.profilePicture);
-            } else {
-                submitData.append('profileColor', formData.profileColor);
-            }
+            // Submit registration data
+            const submitData = {
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+                name: formData.name,
+                avatar: '/avatars/avatar_ai.png' // Default avatar for all users
+            };
 
             await Api.register(submitData);
 
@@ -126,14 +111,6 @@ const Register = () => {
             setIsLoading(false);
         }
     };
-
-    const colorOptions = [
-        { value: '#3B82F6', name: 'Blue' },
-        { value: '#8B5CF6', name: 'Purple' },
-        { value: '#EF4444', name: 'Red' },
-        { value: '#10B981', name: 'Green' },
-        { value: '#6B7280', name: 'Grey' }
-    ];
 
     return (
         <div className="register-container">
@@ -192,60 +169,6 @@ const Register = () => {
                                 placeholder="Enter full name"
                                 className="form-input"
                             />
-                        </div>
-                        
-                    </div>
-                    
-                    <div className="profile-picture-section">
-                        <label className="form-label">Profile Picture</label>
-                        
-                        {/* Image Upload */}
-                        <div className="image-upload-container">
-                            <input
-                                type="file"
-                                id="profilePicture"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                style={{ display: 'none' }}
-                            />
-                            <label htmlFor="profilePicture" className="upload-button">
-                                <span className="upload-icon">📷</span>
-                                Upload Photo
-                            </label>
-                        </div>
-
-                        {/* Preview */}
-                        {formData.profilePicture && (
-                            <div className="image-preview">
-                                <img 
-                                    src={URL.createObjectURL(formData.profilePicture)} 
-                                    alt="Profile preview" 
-                                    className="preview-image"
-                                />
-                                <button 
-                                    type="button" 
-                                    className="remove-image"
-                                    onClick={() => setFormData(prev => ({ ...prev, profilePicture: null }))}
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Color Selection */}
-                        <div className="color-selection">
-                            <p className="color-label">Or choose a color:</p>
-                            <div className="color-grid">
-                                {colorOptions.map((color) => (
-                                    <div
-                                        key={color.value}
-                                        className={`color-option ${formData.profileColor === color.value ? 'selected' : ''}`}
-                                        style={{ backgroundColor: color.value }}
-                                        onClick={() => handleColorSelect(color.value)}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
                         </div>
                     </div>
                     

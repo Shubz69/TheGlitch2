@@ -10,8 +10,10 @@ const MOCK_USERS = [
         email: 'shubzfx@gmail.com',
         password: 'password123', // In real app, this would be hashed
         name: 'Shubz',
-        username: 'shubz',
-        role: 'ADMIN'
+        username: 'ShubzFx',
+        avatar: '/avatars/avatar_ai.png',
+        role: 'ADMIN',
+        level: 99
     },
     {
         id: 2,
@@ -19,7 +21,9 @@ const MOCK_USERS = [
         password: 'demo123',
         name: 'Demo User',
         username: 'demo',
-        role: 'USER'
+        avatar: '/avatars/avatar_tech.png',
+        role: 'USER',
+        level: 1
     }
 ];
 
@@ -47,7 +51,9 @@ const mockLogin = async (email, password) => {
                     email: user.email,
                     name: user.name,
                     username: user.username,
-                    role: user.role
+                    avatar: user.avatar || '/avatars/avatar_ai.png',
+                    role: user.role,
+                    level: user.level || 1
                 }));
                 
                 resolve({
@@ -58,6 +64,8 @@ const mockLogin = async (email, password) => {
                             email: user.email,
                             name: user.name,
                             username: user.username,
+                            avatar: user.avatar || '/avatars/avatar_ai.png',
+                            level: user.level || 1,
                             role: user.role
                         }
                     }
@@ -78,14 +86,23 @@ const mockRegister = async (userData) => {
                 password: userData.get('password'),
                 name: userData.get('name'),
                 username: userData.get('username'),
-                profilePicture: userData.get('profilePicture'),
-                profileColor: userData.get('profileColor')
-            } : userData;
+                avatar: userData.get('avatar') || '/avatars/avatar_ai.png'
+            } : {
+                ...userData,
+                avatar: userData.avatar || '/avatars/avatar_ai.png'
+            };
             
-            // Check if user already exists (case-insensitive email check)
-            const existingUser = MOCK_USERS.find(u => u.email.toLowerCase() === userInfo.email.toLowerCase() || u.username === userInfo.username);
+            // Check if user already exists (case-insensitive email and username check)
+            const existingUser = MOCK_USERS.find(u => 
+                u.email.toLowerCase() === userInfo.email.toLowerCase() || 
+                u.username.toLowerCase() === userInfo.username.toLowerCase()
+            );
             if (existingUser) {
-                reject(new Error('User already exists with this email or username'));
+                if (existingUser.email.toLowerCase() === userInfo.email.toLowerCase()) {
+                    reject(new Error('An account with this email already exists'));
+                } else {
+                    reject(new Error('This username is already taken. Please choose another one.'));
+                }
                 return;
             }
             
@@ -96,9 +113,9 @@ const mockRegister = async (userData) => {
                 password: userInfo.password,
                 name: userInfo.name,
                 username: userInfo.username,
-                profilePicture: userInfo.profilePicture,
-                profileColor: userInfo.profileColor,
-                role: 'USER'
+                avatar: userInfo.avatar,
+                role: 'USER',
+                level: 1
             };
             
             MOCK_USERS.push(newUser);
@@ -109,6 +126,7 @@ const mockRegister = async (userData) => {
                 sub: newUser.id.toString(),
                 email: newUser.email,
                 name: newUser.name,
+                username: newUser.username,
                 role: newUser.role,
                 exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
             }));
@@ -121,7 +139,9 @@ const mockRegister = async (userData) => {
                 email: newUser.email,
                 name: newUser.name,
                 username: newUser.username,
-                role: newUser.role
+                avatar: newUser.avatar,
+                role: newUser.role,
+                level: newUser.level
             }));
             
             resolve({
@@ -132,6 +152,8 @@ const mockRegister = async (userData) => {
                         email: newUser.email,
                         name: newUser.name,
                         username: newUser.username,
+                        avatar: newUser.avatar,
+                        level: newUser.level,
                         role: newUser.role
                     }
                 }
