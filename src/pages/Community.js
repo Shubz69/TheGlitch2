@@ -57,8 +57,9 @@ const getAvatarPath = (avatarName) => {
 // Modified mock data with proper avatar paths
 const MOCK_DATA = {
     channels: [
-        { id: 25, name: "welcome", description: "Welcome to the trading platform", accessLevel: "readonly" },
-        { id: 26, name: "announcements", description: "Important platform announcements", accessLevel: "readonly" },
+        { id: 25, name: "welcome", description: "Welcome to the trading platform", accessLevel: "admin-only", category: "admin-locked" },
+        { id: 26, name: "announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "admin-locked" },
+        { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only", category: "admin-locked" },
         { id: 27, name: "rules", description: "Community rules and guidelines", accessLevel: "readonly" },
         { id: 28, name: "general-chat", description: "General discussion for all members", accessLevel: "open" },
         { id: 29, name: "rookie-hub", description: "For new traders (level 1+)", accessLevel: "level", minLevel: 1 },
@@ -71,7 +72,6 @@ const MOCK_DATA = {
         { id: 36, name: "ai-insights", description: "Discuss AI and algorithmic trading", accessLevel: "open" },
         { id: 37, name: "feedback-bugs", description: "Report bugs and provide feedback", accessLevel: "open" },
         { id: 38, name: "course-help", description: "Get help with courses", accessLevel: "open" },
-        { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only" },
         { id: 40, name: "intro-to-trading", description: "Introduction to Trading course channel", accessLevel: "course", courseId: 1 },
         { id: 41, name: "technical-analysis", description: "Technical Analysis course channel", accessLevel: "course", courseId: 2 },
         { id: 42, name: "fundamental-analysis", description: "Fundamental Analysis course channel", accessLevel: "course", courseId: 3 },
@@ -123,10 +123,11 @@ const MOCK_DATA = {
         ]
     },
     onlineUsers: [
-        { id: "user1", username: "ShubzFx", avatar: "avatar2", role: "PREMIUM", level: 1 },
-        { id: "admin", username: "Admin", avatar: "avatar1", role: "ADMIN", level: 10 },
-        { id: "user5", username: "test - user", avatar: "avatar3", role: "FREE", level: 1 }
+        { id: "user1", username: "ShubzFx", avatar: "avatar2", role: "PREMIUM", level: 1, isOnline: true },
+        { id: "admin", username: "Admin", avatar: "avatar1", role: "ADMIN", level: 10, isOnline: true },
+        { id: "user5", username: "test - user", avatar: "avatar3", role: "FREE", level: 1, isOnline: true }
     ],
+    totalUsers: 127, // Total registered users
     // User/course relationship from the database
     userCourses: {
         "user1": [1, 2, 3, 5], // ShubzFx has purchased these courses
@@ -1913,6 +1914,11 @@ const Community = () => {
             return false;
         }
 
+        // Admin-locked channels (welcome, announcements, staff) - only admins can post
+        if (channel.accessLevel === 'admin-only' || channel.category === 'admin-locked') {
+            return userRole === 'ADMIN';
+        }
+
         // Read-only channels don't allow sending messages
         if (channel.accessLevel === 'readonly') {
             return false;
@@ -2383,7 +2389,13 @@ const Community = () => {
                                         className="chat-input"
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
-                                        placeholder={`Message #${selectedChannel.name}`}
+                                        placeholder={
+                                            !canSendMessage(selectedChannel, getCurrentUserRole(), getUserCourses())
+                                                ? (selectedChannel.accessLevel === 'admin-only' || selectedChannel.category === 'admin-locked')
+                                                    ? `🔒 Only admins can post in #${selectedChannel.name}`
+                                                    : `You don't have permission to send messages in #${selectedChannel.name}`
+                                                : `Message #${selectedChannel.name}`
+                                        }
                                         disabled={!canSendMessage(selectedChannel, getCurrentUserRole(), getUserCourses())}
                                         rows={1}
                                     />
@@ -2451,12 +2463,22 @@ const Community = () => {
             <div className="online-sidebar">
                 <div className="online-section">
                     <div className="online-header">
-                        <h3>Online Users</h3>
-                        <span className="online-count">{onlineUsers.length}</span>
+                        <h3>ONLINE USERS</h3>
+                        <span className="online-count">{onlineUsers.filter(u => u.isOnline !== false).length} / {MOCK_DATA.totalUsers || onlineUsers.length}</span>
+                    </div>
+                    <div className="user-stats">
+                        <div className="stat-item">
+                            <span className="stat-label">Online:</span>
+                            <span className="stat-value">{onlineUsers.filter(u => u.isOnline !== false).length}</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-label">Total Users:</span>
+                            <span className="stat-value">{MOCK_DATA.totalUsers || onlineUsers.length}</span>
+                        </div>
                     </div>
                     
                     <ul className="online-users">
-                        {onlineUsers.map((user) => (
+                        {onlineUsers.filter(u => u.isOnline !== false).map((user) => (
                             <li key={user.id} className="user-item" onClick={() => handleUserClick(user.id)}>
                                 {user.avatar ? (
                                     <img

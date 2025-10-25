@@ -1208,20 +1208,56 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .online-header h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8B5CF6;
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
 .online-count {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #6366F1;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* User Stats Section */
+.user-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #A78BFA;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8B5CF6;
     color: var(--accent);
     font-weight: 600;
     background: rgba(30, 144, 255, 0.1);
