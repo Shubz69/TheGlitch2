@@ -19,11 +19,13 @@ const Home = () => {
 
     // Loading effect
     useEffect(() => {
-        // Prevent scrolling during loading
+        // Prevent scrolling during loading and add class
         if (isLoading) {
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('loading-active');
         } else {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('loading-active');
         }
 
         const loadingTimer = setTimeout(() => {
@@ -36,6 +38,7 @@ const Home = () => {
         return () => {
             clearTimeout(loadingTimer);
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('loading-active');
         };
     }, [isLoading]);
 
@@ -98,10 +101,8 @@ const Home = () => {
     ];
 
     return (
-        <div className="home-container">
-            <SharedBackground />
-            
-            {/* Loading Screen */}
+        <>
+            {/* Loading Screen - Outside container for full viewport coverage */}
             {isLoading && (
                 <div className="loading-screen">
                     {/* Rainfall Code Background */}
@@ -144,6 +145,9 @@ const Home = () => {
                     </div>
                 </div>
             )}
+
+            <div className="home-container">
+                <SharedBackground />
             
             {showContent && (
                 <>
@@ -354,7 +358,8 @@ const Home = () => {
                 </>
             )}
             <Chatbot />
-        </div>
+            </div>
+        </>
     );
 };
 
