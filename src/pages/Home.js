@@ -19,6 +19,13 @@ const Home = () => {
 
     // Loading effect
     useEffect(() => {
+        // Prevent scrolling during loading
+        if (isLoading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
         const loadingTimer = setTimeout(() => {
             setIsLoading(false);
             setTimeout(() => {
@@ -26,8 +33,11 @@ const Home = () => {
             }, 500); // Small delay for smooth transition
         }, 10000); // 10 second loading screen
 
-        return () => clearTimeout(loadingTimer);
-    }, []);
+        return () => {
+            clearTimeout(loadingTimer);
+            document.body.style.overflow = 'unset';
+        };
+    }, [isLoading]);
 
     useEffect(() => {
         const interval = setInterval(() => {
