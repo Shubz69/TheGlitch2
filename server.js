@@ -1,7 +1,7 @@
 // Simple Express server with Stripe integration
 const express = require('express');
 const cors = require('cors');
-const stripe = require('stripe')('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');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'your_stripe_key_here');
 const path = require('path');
 
 const app = express();
