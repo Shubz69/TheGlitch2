@@ -79,8 +79,8 @@ app.post('/api/payments/complete', (req, res) => {
   });
 });
 
-// Serve the React app
-app.get('*', (req, res) => {
+// Serve the React app - catch-all route using regex for compatibility
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 

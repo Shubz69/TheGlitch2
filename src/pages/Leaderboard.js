@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Leaderboard.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import SharedBackground from '../components/SharedBackground';
 
 const Leaderboard = () => {
@@ -214,7 +213,7 @@ const Leaderboard = () => {
             
             {/* Header */}
             <div className="leaderboard-header">
-                <h1 className="glitch-title glitch-brand" data-text="LEADERBOARD">LEADERBOARD</h1>
+                <h1 className="glitch-title">LEADERBOARD</h1>
                 <p className="leaderboard-subtitle">Compete with the best traders in the cyber realm</p>
                 
                 {/* Timeframe Selector */}

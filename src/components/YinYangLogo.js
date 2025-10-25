@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/GlitchBranding.css';
 
 const YinYangLogo = ({ size = 60, showGlitch = false, className = '' }) => {
     const [isGlitching, setIsGlitching] = useState(false);

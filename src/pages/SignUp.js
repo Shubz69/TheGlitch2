@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import "../styles/Login.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import infinityLogo from "../styles/assets/infinity-logo.png";
 import SharedBackground from '../components/SharedBackground';
 
@@ -57,7 +56,7 @@ function SignUp() {
             <div className="login-box">
                 <img src={infinityLogo} alt="Infinity AI Logo" className="login-logo" />
                 <div className="brand-section">
-                    <h1 className="brand-title glitch-brand" data-text="THE GLITCH">THE GLITCH</h1>
+                    <h1 className="brand-title">THE GLITCH</h1>
                     <p className="brand-subtitle">FUTURISTIC TRADING PLATFORM</p>
                 </div>
 

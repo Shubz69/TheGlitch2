@@ -175,56 +175,55 @@
 
 /* Clean links */
 .forgot-password {
+    display: block;
     text-align: center;
     margin-top: 16px;
-}
-
-.forgot-password a {
-    color: var(--primary);
+    color: #C084FC;
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-family: var(--font-secondary);
     font-weight: 600;
     transition: all 0.3s ease;
-    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
 }
 
-.forgot-password a:hover {
-    color: var(--secondary);
+.forgot-password:hover {
+    color: #E879F9;
     text-decoration: underline;
-    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    text-shadow: 0 0 12px rgba(232, 121, 249, 0.7);
     transform: translateY(-1px);
 }
 
-.signup-link {
+.register-link {
     text-align: center;
     margin-top: 24px;
     padding-top: 20px;
     border-top: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-.signup-link p {
+.register-link p {
     color: var(--accent);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-family: var(--font-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 0;
     font-weight: 400;
 }
 
-.signup-link a {
-    color: var(--primary);
+.register-link a {
+    color: #C084FC;
     text-decoration: none;
     font-weight: 700;
     font-family: var(--font-main);
     transition: all 0.3s ease;
-    font-size: 0.85rem;
-    text-shadow: 0 0 4px rgba(99, 102, 241, 0.3);
+    font-size: 0.9rem;
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
+    margin-left: 4px;
 }
 
-.signup-link a:hover {
-    color: var(--secondary);
+.register-link a:hover {
+    color: #E879F9;
     text-decoration: underline;
-    text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+    text-shadow: 0 0 12px rgba(232, 121, 249, 0.7);
     transform: translateY(-1px);
 }
 

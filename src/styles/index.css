@@ -12,8 +12,8 @@
     --bg-light: #252541;
     
     /* Fonts */
-    --font-main: 'Space Grotesk', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
+    --font-main: Arial, sans-serif;
+    --font-secondary: Arial, sans-serif;
     
     /* Legacy variables for compatibility */
     --blue-primary: #6366F1;
@@ -34,13 +34,13 @@ html, body, #root {
     height: 100%;
     background: var(--bg-dark);
     color: var(--primary);
-    font-family: var(--font-main);
+    font-family: Arial, sans-serif;
     overflow-x: hidden;
     line-height: 1.6;
 }
 
 body {
-  font-family: var(--font-main);
+  font-family: Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-dark);

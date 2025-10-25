@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/PaymentSuccess.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import SharedBackground from '../components/SharedBackground';
 
 // Define API base URL with fallback
@@ -136,7 +135,7 @@ const PaymentSuccess = () => {
                 <div className={`success-icon ${error ? "error" : ""}`}>
                     {error ? "❌" : "✅"}
                 </div>
-                <h2 className="glitch-brand" data-text={error ? "PROCESSING ERROR" : "PAYMENT SUCCESSFUL"}>
+                <h2 className="payment-title">
                     {error ? "PROCESSING ERROR" : "PAYMENT SUCCESSFUL"}
                 </h2>
                 

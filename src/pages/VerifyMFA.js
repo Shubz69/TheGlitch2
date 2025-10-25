@@ -4,7 +4,6 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/VerifyMFA.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import SharedBackground from '../components/SharedBackground';
 
 const VerifyMFA = () => {
@@ -213,7 +212,7 @@ const VerifyMFA = () => {
             <div className="code-background"></div>
             
             <div className="login-box">
-                <h2 className="gradient-text glitch-brand" data-text="🔐 MFA VERIFICATION">🔐 MFA VERIFICATION</h2>
+                <h2 className="gradient-text">🔐 MFA VERIFICATION</h2>
                 <p>Please enter the 6-digit code sent to your email.</p>
                 <p className="email-sent">Code sent to: {emailAddress}</p>
 

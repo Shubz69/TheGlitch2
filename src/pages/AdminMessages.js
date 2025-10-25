@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AdminMessages.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import AdminApi from '../services/AdminApi';
 import SharedBackground from '../components/SharedBackground';
 
@@ -65,7 +64,7 @@ const AdminMessages = () => {
                 <SharedBackground />
                 <div className="glitch-bg"></div>
                 <div className="access-denied">
-                    <h1 className="glitch-title" data-text="ACCESS DENIED">ACCESS DENIED</h1>
+                    <h1 className="glitch-title">ACCESS DENIED</h1>
                     <p>You must be an admin to view this page.</p>
                 </div>
             </div>
@@ -80,7 +79,7 @@ const AdminMessages = () => {
             
             <div className="admin-messages-content">
                 <div className="admin-header">
-                    <h1 className="glitch-title glitch-brand" data-text="CONTACT SUBMISSIONS">CONTACT SUBMISSIONS</h1>
+                    <h1 className="glitch-title">CONTACT SUBMISSIONS</h1>
                     <p className="admin-subtitle">Review and manage user contact messages</p>
                 </div>
 

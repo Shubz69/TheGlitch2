@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
-import "../styles/GlitchBranding.css";
-import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
+import Messages from './Messages';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [messagesOpen, setMessagesOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -19,11 +21,45 @@ const Navbar = () => {
         setMobileMenuOpen(!mobileMenuOpen);
     };
 
+    const toggleMessages = () => {
+        setMessagesOpen(!messagesOpen);
+        setDropdownOpen(false);
+    };
+
+    // Load unread count from localStorage
+    useEffect(() => {
+        if (user?.id) {
+            const savedMessages = localStorage.getItem(`messages_${user.id}`);
+            if (savedMessages) {
+                const messages = JSON.parse(savedMessages);
+                const unread = messages.filter(msg => !msg.read && msg.sender !== 'user').length;
+                setUnreadCount(unread);
+            }
+        }
+    }, [user?.id]);
+
+    // Listen for storage changes to update unread count
+    useEffect(() => {
+        const handleStorageChange = () => {
+            if (user?.id) {
+                const savedMessages = localStorage.getItem(`messages_${user.id}`);
+                if (savedMessages) {
+                    const messages = JSON.parse(savedMessages);
+                    const unread = messages.filter(msg => !msg.read && msg.sender !== 'user').length;
+                    setUnreadCount(unread);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [user?.id]);
+
     return (
         <nav className="navbar">
             <div className="logo-container">
                 <Link to="/" className="logo-link">
-                    <span className="logo glitch-brand" data-text="THE GLITCH">THE GLITCH</span>
+                    <span className="logo">THE GLITCH</span>
                 </Link>
             </div>
 
@@ -55,12 +91,20 @@ const Navbar = () => {
                     </>
                 ) : (
                     <div className="user-profile">
+                        <button className="messages-btn" onClick={toggleMessages}>
+                            <FaEnvelope />
+                            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                        </button>
                         <div className="user-icon" onClick={toggleDropdown}>
                             <FaUserCircle />
                         </div>
                         {dropdownOpen && (
                             <div className="user-dropdown">
                                 <p>{user.email}</p>
+                                <button onClick={toggleMessages} className="dropdown-item">
+                                    <FaEnvelope className="dropdown-icon" /> Messages
+                                    {unreadCount > 0 && <span className="dropdown-badge">{unreadCount}</span>}
+                                </button>
                                 <Link to="/profile" className="dropdown-item">
                                     <FaUserCircle className="dropdown-icon" /> Profile
                                 </Link>
@@ -118,6 +162,15 @@ const Navbar = () => {
                     )}
                 </div>
             </div>
+
+            {/* Messages Component */}
+            {user && (
+                <Messages 
+                    isOpen={messagesOpen} 
+                    onClose={() => setMessagesOpen(false)} 
+                    user={user} 
+                />
+            )}
         </nav>
     );
 };

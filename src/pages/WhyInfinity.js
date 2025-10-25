@@ -376,14 +376,11 @@ const WhyInfinity = () => {
             </div>
             
             <div className="content-wrapper">
-                {/* Logo with enhanced glitch animation */}
+                {/* Logo */}
                 <div className="why-logo">
                     <div className="logo-glow"></div>
-                    <div className="glitch-logo-container">
-                        <h1 className="text-logo glitch-text" data-text="Why The Glitch">Why The Glitch</h1>
-                        <h1 className="text-logo glitch-text glitch-layer-1" data-text="Why The Glitch">Why The Glitch</h1>
-                        <h1 className="text-logo glitch-text glitch-layer-2" data-text="Why The Glitch">Why The Glitch</h1>
-                        <div className="glitch-particles"></div>
+                    <div className="logo-container">
+                        <h1 className="text-logo">Why The Glitch</h1>
                     </div>
                 </div>
                 
@@ -409,23 +406,23 @@ const WhyInfinity = () => {
                             ref={el => sectionRefs.current.paragraphSections[0] = el}
                         >
                             <p className="why-paragraph">
-                                The Glitch represents the future of trading technology, combining cutting-edge 
-                                algorithms with a revolutionary user experience. Our platform breaks the conventional 
-                                barriers of trading platforms, offering an intuitive interface that adapts to your trading style.
+                                The Glitch is your pathway to building generational wealth and breaking free from 
+                                destructive financial habits. We teach you how to make your money work for you through 
+                                multiple streams of knowledge—from smart investing to creating passive income.
                             </p>
                             <p className="why-paragraph">
-                                Experience the power of our advanced trading simulator, where you can test strategies 
-                                in real-time market conditions without risk. Learn from professional traders who have mastered 
-                                the art of navigating volatile markets across forex, stocks, and cryptocurrencies.
+                                Stop working just for money and start building wealth that lasts. Our comprehensive 
+                                courses and community support help you develop disciplined strategies that generate 
+                                lasting prosperity without falling into common financial traps.
                             </p>
                         </div>
                         <div className={`paragraph-section ${visibleSections['section-2'] ? 'fade-in-up' : ''}`}
                             ref={el => sectionRefs.current.paragraphSections[1] = el}
                         >
                             <p className="why-paragraph">
-                                Join our community of forward-thinking traders where innovation meets execution. 
-                                Share strategies, collaborate on market analysis, and stay ahead of market trends with 
-                                our real-time updates and expert insights.
+                                Join our community of wealth builders who are creating financial freedom through 
+                                smart decision-making. Learn to avoid bad habits, build multiple income streams, 
+                                and develop the mindset needed for true generational wealth.
                             </p>
                             <div className="btn-container">
                                 <button className="start-btn">
@@ -443,9 +440,9 @@ const WhyInfinity = () => {
                                 <div className="feature-icon">
                                     <FaChartLine />
                                 </div>
-                                <h3 className="feature-title">Advanced Analytics</h3>
+                                <h3 className="feature-title">Wealth Building Knowledge</h3>
                                 <p className="feature-description">
-                                    Real-time market data and powerful technical analysis tools to make informed trading decisions.
+                                    Learn proven strategies to build generational wealth and make your money work for you effectively.
                                 </p>
                                 {renderFeatureChart(0)}
                             </div>
@@ -456,9 +453,9 @@ const WhyInfinity = () => {
                                 <div className="feature-icon">
                                     <FaGraduationCap />
                                 </div>
-                                <h3 className="feature-title">Expert Education</h3>
+                                <h3 className="feature-title">Break Bad Habits</h3>
                                 <p className="feature-description">
-                                    Comprehensive courses from beginner to advanced, taught by professional traders.
+                                    Eliminate destructive financial patterns and develop disciplined money management skills.
                                 </p>
                                 {renderFeatureChart(1)}
                             </div>
@@ -469,9 +466,9 @@ const WhyInfinity = () => {
                                 <div className="feature-icon">
                                     <FaUsers />
                                 </div>
-                                <h3 className="feature-title">Community Support</h3>
+                                <h3 className="feature-title">Multiple Income Streams</h3>
                                 <p className="feature-description">
-                                    Connect with fellow traders, share strategies, and grow together in our active community.
+                                    Discover diverse knowledge paths to create lasting financial security and independence.
                                 </p>
                                 {renderFeatureChart(2)}
                             </div>
@@ -495,9 +492,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <RiStockLine />
                             </div>
-                            <h3>Trading Simulator</h3>
+                            <h3>Financial Freedom Path</h3>
                             <p>
-                                Practice trading in a risk-free environment with real market conditions and historical data to perfect your strategies before trading with real capital.
+                                Learn to make your money work for you through smart investment strategies and passive income creation. Build wealth that lasts for generations.
                             </p>
                         </div>
                         
@@ -509,9 +506,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <FaLock />
                             </div>
-                            <h3>Secure Platform</h3>
+                            <h3>Avoid Financial Traps</h3>
                             <p>
-                                Industry-leading security protocols including two-factor authentication, encryption, and regular security audits to keep your account and data safe.
+                                Identify and break free from bad financial habits that keep you stuck. Learn disciplined approaches to spending, saving, and investing.
                             </p>
                         </div>
                         
@@ -523,9 +520,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <BiCodeAlt />
                             </div>
-                            <h3>Trading Algorithms</h3>
+                            <h3>Smart Money Strategies</h3>
                             <p>
-                                Create and deploy custom trading strategies with our easy-to-use algorithm builder, allowing for automated trading based on your specific criteria.
+                                Master the knowledge needed to build multiple income streams through trading, investing, and entrepreneurship on The Glitch platform.
                             </p>
                         </div>
                         
@@ -537,9 +534,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <FaRocket />
                             </div>
-                            <h3>Performance Tracking</h3>
+                            <h3>Generational Wealth Building</h3>
                             <p>
-                                Comprehensive analytics to track your trading performance, identify strengths and weaknesses, and continuously improve your trading outcomes.
+                                Create lasting prosperity for your family through proven wealth-building strategies that focus on sustainable growth and smart financial decisions.
                             </p>
                         </div>
                         
@@ -551,9 +548,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <FaChartPie />
                             </div>
-                            <h3>Portfolio Management</h3>
+                            <h3>Diverse Knowledge Streams</h3>
                             <p>
-                                Advanced risk management tools to optimize your portfolio allocation and monitor all your investments across different asset classes in one place.
+                                Access comprehensive education in trading, investing, business building, and passive income—all the tools needed to achieve true financial freedom.
                             </p>
                         </div>
                         
@@ -565,9 +562,9 @@ const WhyInfinity = () => {
                             <div className="feature-card-icon">
                                 <FaUsers />
                             </div>
-                            <h3>Social Trading</h3>
+                            <h3>The Glitch Community</h3>
                             <p>
-                                Follow and copy successful traders' strategies or share your own expertise with our community to earn additional income while helping others succeed.
+                                Join like-minded individuals committed to breaking free from financial limitations and building generational wealth through smart, disciplined strategies.
                             </p>
                         </div>
                     </div>

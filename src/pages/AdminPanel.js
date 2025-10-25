@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../utils/useWebSocket';
 import '../styles/AdminPanel.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import SharedBackground from '../components/SharedBackground';
 
 const AdminPanel = () => {
@@ -130,7 +129,7 @@ const AdminPanel = () => {
             <SharedBackground />
             <div className="admin-panel">
                 <div className="admin-header">
-                    <h1 className="admin-title glitch-brand" data-text="REGISTERED USERS">REGISTERED USERS</h1>
+                    <h1 className="admin-title">REGISTERED USERS</h1>
                     <div className="user-summary">
                         Total: {users.length} | Online: {onlineUsersCount} | Offline: {offlineUsersCount}
                         {!isConnected && <span className="connection-status offline"> (Offline)</span>}

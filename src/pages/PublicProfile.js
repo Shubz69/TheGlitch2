@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import '../styles/PublicProfile.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import { useAuth } from "../context/AuthContext";
 import SharedBackground from '../components/SharedBackground';
 
@@ -159,7 +158,7 @@ const PublicProfile = () => {
                     )}
                     
                     <div className="profile-title">
-                        <h1 className="glitch-brand" data-text={profile.username.toUpperCase()}>{profile.username.toUpperCase()}</h1>
+                        <h1 className="profile-username">{profile.username.toUpperCase()}</h1>
                         <div className="badge" style={{ backgroundColor: badge.color }}>
                             {badge.icon} {badge.label}
                         </div>
@@ -198,13 +197,13 @@ const PublicProfile = () => {
                 
                 {profile.bio && (
                     <div className="bio-section">
-                        <h3 className="glitch-brand" data-text="ABOUT">ABOUT</h3>
+                        <h3 className="section-title">ABOUT</h3>
                         <p>{profile.bio}</p>
                     </div>
                 )}
                 
                 <div className="achievements-section">
-                    <h3 className="glitch-brand" data-text="ACHIEVEMENTS">ACHIEVEMENTS</h3>
+                    <h3 className="section-title">ACHIEVEMENTS</h3>
                     {achievements.length > 0 ? (
                         <div className="achievements-grid">
                             {achievements.map((achievement, i) => (

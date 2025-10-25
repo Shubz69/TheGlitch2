@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/AdminUserList.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import AdminApi from "../services/AdminApi";
@@ -123,7 +122,7 @@ const AdminUserList = () => {
         <div className="page-wrapper">
             <SharedBackground />
             <div className="container">
-                <h2 className="gradient-text glitch-brand" data-text="REGISTERED USERS">REGISTERED USERS</h2>
+                <h2 className="gradient-text">REGISTERED USERS</h2>
                 <p className="user-summary">
                     👥 Total: {users.length} | 🟢 Online: {onlineCount} | 🔴 Offline: {offlineCount}
                 </p>

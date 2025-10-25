@@ -7,12 +7,10 @@ import '../styles/SharedBackground.css';
 import Chatbot from "../components/Chatbot";
 import SharedBackground from '../components/SharedBackground';
 
-// Glitch Text Component
-const GlitchText = ({ text }) => {
+// Simple Text Component
+const SimpleText = ({ text }) => {
     return (
-        <div className="glitch-wrapper">
-            <div className="glitch glitch-brand" data-text={text}>{text}</div>
-        </div>
+        <h1 className="contact-title">{text}</h1>
     );
 };
 
@@ -95,7 +93,7 @@ const ContactUs = () => {
             
             <div className="contact-content">
                 <div className="contact-header">
-                    <GlitchText text={fromMfa ? 'MFA Support' : 'Contact Us'} />
+                    <SimpleText text={fromMfa ? 'MFA Support' : 'Contact Us'} />
                     
                     <p className="contact-subtitle">
                         {fromMfa 

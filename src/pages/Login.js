@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import SharedBackground from '../components/SharedBackground';
@@ -91,31 +90,31 @@ const Login = () => {
         try {
             console.log('Attempting login with:', email);
             
-            // Use the auth context's login function directly
-            const data = await login(email, password);
+            // Use enhanced login with detailed error handling
+            const result = await Api.loginWithErrorDetails({ email, password });
             
-            console.log('Login response:', data);
-            
-            // Handle MFA required case
-            if (data && data.status === "MFA_REQUIRED" && !data.mfaVerified) {
-                console.log('MFA required, switching to MFA verification...');
+            if (result.success) {
+                // Store token and user data
+                localStorage.setItem('token', result.token);
+                localStorage.setItem('user', JSON.stringify(result.user));
                 
-                // Store email and userId for MFA verification
-                localStorage.setItem('mfaEmail', email);
-                localStorage.setItem('mfaUserId', data.id);
-                
-                // Show MFA verification directly in this component
-                setUserId(data.id);
-                setShowMfaVerification(true);
-                setIsLoading(false);
-                return;
+                // Trigger auth context update
+                window.location.reload();
+            } else {
+                // Handle specific error types
+                if (result.error === 'email') {
+                    setError('Email not found. Please check your email address or register for a new account.');
+                } else if (result.error === 'password') {
+                    setError('Incorrect password. Please try again or reset your password.');
+                } else {
+                    setError(result.message || 'An error occurred. Please try again.');
+                }
             }
             
-            // Success is handled by the useEffect that checks isAuthenticated
             setIsLoading(false);
         } catch (err) {
             console.error('Login error details:', err);
-            setError(err.message || 'Failed to login. Please check your credentials.');
+            setError('An error occurred. Please try again.');
             setIsLoading(false);
         }
     };
@@ -232,10 +231,10 @@ const Login = () => {
                         <div className="logo-icon">
                             <RiTerminalBoxFill />
                         </div>
-                        <h1 className="brand-title glitch-brand" data-text="WHY THE GLITCH">WHY THE GLITCH</h1>
+                        <h1 className="brand-title">WHY THE GLITCH</h1>
                     </div>
                     
-                    <h2 className="glitch" data-text="MFA VERIFICATION">MFA VERIFICATION</h2>
+                    <h2 className="mfa-title">MFA VERIFICATION</h2>
                     <p className="mfa-info">Please enter the 6-digit code sent to your email.</p>
                     <p className="email-sent">Code sent to: {email}</p>
                     

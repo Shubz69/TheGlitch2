@@ -149,126 +149,23 @@
     width: 100%;
 }
 
-.glitch-wrapper {
-    width: 100%;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.glitch {
-    position: relative;
+.courses-title {
     font-size: 42px;
     font-weight: 700;
     line-height: 1.2;
     color: var(--primary);
     letter-spacing: 5px;
-    animation: shift 4s ease-in-out infinite alternate;
     z-index: 1;
-    font-family: var(--font-main);
+    font-family: Arial, sans-serif;
     text-shadow: 
         0 0 10px rgba(99, 102, 241, 0.8),
         0 0 20px rgba(139, 92, 246, 0.5),
         0 0 30px rgba(167, 139, 250, 0.3);
 }
 
-.glitch.glitch-brand {
-    animation: title-glitch 4s ease-in-out infinite alternate;
-}
 
-.glitch.glitch-brand::before,
-.glitch.glitch-brand::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
 
-.glitch.glitch-brand::before {
-    animation: glitch-effect 3s infinite linear alternate-reverse;
-    color: #ff0000;
-    z-index: -1;
-}
 
-.glitch.glitch-brand::after {
-    animation: glitch-effect 2s infinite linear alternate-reverse;
-    color: #00ffff;
-    z-index: -2;
-}
-
-.glitch::before,
-.glitch::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
-
-.glitch::before {
-    color: var(--gold-secondary);
-    animation: glitch-effect 3s infinite linear alternate-reverse;
-}
-
-.glitch::after {
-    color: var(--gold-accent);
-    animation: glitch-effect 2s infinite linear alternate-reverse;
-}
-
-@keyframes glitch-effect {
-    0% {
-        clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%);
-        transform: translate(-5px, -3px);
-    }
-    10% {
-        clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%);
-        transform: translate(5px, 3px);
-    }
-    20% {
-        clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%);
-        transform: translate(-3px, 1px);
-    }
-    30% {
-        clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%);
-        transform: translate(3px, 2px);
-    }
-    40% {
-        clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%);
-        transform: translate(-1px, -1px);
-    }
-    50% {
-        clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%);
-        transform: translate(1px, 2px);
-    }
-    60% {
-        clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%);
-        transform: translate(-3px, -3px);
-    }
-    70% {
-        clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%);
-        transform: translate(3px, 1px);
-    }
-    80% {
-        clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%);
-        transform: translate(-1px, -1px);
-    }
-    90% {
-        clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%);
-        transform: translate(3px, 3px);
-    }
-    100% {
-        clip-path: polygon(0 90%, 100% 90%, 100% 90%, 0 90%);
-        transform: translate(-3px, 0);
-    }
-}
-
-/* Remove duplicate glitch animations - using GlitchBranding.css instead */
 
 @keyframes shift {
     0%, 40%, 44%, 58%, 61%, 65%, 69%, 73%, 100% {
@@ -426,6 +323,32 @@
     font-family: var(--font-main);
 }
 
+.coming-soon-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        transform: scale(1.02);
+    }
+}
+
 .enroll-button {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
@@ -453,11 +376,21 @@
     transform: translateY(-2px);
 }
 
-.enroll-button:disabled {
-    background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+.enroll-button:disabled,
+.enroll-button.disabled {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
     cursor: not-allowed;
-    opacity: 0.7;
-    color: var(--accent);
+    opacity: 0.5;
+    color: rgba(167, 139, 250, 0.6);
+    box-shadow: none;
+    transform: none;
+}
+
+.enroll-button:disabled:hover,
+.enroll-button.disabled:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    box-shadow: none;
+    transform: none;
 }
 
 .button-glow {

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Courses.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import Api from '../services/Api';
 import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
@@ -27,21 +26,26 @@ const Courses = () => {
             try {
                 console.log('Fetching courses from:', `${API_BASE_URL}/api/courses`);
                 const response = await Api.getCourses();
-                setCourses(response.data);
+                
+                // Ensure response.data is an array
+                const coursesData = Array.isArray(response.data) ? response.data : [];
+                setCourses(coursesData);
                 
                 // Check if we're using mock data by examining the course IDs
                 // The mock data uses IDs 1-8
-                const isMockData = response.data && 
-                    response.data.length === 8 && 
-                    response.data[0]?.id === 1 &&
-                    response.data[1]?.id === 2 &&
-                    response.data[2]?.id === 3 &&
-                    response.data[3]?.id === 4;
+                const isMockData = coursesData && 
+                    coursesData.length === 8 && 
+                    coursesData[0]?.id === 1 &&
+                    coursesData[1]?.id === 2 &&
+                    coursesData[2]?.id === 3 &&
+                    coursesData[3]?.id === 4;
                 
                 setUsingMockData(isMockData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching courses:', error);
+                // Set empty array to prevent map error
+                setCourses([]);
                 // Show a more user-friendly error message
                 if (error.response && error.response.status === 403) {
                     setError('Authentication error. Please log in first or try again later.');
@@ -156,7 +160,7 @@ const Courses = () => {
             <SharedBackground />
             <div className="stars"></div>
             <div className="courses-header">
-                <h1 className="glitch glitch-brand" data-text="COURSES">COURSES</h1>
+                <h1 className="courses-title">COURSES</h1>
                 <p>Expand your knowledge with our comprehensive trading courses</p>
             </div>
             
@@ -167,7 +171,7 @@ const Courses = () => {
             )}
             
             <div className="courses-grid">
-                {courses.length > 0 ? (
+                {Array.isArray(courses) && courses.length > 0 ? (
                     courses.map(course => (
                         <div className="course-card" key={course.id}>
                             <div className="course-image">
@@ -181,15 +185,14 @@ const Courses = () => {
                                 <h3>{course.title.toUpperCase()}</h3>
                                 <p className="course-description">{course.description}</p>
                                 <div className="course-cta">
-                                    <span className="price">
-                                        {course.price === 0 ? 'Free' : `$${course.price}`}
+                                    <span className="coming-soon-badge">
+                                        COMING SOON
                                     </span>
                                     <button 
-                                        className="enroll-button"
-                                        onClick={() => handleEnrollClick(course)}
-                                        disabled={processingPayment}
+                                        className="enroll-button disabled"
+                                        disabled={true}
                                     >
-                                        <span>{processingPayment ? 'Processing...' : course.price === 0 ? 'Enroll Now' : 'Buy Now'}</span>
+                                        <span>Buy Now</span>
                                         <span className="button-glow"></span>
                                     </button>
                                 </div>

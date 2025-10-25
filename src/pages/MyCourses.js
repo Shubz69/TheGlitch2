@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/MyCourses.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import { useNavigate } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
 import SharedBackground from '../components/SharedBackground';
@@ -105,7 +104,7 @@ const MyCourses = () => {
             <div className="my-courses-container">
                 <SharedBackground />
                 <div className="page-header">
-                    <h1 className="glitch-brand" data-text={userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}>
+                    <h1 className="page-title">
                         {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}
                     </h1>
                 </div>
@@ -120,7 +119,7 @@ const MyCourses = () => {
         <div className="my-courses-container">
             <SharedBackground />
             <div className="page-header">
-                <h1 className="glitch-brand" data-text={userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}>
+                <h1 className="page-title">
                     {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}
                 </h1>
             </div>

@@ -2,29 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 import "../styles/SharedBackground.css";
-import "../styles/GlitchBranding.css";
 import { useAuth } from "../context/AuthContext";
 import Chatbot from "../components/Chatbot";
-import LightningEffect from "../components/LightningEffect";
 import SharedBackground from "../components/SharedBackground";
 import FancyAIHead from "../components/FancyAIHead";
 
 const Home = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const [showLightning, setShowLightning] = useState(true);
-    const [showContent, setShowContent] = useState(false);
+    const [showContent, setShowContent] = useState(true);
     const [aiHeadState, setAiHeadState] = useState('idle');
     const [currentFeature, setCurrentFeature] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowContent(true);
-        }, 5500);
-
-        return () => clearTimeout(timer);
-    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -43,10 +33,6 @@ const Home = () => {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    const handleLightningComplete = () => {
-        setShowLightning(false);
-        setShowContent(true);
-    };
 
     const handleStartTrading = () => {
         if (isAuthenticated) {
@@ -91,9 +77,6 @@ const Home = () => {
     return (
         <div className="home-container">
             <SharedBackground />
-            {showLightning && (
-                <LightningEffect onLightningComplete={handleLightningComplete} />
-            )}
             
             {showContent && (
                 <>
@@ -129,7 +112,7 @@ const Home = () => {
                                 
                                 <h1 className="hero-title">
                                     <span className="title-line">WELCOME TO</span>
-                                    <span className="title-highlight" data-text="THE GLITCH">THE GLITCH</span>
+                                    <span className="title-highlight">THE GLITCH</span>
                                     <span className="title-line">PLATFORM</span>
                                 </h1>
                                 

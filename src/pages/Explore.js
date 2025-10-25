@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Explore.css';
 import '../styles/SharedBackground.css';
-import '../styles/GlitchBranding.css';
 import SharedBackground from '../components/SharedBackground';
 
 const Explore = () => {
@@ -28,29 +27,29 @@ const Explore = () => {
       id: 1,
       name: 'Shubz',
       role: 'Lead Architect',
-      expertise: 'AI Trading',
-      description: 'Specializes in ML models for market prediction and algorithmic trading systems.'
+      expertise: 'Wealth Building',
+      description: 'Expert in creating sustainable income streams and teaching principles of generational wealth creation.'
     },
     {
       id: 2,
       name: 'Aaron',
       role: 'UI/UX Director',
-      expertise: 'Trading UI',
-      description: 'Creates intuitive interfaces for complex financial data visualization.'
+      expertise: 'Financial Education',
+      description: 'Designs learning experiences that help you understand how to make your money work for you.'
     },
     {
       id: 3,
       name: 'Shaun',
-      role: 'Quant Analyst',
-      expertise: 'Risk Models',
-      description: 'Develops proprietary risk assessment algorithms and portfolio optimization.'
+      role: 'Investment Strategist',
+      expertise: 'Smart Investing',
+      description: 'Teaches disciplined wealth-building strategies and how to avoid common financial pitfalls.'
     },
     {
       id: 4,
       name: 'Leonardo',
-      role: 'Security Engineer',
-      expertise: 'Blockchain',
-      description: 'Implements cutting-edge security protocols and blockchain integration.'
+      role: 'Financial Mentor',
+      expertise: 'Multiple Income Streams',
+      description: 'Guides you through building diverse income sources and achieving lasting financial independence.'
     }
   ];
 
@@ -178,17 +177,17 @@ const Explore = () => {
 
       {/* Header */}
       <header className="explore-header">
-        <h1 className="explore-title glitch-brand" data-text="WELCOME TO THE GLITCH">
-          WELCOME TO <span className="highlight glitch-brand" data-text="THE GLITCH">THE GLITCH</span>
+        <h1 className="explore-title">
+          WELCOME TO <span className="highlight">THE GLITCH</span>
         </h1>
         <p className="explore-subtitle">
-          Experience our <span className="highlight">AI-POWERED</span> trading platform with advanced predictive analytics, real-time market insights, and proprietary algorithms designed by elite quantitative analysts for serious investors.
+          Build <span className="highlight">GENERATIONAL WEALTH</span> through our multiple streams of knowledge. Learn to make money work for you, avoid bad financial habits, and gain true financial freedom through disciplined education and smart investment strategies.
         </p>
       </header>
 
       {/* Team Section */}
       <section className="team-section">
-        <h2 className="glitch-brand" data-text="OUR EXPERT TEAM">OUR EXPERT TEAM</h2>
+        <h2 className="section-title">OUR EXPERT TEAM</h2>
         <div className="team-grid">
           {teamMembers.map((member) => (
             <div key={member.id} className="team-member">
@@ -208,36 +207,36 @@ const Explore = () => {
 
       {/* Testimonials */}
       <section className="testimonials">
-        <h2 className="glitch-brand" data-text="TRADER TESTIMONIALS">TRADER TESTIMONIALS</h2>
+        <h2 className="section-title">SUCCESS STORIES</h2>
         <div className="testimonial-container">
           <div className="testimonial-card">
             <div className="quote-mark">"</div>
             <p>
-              The AI-powered predictive analytics have completely transformed my trading strategy. My win rate increased from 52% to 68% within the first month of using this platform.
+              The Glitch taught me to break free from bad spending habits and focus on building real wealth. I now have three passive income streams and my financial future looks completely different.
             </p>
             <div className="testimonial-author">
               <span className="author-name">Michael T.</span>
-              <span className="author-title">Professional Day Trader | 5+ years experience</span>
+              <span className="author-title">Financial Freedom Journey | Started 2 years ago</span>
             </div>
           </div>
           <div className="testimonial-card">
             <div className="quote-mark">"</div>
             <p>
-              As an institutional portfolio manager, I need tools that can process vast amounts of market data quickly. This platform's risk models deliver insights that have helped me optimize several multi-million dollar portfolios.
+              Instead of working for money, I learned how to make money work for me. The multiple streams of knowledge here helped me understand investing, passive income, and generational wealth.
             </p>
             <div className="testimonial-author">
               <span className="author-name">Sophia R.</span>
-              <span className="author-title">Hedge Fund Analyst | AUM $150M+</span>
+              <span className="author-title">Entrepreneur | Building Legacy Wealth</span>
             </div>
           </div>
           <div className="testimonial-card">
             <div className="quote-mark">"</div>
             <p>
-              The community insights combined with AI-driven technical analysis create a powerful edge. I've reduced my research time by 70% while improving my position sizing and risk management tremendously.
+              This platform changed my mindset from chasing quick money to building sustainable wealth. No more bad financial habits—just smart strategies that create lasting prosperity for my family.
             </p>
             <div className="testimonial-author">
               <span className="author-name">David K.</span>
-              <span className="author-title">Swing Trader | Crypto Specialist</span>
+              <span className="author-title">Wealth Builder | Creating Generational Impact</span>
             </div>
           </div>
         </div>
@@ -245,37 +244,37 @@ const Explore = () => {
 
       {/* Platform Highlights */}
       <section className="feature-highlights">
-        <h2 className="glitch-brand" data-text="PLATFORM FEATURES">PLATFORM FEATURES</h2>
+        <h2 className="section-title">PLATFORM FEATURES</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">📊</div>
-            <h3>AI Predictive Analytics</h3>
-            <p>Proprietary machine learning algorithms that identify complex market patterns and predict price movements with up to 76% accuracy.</p>
+            <div className="feature-icon">💰</div>
+            <h3>Generational Wealth Education</h3>
+            <p>Learn proven strategies to build lasting wealth that spans generations. Break free from the cycle of living paycheck to paycheck.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🤖</div>
-            <h3>Automated Trading Systems</h3>
-            <p>Deploy sophisticated trading algorithms with custom parameters that execute precisely when your conditions are met, with microsecond precision.</p>
+            <div className="feature-icon">🎯</div>
+            <h3>Multiple Income Streams</h3>
+            <p>Discover diverse knowledge paths including trading, investing, business, and passive income to create financial security.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">📱</div>
-            <h3>Real-time Alerts</h3>
-            <p>Never miss a trading opportunity with customizable push notifications for price movements, technical indicators, and AI-detected patterns.</p>
+            <div className="feature-icon">🚫</div>
+            <h3>Break Bad Habits</h3>
+            <p>Identify and eliminate destructive financial patterns. Learn disciplined money management and smart spending principles.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🔒</div>
-            <h3>Enterprise Security</h3>
-            <p>Military-grade encryption, multi-factor authentication, and 24/7 monitoring ensures your data and funds remain completely secure.</p>
+            <div className="feature-icon">🔄</div>
+            <h3>Money Works For You</h3>
+            <p>Master the art of passive income and investment strategies that generate wealth while you focus on what matters most.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">📈</div>
-            <h3>Advanced Charting</h3>
-            <p>Professional-grade technical analysis tools with over 100+ indicators and drawing tools for precise market visualization.</p>
+            <div className="feature-icon">📚</div>
+            <h3>Comprehensive Knowledge Base</h3>
+            <p>Access courses on trading, investing, entrepreneurship, and wealth building—all designed to help you achieve financial freedom.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🧠</div>
-            <h3>Sentiment Analysis</h3>
-            <p>Real-time processing of news, social media, and market data to gauge market sentiment and identify potential catalysts.</p>
+            <div className="feature-icon">🌟</div>
+            <h3>The Glitch Advantage</h3>
+            <p>Join a community committed to breaking traditional financial limitations and creating extraordinary wealth through smart, ethical strategies.</p>
           </div>
         </div>
       </section>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/Chatbot.css";
-import "../styles/GlitchBranding.css";
 
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);

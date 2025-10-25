@@ -21,8 +21,8 @@ const NotFound = () => {
             <SharedBackground />
             <div className="not-found-content">
                 <div className="error-code">404</div>
-                <div className="glitch-wrapper">
-                    <div className="glitch" data-text="Redirecting...">Redirecting...</div>
+                <div className="redirect-message">
+                    <div className="redirect-text">Redirecting...</div>
                 </div>
                 
                 <p className="error-message">
