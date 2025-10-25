@@ -24,7 +24,7 @@ const Home = () => {
             setTimeout(() => {
                 setShowContent(true);
             }, 500); // Small delay for smooth transition
-        }, 2000); // 2 second loading screen
+        }, 5000); // 5 second loading screen
 
         return () => clearTimeout(loadingTimer);
     }, []);
@@ -96,7 +96,7 @@ const Home = () => {
                 <div className="loading-screen">
                     {/* Binary Code Background */}
                     <div className="binary-background">
-                        {[...Array(200)].map((_, i) => (
+                        {[...Array(500)].map((_, i) => (
                             <div 
                                 key={i} 
                                 className="binary-digit"
