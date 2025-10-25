@@ -94,33 +94,33 @@ const Home = () => {
             {/* Loading Screen */}
             {isLoading && (
                 <div className="loading-screen">
+                    {/* Binary Code Background */}
+                    <div className="binary-background">
+                        {[...Array(200)].map((_, i) => (
+                            <div 
+                                key={i} 
+                                className="binary-digit"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                    animationDelay: `${Math.random() * 3}s`,
+                                    animationDuration: `${2 + Math.random() * 3}s`
+                                }}
+                            >
+                                {Math.random() > 0.5 ? '1' : '0'}
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {/* Main Loading Content */}
                     <div className="loading-content">
-                        <div className="loading-logo">
-                            <div className="logo-text">THE GLITCH</div>
-                            <div className="logo-subtitle">AI-POWERED TRADING</div>
-                        </div>
+                        <div className="loading-title">THE GLITCH</div>
+                        <div className="loading-subtitle">INITIALIZING SYSTEM...</div>
                         
-                        <div className="loading-animation">
-                            <div className="loading-spinner">
-                                <div className="spinner-ring"></div>
-                                <div className="spinner-ring"></div>
-                                <div className="spinner-ring"></div>
-                            </div>
-                        </div>
-                        
-                        <div className="loading-text">
-                            <div className="loading-dots">
-                                <span>Initializing</span>
-                                <span className="dot">.</span>
-                                <span className="dot">.</span>
-                                <span className="dot">.</span>
-                            </div>
-                        </div>
-                        
-                        <div className="loading-progress">
-                            <div className="progress-bar">
-                                <div className="progress-fill"></div>
-                            </div>
+                        <div className="loading-dots-container">
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
+                            <span className="loading-dot"></span>
                         </div>
                     </div>
                 </div>

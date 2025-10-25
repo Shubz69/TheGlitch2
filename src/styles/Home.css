@@ -32,126 +32,86 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
     animation: fadeOut 0.5s ease-out 1.5s forwards;
+    overflow: hidden;
+}
+
+.binary-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+}
+
+.binary-digit {
+    position: absolute;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    animation: binaryFade 3s ease-in-out infinite;
+    user-select: none;
+    pointer-events: none;
 }
 
 .loading-content {
     text-align: center;
-    max-width: 400px;
-    padding: 2rem;
-}
-
-.loading-logo {
-    margin-bottom: 3rem;
-}
-
-.logo-text {
-    font-size: 3.5rem;
-    font-weight: 900;
-    background: linear-gradient(45deg, #00d4ff, #8b5cf6, #ff6b6b);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradientShift 2s ease-in-out infinite;
-    letter-spacing: 0.1em;
-    text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-}
-
-.logo-subtitle {
-    font-size: 1rem;
-    color: #8b5cf6;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    margin-top: 0.5rem;
-    text-transform: uppercase;
-}
-
-.loading-animation {
-    margin-bottom: 2rem;
-}
-
-.loading-spinner {
+    z-index: 10;
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto;
 }
 
-.spinner-ring {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 3px solid transparent;
+.loading-title {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 20px #00ff00;
+    margin-bottom: 1rem;
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.loading-subtitle {
+    font-size: 1.2rem;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.loading-dots-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.loading-dot {
+    width: 12px;
+    height: 12px;
+    background: #00ff00;
     border-radius: 50%;
-    animation: spin 1.5s linear infinite;
+    animation: dotPulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px #00ff00;
 }
 
-.spinner-ring:nth-child(1) {
-    border-top-color: #00d4ff;
+.loading-dot:nth-child(1) {
     animation-delay: 0s;
 }
 
-.spinner-ring:nth-child(2) {
-    border-right-color: #8b5cf6;
-    animation-delay: 0.5s;
-}
-
-.spinner-ring:nth-child(3) {
-    border-bottom-color: #ff6b6b;
-    animation-delay: 1s;
-}
-
-.loading-text {
-    margin-bottom: 2rem;
-}
-
-.loading-dots {
-    font-size: 1.2rem;
-    color: #ffffff;
-    font-weight: 500;
-}
-
-.dot {
-    animation: dotPulse 1.5s ease-in-out infinite;
-}
-
-.dot:nth-child(2) {
+.loading-dot:nth-child(2) {
     animation-delay: 0.2s;
 }
 
-.dot:nth-child(3) {
+.loading-dot:nth-child(3) {
     animation-delay: 0.4s;
-}
-
-.dot:nth-child(4) {
-    animation-delay: 0.6s;
-}
-
-.loading-progress {
-    width: 100%;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00d4ff, #8b5cf6, #ff6b6b);
-    background-size: 200% 100%;
-    border-radius: 2px;
-    animation: progressFill 2s ease-out forwards, gradientShift 2s ease-in-out infinite;
 }
 
 /* Loading Animations */
@@ -166,42 +126,34 @@ body, html {
     }
 }
 
-@keyframes gradientShift {
+@keyframes binaryFade {
     0%, 100% {
-        background-position: 0% 50%;
+        opacity: 0.1;
+        transform: scale(0.8);
     }
     50% {
-        background-position: 100% 50%;
+        opacity: 0.6;
+        transform: scale(1.2);
     }
 }
 
-@keyframes spin {
+@keyframes titleGlow {
     0% {
-        transform: rotate(0deg);
+        text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
     }
     100% {
-        transform: rotate(360deg);
+        text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
     }
 }
 
 @keyframes dotPulse {
-    0%, 20% {
-        opacity: 0;
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
     }
     50% {
         opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes progressFill {
-    0% {
-        width: 0%;
-    }
-    100% {
-        width: 100%;
+        transform: scale(1.2);
     }
 }
 
