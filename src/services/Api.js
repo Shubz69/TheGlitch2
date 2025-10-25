@@ -13,7 +13,9 @@ const MOCK_USERS = [
         username: 'ShubzFx',
         avatar: '/avatars/avatar_ai.png',
         role: 'ADMIN',
-        level: 99
+        level: 99,
+        xp: 980100, // Level 99 = (99-1)^2 * 100 = 960400
+        totalMessages: 5000
     },
     {
         id: 2,
@@ -23,7 +25,9 @@ const MOCK_USERS = [
         username: 'demo',
         avatar: '/avatars/avatar_tech.png',
         role: 'USER',
-        level: 1
+        level: 1,
+        xp: 0,
+        totalMessages: 0
     }
 ];
 
@@ -53,7 +57,9 @@ const mockLogin = async (email, password) => {
                     username: user.username,
                     avatar: user.avatar || '/avatars/avatar_ai.png',
                     role: user.role,
-                    level: user.level || 1
+                    level: user.level || 1,
+                    xp: user.xp || 0,
+                    totalMessages: user.totalMessages || 0
                 }));
                 
                 resolve({
@@ -66,6 +72,8 @@ const mockLogin = async (email, password) => {
                             username: user.username,
                             avatar: user.avatar || '/avatars/avatar_ai.png',
                             level: user.level || 1,
+                            xp: user.xp || 0,
+                            totalMessages: user.totalMessages || 0,
                             role: user.role
                         }
                     }
@@ -115,7 +123,9 @@ const mockRegister = async (userData) => {
                 username: userInfo.username,
                 avatar: userInfo.avatar,
                 role: 'USER',
-                level: 1
+                level: 1,
+                xp: 0,
+                totalMessages: 0
             };
             
             MOCK_USERS.push(newUser);
@@ -141,7 +151,9 @@ const mockRegister = async (userData) => {
                 username: newUser.username,
                 avatar: newUser.avatar,
                 role: newUser.role,
-                level: newUser.level
+                level: newUser.level,
+                xp: newUser.xp,
+                totalMessages: newUser.totalMessages
             }));
             
             resolve({
@@ -154,6 +166,8 @@ const mockRegister = async (userData) => {
                         username: newUser.username,
                         avatar: newUser.avatar,
                         level: newUser.level,
+                        xp: newUser.xp,
+                        totalMessages: newUser.totalMessages,
                         role: newUser.role
                     }
                 }

@@ -294,6 +294,112 @@ const Community = () => {
         return [];
     };
 
+    // ***** XP SYSTEM FUNCTIONS *****
+    
+    // XP and Level calculation rules
+    const XP_PER_MESSAGE = 10; // Base XP for sending a message
+    const XP_PER_FILE = 20; // Extra XP for including a file/image
+    const XP_PER_EMOJI = 2; // Extra XP per emoji in message
+    
+    // Level thresholds - XP required to reach each level
+    const getLevelFromXP = (xp) => {
+        // Level formula: Level = floor(sqrt(XP / 100)) + 1
+        // This means: Level 1 = 0 XP, Level 2 = 100 XP, Level 3 = 400 XP, Level 4 = 900 XP, etc.
+        return Math.floor(Math.sqrt(xp / 100)) + 1;
+    };
+    
+    const getXPForLevel = (level) => {
+        // Reverse formula: XP needed for a level = (level - 1)^2 * 100
+        return Math.pow(level - 1, 2) * 100;
+    };
+    
+    const getXPProgress = (xp) => {
+        const currentLevel = getLevelFromXP(xp);
+        const currentLevelXP = getXPForLevel(currentLevel);
+        const nextLevelXP = getXPForLevel(currentLevel + 1);
+        const xpInCurrentLevel = xp - currentLevelXP;
+        const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
+        const progressPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+        
+        return {
+            currentLevel,
+            currentXP: xp,
+            xpInCurrentLevel,
+            xpNeededForNextLevel,
+            progressPercentage: Math.min(100, Math.max(0, progressPercentage)),
+            nextLevel: currentLevel + 1
+        };
+    };
+    
+    // Award XP and update user data
+    const awardXP = (earnedXP) => {
+        try {
+            // Get current user data
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const currentXP = currentUser.xp || 0;
+            const newXP = currentXP + earnedXP;
+            const newLevel = getLevelFromXP(newXP);
+            const oldLevel = getLevelFromXP(currentXP);
+            
+            // Update user data
+            const updatedUser = {
+                ...currentUser,
+                xp: newXP,
+                level: newLevel,
+                totalMessages: (currentUser.totalMessages || 0) + 1
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
+            // Update state
+            setStoredUser(updatedUser);
+            setUserLevel(newLevel);
+            
+            // Log XP gain
+            console.log(`+${earnedXP} XP! Total XP: ${newXP}, Level: ${newLevel}`);
+            
+            // Check for level up
+            if (newLevel > oldLevel) {
+                console.log(`🎉 LEVEL UP! You are now Level ${newLevel}!`);
+                // You could add a toast notification here
+            }
+            
+            return {
+                earnedXP,
+                newXP,
+                newLevel,
+                leveledUp: newLevel > oldLevel
+            };
+        } catch (error) {
+            console.error('Error awarding XP:', error);
+            return null;
+        }
+    };
+    
+    // Calculate XP for a message
+    const calculateMessageXP = (messageContent, hasFile) => {
+        let totalXP = XP_PER_MESSAGE;
+        
+        // Bonus for file attachments
+        if (hasFile) {
+            totalXP += XP_PER_FILE;
+        }
+        
+        // Bonus for emojis (count emojis in message)
+        const emojiRegex = /[\p{Emoji}]/gu;
+        const emojiMatches = messageContent.match(emojiRegex);
+        if (emojiMatches) {
+            totalXP += emojiMatches.length * XP_PER_EMOJI;
+        }
+        
+        // Bonus for longer messages (1 XP per 50 characters, max 20 bonus XP)
+        const lengthBonus = Math.min(20, Math.floor(messageContent.length / 50));
+        totalXP += lengthBonus;
+        
+        return totalXP;
+    };
+
     // Check for valid auth token
     const hasValidToken = () => {
         const token = localStorage.getItem('token');
@@ -478,11 +584,23 @@ const Community = () => {
                 displayName = 'User';
             }
             
-            // Create enhanced user object with guaranteed username
+            // Initialize XP and level if not present
+            const currentXP = storedUserData.xp || 0;
+            const calculatedLevel = getLevelFromXP(currentXP);
+            
+            // Create enhanced user object with guaranteed username and XP
             const enhancedUser = {
                 ...storedUserData,
-                username: displayName
+                username: displayName,
+                xp: currentXP,
+                level: calculatedLevel,
+                totalMessages: storedUserData.totalMessages || 0
             };
+            
+            // Save back to localStorage if we added new fields
+            if (!storedUserData.xp || !storedUserData.level) {
+                localStorage.setItem('user', JSON.stringify(enhancedUser));
+            }
             
             setStoredUser(enhancedUser);
             setUserId(storedUserData.id);
@@ -494,10 +612,12 @@ const Community = () => {
             setIsAdmin(userIsAdmin);
             
             // Set user level
-            setUserLevel(storedUserData.level || 1);
+            setUserLevel(calculatedLevel);
             
             console.log("Display name:", displayName);
-            console.log("User level:", storedUserData.level || 1);
+            console.log("User XP:", currentXP);
+            console.log("User level:", calculatedLevel);
+            console.log("Total messages:", enhancedUser.totalMessages);
             console.log("User is admin:", userIsAdmin);
             console.log("User role:", storedUserData.role);
         } else {
@@ -581,6 +701,19 @@ const Community = () => {
             
             // Save to localStorage
             saveMessagesToStorage(selectedChannel.id, updatedMessages);
+            
+            // ***** AWARD XP FOR SENDING MESSAGE *****
+            const earnedXP = calculateMessageXP(newMessage, !!selectedFile);
+            const xpResult = awardXP(earnedXP);
+            
+            if (xpResult) {
+                console.log(`✨ +${xpResult.earnedXP} XP! | Total: ${xpResult.newXP} XP | Level ${xpResult.newLevel}`);
+                
+                if (xpResult.leveledUp) {
+                    // Optional: Show level up notification
+                    console.log(`🎉 LEVEL UP! You reached Level ${xpResult.newLevel}!`);
+                }
+            }
             
             // Clear inputs
             setNewMessage('');
@@ -674,42 +807,84 @@ const Community = () => {
                     borderTop: '1px solid var(--border-color)',
                     background: 'var(--bg-primary)',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
+                    flexDirection: 'column',
+                    gap: '8px'
                 }}>
                     <div style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, var(--purple-primary), var(--purple-dark))',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        color: 'white',
-                        flexShrink: 0
+                        gap: '12px'
                     }}>
-                        {(storedUser?.username || storedUser?.name || 'U').substring(0, 2).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ 
-                            fontWeight: 600, 
-                            fontSize: '0.9rem',
+                        <div style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, var(--purple-primary), var(--purple-dark))',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1rem',
+                            fontWeight: 700,
                             color: 'white',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                            flexShrink: 0
                         }}>
-                            {storedUser?.username || storedUser?.name || 'User'}
+                            {(storedUser?.username || storedUser?.name || 'U').substring(0, 2).toUpperCase()}
                         </div>
-                        <div style={{ 
-                            fontSize: '0.75rem',
-                            color: 'var(--text-muted)'
-                        }}>
-                            Level {userLevel}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ 
+                                fontWeight: 600, 
+                                fontSize: '0.9rem',
+                                color: 'white',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}>
+                                {storedUser?.username || storedUser?.name || 'User'}
+                            </div>
+                            <div style={{ 
+                                fontSize: '0.7rem',
+                                color: 'var(--text-muted)',
+                                display: 'flex',
+                                gap: '6px'
+                            }}>
+                                <span>Level {userLevel}</span>
+                                <span>•</span>
+                                <span>{storedUser?.xp || 0} XP</span>
+                            </div>
                         </div>
                     </div>
+                    {/* XP Progress Bar */}
+                    {(() => {
+                        const progress = getXPProgress(storedUser?.xp || 0);
+                        return (
+                            <div style={{ width: '100%' }}>
+                                <div style={{
+                                    width: '100%',
+                                    height: '6px',
+                                    background: 'var(--bg-tertiary)',
+                                    borderRadius: '3px',
+                                    overflow: 'hidden',
+                                    position: 'relative'
+                                }}>
+                                    <div style={{
+                                        width: `${progress.progressPercentage}%`,
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, var(--purple-primary), var(--accent-blue))',
+                                        borderRadius: '3px',
+                                        transition: 'width 0.5s ease'
+                                    }} />
+                                </div>
+                                <div style={{
+                                    fontSize: '0.65rem',
+                                    color: 'var(--text-muted)',
+                                    marginTop: '2px',
+                                    textAlign: 'center'
+                                }}>
+                                    {progress.xpInCurrentLevel} / {progress.xpNeededForNextLevel} XP to Level {progress.nextLevel}
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
             
