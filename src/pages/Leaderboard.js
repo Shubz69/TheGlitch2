@@ -25,11 +25,40 @@ const Leaderboard = () => {
     ];
 
     useEffect(() => {
+        // Create glitch effect data points
+        if (containerRef.current) {
+            const container = containerRef.current;
+            const containerRect = container.getBoundingClientRect();
+            
+            // Create 50 data points for more intense effect
+            for (let i = 0; i < 50; i++) {
+                const dataPoint = document.createElement('div');
+                dataPoint.className = 'data-point';
+                
+                const left = Math.floor(Math.random() * containerRect.width);
+                const top = Math.floor(Math.random() * containerRect.height);
+                
+                dataPoint.style.left = `${left}px`;
+                dataPoint.style.top = `${top}px`;
+                dataPoint.style.animationDelay = `${Math.random() * 8}s`;
+                
+                container.appendChild(dataPoint);
+            }
+        }
+
         // Simulate API call delay
         setTimeout(() => {
             setLeaderboardData(mockLeaderboardData);
             setLoading(false);
-        }, 500);
+        }, 1500);
+
+        // Cleanup function
+        return () => {
+            if (containerRef.current) {
+                const dataPoints = containerRef.current.querySelectorAll('.data-point');
+                dataPoints.forEach(point => point.remove());
+            }
+        };
     }, []);
 
     const getRankEmoji = (rank) => {
