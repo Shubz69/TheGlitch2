@@ -24,7 +24,7 @@ const Home = () => {
             setTimeout(() => {
                 setShowContent(true);
             }, 500); // Small delay for smooth transition
-        }, 5000); // 5 second loading screen
+        }, 10000); // 10 second loading screen
 
         return () => clearTimeout(loadingTimer);
     }, []);
@@ -94,20 +94,29 @@ const Home = () => {
             {/* Loading Screen */}
             {isLoading && (
                 <div className="loading-screen">
-                    {/* Binary Code Background */}
-                    <div className="binary-background">
-                        {[...Array(500)].map((_, i) => (
+                    {/* Rainfall Code Background */}
+                    <div className="rainfall-background">
+                        {[...Array(50)].map((_, i) => (
                             <div 
                                 key={i} 
-                                className="binary-digit"
+                                className="rainfall-column"
                                 style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                    animationDelay: `${Math.random() * 3}s`,
-                                    animationDuration: `${2 + Math.random() * 3}s`
+                                    left: `${(i * 100) / 50}%`,
+                                    animationDelay: `${Math.random() * 2}s`,
+                                    animationDuration: `${3 + Math.random() * 2}s`
                                 }}
                             >
-                                {Math.random() > 0.5 ? '1' : '0'}
+                                {[...Array(20)].map((_, j) => (
+                                    <div 
+                                        key={j}
+                                        className="rainfall-character"
+                                        style={{
+                                            animationDelay: `${j * 0.1}s`
+                                        }}
+                                    >
+                                        {Math.random() > 0.5 ? '1' : '0'}
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
