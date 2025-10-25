@@ -102,6 +102,18 @@ const Register = () => {
                 pauseOnHover: true,
                 draggable: true,
             });
+
+            // Show welcome message after a brief delay
+            setTimeout(() => {
+                toast.info('💬 Check your Messages to chat with Admin anytime!', {
+                    position: "top-center",
+                    autoClose: 4000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
+            }, 1000);
             
             // Redirect to community page after short delay
             setTimeout(() => {

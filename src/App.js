@@ -25,6 +25,7 @@ import EditAddress from './pages/EditAddress';
 import EditPhone from './pages/EditPhone';
 import EditPassword from './pages/EditPassword';
 import AdminMessages from './pages/AdminMessages';
+import Messages from './pages/Messages';
 import PublicProfile from './pages/PublicProfile';
 import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
@@ -93,6 +94,7 @@ function AppRoutes() {
                             <Route path="/community" element={<Community />} />
                             <Route path="/community/:channelId" element={<Community />} />
                             <Route path="/leaderboard" element={<Leaderboard />} />
+                            <Route path="/messages" element={<Messages />} />
                         </>
                     )}
 
