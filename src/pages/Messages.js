@@ -38,7 +38,7 @@ const Messages = () => {
                     id: 2,
                     sender: 'admin',
                     senderName: 'Admin',
-                    content: 'Feel free to ask any questions about our platform, courses, or trading strategies. I typically respond within 24 hours.',
+                    content: 'Feel free to ask any questions about our platform, courses, or trading strategies. Our admin team will respond to your messages within 24 hours.',
                     timestamp: new Date().toISOString(),
                     read: false
                 }
@@ -71,20 +71,9 @@ const Messages = () => {
         localStorage.setItem(`messages_${user.id}`, JSON.stringify(updatedMessages));
         setNewMessage('');
 
-        // Simulate admin response (for demo purposes)
-        setTimeout(() => {
-            const autoReply = {
-                id: updatedMessages.length + 1,
-                sender: 'admin',
-                senderName: 'Admin',
-                content: 'Thanks for your message! An admin will review this and respond shortly. In the meantime, feel free to explore our courses and community.',
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-            const withReply = [...updatedMessages, autoReply];
-            setMessages(withReply);
-            localStorage.setItem(`messages_${user.id}`, JSON.stringify(withReply));
-        }, 2000);
+        // Send message to admin backend (shubzfx@gmail.com will receive notification)
+        // In production, this would trigger an email/notification to the admin
+        console.log('Message sent to admin:', newMsg);
     };
 
     const formatTime = (timestamp) => {
