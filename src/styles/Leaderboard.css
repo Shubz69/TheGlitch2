@@ -1,31 +1,37 @@
-/* Clean Leaderboard Design - No Effects */
+/* Original Leaderboard Design - Effects Removed, Alignment Fixed */
 .leaderboard-container {
     min-height: 100vh;
-    background: #2B2D31;
-    color: #DCDDDE;
-    padding: 100px 20px 40px;
+    background: linear-gradient(135deg, #2A2A2A 0%, #3A3A3A 50%, #2A2A2A 100%);
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
 }
 
 /* Header Section */
 .leaderboard-header {
     text-align: center;
-    margin-bottom: 50px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
 }
 
 .glitch-title {
-    font-size: 3rem;
-    font-weight: 700;
-    color: white;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
+    font-size: 4rem;
+    font-weight: 900;
+    color: #D4AF37;
+    text-shadow: 
+        0 0 10px rgba(212, 175, 55, 0.8),
+        0 0 20px rgba(212, 175, 55, 0.6),
+        0 0 30px rgba(212, 175, 55, 0.4);
+    letter-spacing: 8px;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .leaderboard-subtitle {
-    font-size: 1.1rem;
-    color: #8E9297;
+    font-size: 1.2rem;
+    color: #cccccc;
     margin-bottom: 30px;
 }
 
@@ -33,172 +39,154 @@
 .timeframe-selector {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    margin-bottom: 40px;
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
 .timeframe-btn {
-    padding: 10px 24px;
-    background: #383A40;
-    border: 1px solid #3F4147;
-    color: #DCDDDE;
-    border-radius: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 25px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     font-weight: 600;
-    font-size: 0.95rem;
 }
 
 .timeframe-btn:hover {
-    background: #404249;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .timeframe-btn.active {
-    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    background: linear-gradient(45deg, #8B5CF6, #6366F1);
     border-color: transparent;
-    color: white;
+    box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
 }
 
-/* Top 3 Podium */
-.top-three {
+/* Top 3 Podium - Properly Aligned */
+.top3-podium {
+    margin-bottom: 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.podium-container {
     display: flex;
     justify-content: center;
     align-items: flex-end;
     gap: 30px;
-    margin-bottom: 60px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.podium-card {
-    background: #36393F;
-    border-radius: 12px;
-    padding: 30px 24px;
-    text-align: center;
-    min-width: 200px;
-    border: 1px solid #3F4147;
-    transition: all 0.2s ease;
-}
-
-.podium-card:hover {
-    border-color: #8B5CF6;
-}
-
-/* First Place - Larger */
-.podium-card.first {
-    order: 2;
-    padding: 40px 30px;
-}
-
-/* Second Place */
-.podium-card.second {
-    order: 1;
-}
-
-/* Third Place */
-.podium-card.third {
-    order: 3;
-}
-
-.podium-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    border: 3px solid #3F4147;
-}
-
-.podium-card.first .podium-avatar {
-    width: 100px;
-    height: 100px;
-    border-color: #FFD700;
-}
-
-.podium-card.second .podium-avatar {
-    border-color: #C0C0C0;
-}
-
-.podium-card.third .podium-avatar {
-    border-color: #CD7F32;
-}
-
-.rank-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.rank-badge.gold {
-    background: #FFD700;
-    color: #1E1F22;
-}
-
-.rank-badge.silver {
-    background: #C0C0C0;
-    color: #1E1F22;
-}
-
-.rank-badge.bronze {
-    background: #CD7F32;
-    color: white;
-}
-
-.podium-name {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 8px;
-}
-
-.podium-xp {
-    font-size: 1rem;
-    color: #8E9297;
-    margin-bottom: 4px;
-}
-
-.podium-level {
-    font-size: 0.9rem;
-    color: #8E9297;
-}
-
-/* Top 10 Table */
-.leaderboard-table-section {
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.table-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-left: 20px;
+.podium-place {
+    background: rgba(42, 42, 42, 0.9);
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    min-width: 250px;
+    transition: all 0.3s ease;
 }
 
-.table-header h2 {
+.podium-place:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+}
+
+/* First Place - Tallest in Center */
+.first-place {
+    order: 2;
+    min-height: 400px;
+    border-color: #FFD700;
+    background: rgba(255, 215, 0, 0.05);
+}
+
+/* Second Place - Left Side */
+.second-place {
+    order: 1;
+    min-height: 350px;
+    border-color: #C0C0C0;
+}
+
+/* Third Place - Right Side */
+.third-place {
+    order: 3;
+    min-height: 320px;
+    border-color: #CD7F32;
+}
+
+.podium-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #D4AF37;
+}
+
+.first-place .podium-avatar {
+    width: 150px;
+    height: 150px;
+    border-width: 4px;
+    border-color: #FFD700;
+}
+
+.podium-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.podium-rank {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.podium-username {
     font-size: 1.5rem;
     font-weight: 700;
-    color: white;
+    color: #D4AF37;
+    margin-bottom: 10px;
 }
 
-.trophy-icon {
-    color: #FFD700;
-    font-size: 1.5rem;
+.podium-xp {
+    font-size: 1.2rem;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.podium-level {
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+/* Top 10 Table Section */
+.leaderboard-table-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.leaderboard-table-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: #D4AF37;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .leaderboard-table {
-    width: 100%;
-    background: #36393F;
-    border-radius: 12px;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 20px;
     overflow: hidden;
-    border: 1px solid #3F4147;
+    border: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .leaderboard-table table {
@@ -207,59 +195,53 @@
 }
 
 .leaderboard-table thead {
-    background: #2B2D31;
+    background: rgba(212, 175, 55, 0.1);
 }
 
 .leaderboard-table th {
-    padding: 16px;
+    padding: 20px;
     text-align: left;
-    font-size: 0.85rem;
+    color: #D4AF37;
     font-weight: 700;
-    color: #8E9297;
+    font-size: 1.1rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
 }
 
 .leaderboard-table tbody tr {
-    border-bottom: 1px solid #3F4147;
-    transition: background 0.15s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
 .leaderboard-table tbody tr:hover {
-    background: #32353B;
-}
-
-.leaderboard-table tbody tr:last-child {
-    border-bottom: none;
+    background: rgba(212, 175, 55, 0.05);
 }
 
 .leaderboard-table td {
-    padding: 16px;
-    color: #DCDDDE;
+    padding: 20px;
+    color: #ffffff;
 }
 
-/* Rank Column */
+/* Rank Cell */
 .rank-cell {
-    width: 80px;
+    font-size: 2rem;
+    font-weight: 700;
     text-align: center;
+    width: 100px;
 }
 
-.medal-icon {
-    font-size: 1.5rem;
-}
-
-/* User Column */
+/* User Cell */
 .user-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    flex-shrink: 0;
+    border: 2px solid #D4AF37;
 }
 
 .user-info {
@@ -268,154 +250,177 @@
 }
 
 .user-name {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: white;
-    margin-bottom: 4px;
+    color: #ffffff;
 }
 
-.user-badge {
+.user-role {
     display: inline-block;
-    padding: 3px 8px;
-    border-radius: 8px;
+    padding: 3px 10px;
+    border-radius: 12px;
     font-size: 0.7rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-top: 5px;
 }
 
-.user-badge.premium {
-    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+.user-role.PREMIUM {
+    background: linear-gradient(45deg, #8B5CF6, #6366F1);
     color: white;
 }
 
-.user-badge.free {
+.user-role.FREE {
     background: #6C757D;
     color: white;
 }
 
-/* Level Column */
+/* Level Cell */
 .level-cell {
+    text-align: center;
+    font-size: 1.2rem;
     font-weight: 600;
 }
 
-/* XP Column */
-.xp-cell {
-    min-width: 200px;
+.level-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-top: 5px;
 }
 
-.xp-bar-container {
-    background: #2B2D31;
-    border-radius: 8px;
-    height: 8px;
-    margin-bottom: 4px;
-    overflow: hidden;
+.badge-legend {
+    background: linear-gradient(45deg, #ff0000, #ff7f00);
+    color: white;
+}
+
+.badge-elite {
+    background: linear-gradient(45deg, #8B5CF6, #6366F1);
+    color: white;
+}
+
+.badge-pro {
+    background: linear-gradient(45deg, #3B82F6, #06B6D4);
+    color: white;
+}
+
+.badge-member {
+    background: linear-gradient(45deg, #10B981, #34D399);
+    color: white;
+}
+
+.badge-rookie {
+    background: #6C757D;
+    color: white;
+}
+
+/* XP Cell */
+.xp-cell {
+    text-align: center;
 }
 
 .xp-bar {
-    background: linear-gradient(90deg, #8B5CF6, #6366F1);
+    width: 200px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.xp-fill {
     height: 100%;
-    border-radius: 8px;
-    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #8B5CF6, #6366F1);
+    border-radius: 10px;
+    transition: width 0.5s ease;
 }
 
 .xp-text {
-    font-size: 0.85rem;
-    color: #8E9297;
+    font-size: 0.9rem;
+    color: #D4AF37;
+    font-weight: 600;
 }
 
-/* Status Column */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+/* Status Cell */
+.status-cell {
+    text-align: center;
+}
+
+.strike-warning {
+    display: inline-block;
+    padding: 5px 12px;
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+    border: 1px solid #EF4444;
 }
 
-.status-badge.legend {
-    background: rgba(231, 76, 60, 0.15);
-    color: #E74C3C;
-    border: 1px solid rgba(231, 76, 60, 0.3);
+.strike-warning.danger {
+    background: rgba(239, 68, 68, 0.3);
+    animation: pulse-warning 1.5s ease-in-out infinite;
 }
 
-.status-badge.master {
-    background: rgba(155, 89, 182, 0.15);
-    color: #9B59B6;
-    border: 1px solid rgba(155, 89, 182, 0.3);
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
-.status-badge.pro {
-    background: rgba(52, 152, 219, 0.15);
-    color: #3498DB;
-    border: 1px solid rgba(52, 152, 219, 0.3);
+.strike-warning.banned {
+    background: rgba(0, 0, 0, 0.8);
+    color: #EF4444;
+    border-color: #DC2626;
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 100px 20px;
+    color: #D4AF37;
+    font-size: 1.5rem;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .top-three {
+    .podium-container {
         flex-direction: column;
         align-items: center;
     }
     
-    .podium-card {
+    .first-place,
+    .second-place,
+    .third-place {
+        order: initial;
+        min-height: auto;
         width: 100%;
         max-width: 400px;
     }
     
-    .podium-card.first,
-    .podium-card.second,
-    .podium-card.third {
-        order: initial;
+    .leaderboard-table {
+        overflow-x: auto;
     }
 }
 
 @media (max-width: 768px) {
-    .leaderboard-container {
-        padding: 80px 12px 40px;
-    }
-    
     .glitch-title {
-        font-size: 2rem;
-    }
-    
-    .leaderboard-subtitle {
-        font-size: 1rem;
+        font-size: 2.5rem;
+        letter-spacing: 4px;
     }
     
     .timeframe-selector {
         flex-wrap: wrap;
     }
     
-    .leaderboard-table {
-        overflow-x: auto;
-    }
-    
     .leaderboard-table th,
     .leaderboard-table td {
         padding: 12px 8px;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
     
-    .xp-cell {
-        min-width: 150px;
+    .user-avatar {
+        width: 40px;
+        height: 40px;
     }
-}
-
-/* Loading & Empty States */
-.loading-state,
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #8E9297;
-}
-
-.loading-state h3,
-.empty-state h3 {
-    color: white;
-    margin-bottom: 12px;
-    font-size: 1.5rem;
 }
