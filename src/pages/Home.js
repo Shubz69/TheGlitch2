@@ -117,7 +117,7 @@ const Home = () => {
                                     animationDuration: `${3 + Math.random() * 2}s`
                                 }}
                             >
-                                {[...Array(20)].map((_, j) => (
+                                {[...Array(30)].map((_, j) => (
                                     <div 
                                         key={j}
                                         className="rainfall-character"
