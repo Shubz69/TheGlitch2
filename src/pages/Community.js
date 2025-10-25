@@ -57,30 +57,47 @@ const getAvatarPath = (avatarName) => {
 // Modified mock data with proper avatar paths
 const MOCK_DATA = {
     channels: [
-        { id: 25, name: "welcome", description: "Welcome to the trading platform", accessLevel: "admin-only", category: "admin-locked" },
-        { id: 26, name: "announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "admin-locked" },
-        { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only", category: "admin-locked" },
-        { id: 27, name: "rules", description: "Community rules and guidelines", accessLevel: "readonly" },
-        { id: 28, name: "general-chat", description: "General discussion for all members", accessLevel: "open" },
-        { id: 29, name: "rookie-hub", description: "For new traders (level 1+)", accessLevel: "level", minLevel: 1 },
-        { id: 30, name: "member-lounge", description: "For regular members (level 10+)", accessLevel: "level", minLevel: 10 },
-        { id: 31, name: "pro-discussion", description: "For experienced traders (level 25+)", accessLevel: "level", minLevel: 25 },
-        { id: 32, name: "elite-insights", description: "For advanced traders (level 50+)", accessLevel: "level", minLevel: 50 },
-        { id: 33, name: "legend-chat", description: "For legendary traders (level 99+)", accessLevel: "level", minLevel: 99 },
-        { id: 34, name: "strategy-sharing", description: "Share and discuss trading strategies", accessLevel: "open" },
-        { id: 35, name: "trade-ideas", description: "Share your trading ideas", accessLevel: "open" },
-        { id: 36, name: "ai-insights", description: "Discuss AI and algorithmic trading", accessLevel: "open" },
-        { id: 37, name: "feedback-bugs", description: "Report bugs and provide feedback", accessLevel: "open" },
-        { id: 38, name: "course-help", description: "Get help with courses", accessLevel: "open" },
-        { id: 40, name: "intro-to-trading", description: "Introduction to Trading course channel", accessLevel: "course", courseId: 1 },
-        { id: 41, name: "technical-analysis", description: "Technical Analysis course channel", accessLevel: "course", courseId: 2 },
-        { id: 42, name: "fundamental-analysis", description: "Fundamental Analysis course channel", accessLevel: "course", courseId: 3 },
-        { id: 43, name: "crypto-trading", description: "Cryptocurrency Trading course channel", accessLevel: "course", courseId: 4 },
-        { id: 44, name: "day-trading", description: "Day Trading course channel", accessLevel: "course", courseId: 5 },
-        { id: 45, name: "swing-trading", description: "Swing Trading course channel", accessLevel: "course", courseId: 6 },
-        { id: 46, name: "trading-psychology", description: "Trading Psychology course channel", accessLevel: "course", courseId: 7 },
-        { id: 47, name: "risk-management", description: "Risk Management course channel", accessLevel: "course", courseId: 8 },
-        { id: 48, name: "trading-plan", description: "Trading Plan course channel", accessLevel: "course", courseId: 9 }
+        // Announcements Category
+        { id: 25, name: "welcome", description: "Welcome to the trading platform", accessLevel: "admin-only", category: "announcements" },
+        { id: 26, name: "announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "announcements" },
+        
+        // Staff Category
+        { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only", category: "staff" },
+        
+        // Courses Category
+        { id: 40, name: "intro-to-trading", description: "Introduction to Trading course channel", accessLevel: "course", courseId: 1, category: "courses" },
+        { id: 41, name: "technical-analysis", description: "Technical Analysis course channel", accessLevel: "course", courseId: 2, category: "courses" },
+        { id: 42, name: "fundamental-analysis", description: "Fundamental Analysis course channel", accessLevel: "course", courseId: 3, category: "courses" },
+        { id: 43, name: "crypto-trading", description: "Cryptocurrency Trading course channel", accessLevel: "course", courseId: 4, category: "courses" },
+        { id: 44, name: "day-trading", description: "Day Trading course channel", accessLevel: "course", courseId: 5, category: "courses" },
+        { id: 45, name: "swing-trading", description: "Swing Trading course channel", accessLevel: "course", courseId: 6, category: "courses" },
+        { id: 46, name: "trading-psychology", description: "Trading Psychology course channel", accessLevel: "course", courseId: 7, category: "courses" },
+        { id: 47, name: "risk-management", description: "Risk Management course channel", accessLevel: "course", courseId: 8, category: "courses" },
+        { id: 48, name: "trading-plan", description: "Trading Plan course channel", accessLevel: "course", courseId: 9, category: "courses" },
+        
+        // Trading Category
+        { id: 28, name: "general-chat", description: "General trading discussion", accessLevel: "open", category: "trading" },
+        { id: 34, name: "strategy-sharing", description: "Share and discuss trading strategies", accessLevel: "open", category: "trading" },
+        { id: 35, name: "trade-ideas", description: "Share your trading ideas", accessLevel: "open", category: "trading" },
+        { id: 36, name: "market-analysis", description: "Market analysis and insights", accessLevel: "open", category: "trading" },
+        { id: 29, name: "rookie-hub", description: "For new traders (level 1+)", accessLevel: "level", minLevel: 1, category: "trading" },
+        { id: 30, name: "pro-discussion", description: "For experienced traders (level 25+)", accessLevel: "level", minLevel: 25, category: "trading" },
+        
+        // General Category
+        { id: 27, name: "off-topic", description: "General off-topic chat", accessLevel: "open", category: "general" },
+        { id: 31, name: "gaming", description: "Gaming discussion", accessLevel: "open", category: "general" },
+        { id: 32, name: "music", description: "Music and entertainment", accessLevel: "open", category: "general" },
+        { id: 33, name: "memes", description: "Share memes and funny content", accessLevel: "open", category: "general" },
+        
+        // Support Category
+        { id: 37, name: "help-support", description: "Get help and support", accessLevel: "open", category: "support" },
+        { id: 38, name: "bug-reports", description: "Report bugs and issues", accessLevel: "open", category: "support" },
+        { id: 49, name: "feature-requests", description: "Request new features", accessLevel: "open", category: "support" },
+        
+        // Premium Category
+        { id: 50, name: "vip-lounge", description: "Exclusive VIP members chat", accessLevel: "premium", category: "premium" },
+        { id: 51, name: "premium-signals", description: "Premium trading signals", accessLevel: "premium", category: "premium" },
+        { id: 52, name: "elite-insights", description: "For advanced traders (level 50+)", accessLevel: "level", minLevel: 50, category: "premium" }
     ],
     messages: {
         25: [
