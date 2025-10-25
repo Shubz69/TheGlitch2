@@ -71,8 +71,8 @@ const Navbar = () => {
                 <li><Link to="/">Home</Link></li>
                 {user && <li><Link to="/community">Community</Link></li>}
                 <li><Link to="/courses">Courses</Link></li>
-                <li><Link to="/explore">Explore</Link></li>
-                <li><Link to="/why-glitch">Why Glitch</Link></li>
+                {!user && <li><Link to="/explore">Explore</Link></li>}
+                {!user && <li><Link to="/why-glitch">Why Glitch</Link></li>}
                 <li><Link to="/contact">Contact Us</Link></li>
                 {user && <li><Link to="/leaderboard">Leaderboard</Link></li>}
                 {user?.role?.toUpperCase() === "ADMIN" && (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import "../styles/Register.css";
 import "../styles/SharedBackground.css";
 import SharedBackground from '../components/SharedBackground';
@@ -93,8 +94,19 @@ const Register = () => {
             await Api.register(submitData);
 
             // Registration successful - user is automatically logged in
-            alert('Registration successful! You are now logged in.');
-            navigate('/');
+            toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+            
+            // Redirect to community page after short delay
+            setTimeout(() => {
+                navigate('/community');
+            }, 1500);
         } catch (err) {
             console.error('Registration error:', err);
             setError(err.message || 'Registration failed. Please try again.');

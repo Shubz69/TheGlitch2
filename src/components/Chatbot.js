@@ -138,16 +138,26 @@ const Chatbot = () => {
         
         // Technical support
         if (msg.includes("help") || msg.includes("support") || msg.includes("problem") || msg.includes("issue") || msg.includes("error")) {
-            return "I'm here to help! For technical issues, you can contact our support team through the Contact Us page. For general questions about trading or our platform, feel free to ask me!";
+            return "I'm here to help! For technical issues, you can <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>contact our support team</a>. For general questions about trading or our platform, feel free to ask me!";
+        }
+        
+        // Account and payment issues
+        if (msg.includes("account") || msg.includes("password") || msg.includes("login") || msg.includes("payment") || msg.includes("billing") || msg.includes("refund")) {
+            return "For account, payment, or billing-related questions, please visit our <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>Contact Us page</a> to submit a support request. Our team will assist you within 24 hours.";
         }
         
         // About the platform
         if (msg.includes("about") || msg.includes("what") || msg.includes("how") || msg.includes("platform")) {
-            return "THE GLITCH is an educational trading platform designed to help you learn and master trading strategies. We offer courses, community support, and educational resources to help you become a better trader.";
+            return "THE GLITCH is your pathway to building generational wealth through multiple streams of knowledge. We teach you to make money work for you, break bad financial habits, and create lasting prosperity.";
         }
         
-        // Default response
-        return "That's an interesting question! While I'm here to help with general information about THE GLITCH, I'd recommend checking our courses or community for more specific trading advice. Is there something else I can help you with?";
+        // Generational wealth questions
+        if (msg.includes("wealth") || msg.includes("income") || msg.includes("passive") || msg.includes("financial freedom")) {
+            return "We focus on teaching you how to build generational wealth through multiple income streams. Our courses cover trading, investing, e-commerce, and more—all designed to help you achieve true financial freedom!";
+        }
+        
+        // Default response - direct to contact if can't help
+        return "I'm not quite sure how to help with that specific question. 🤔 For personalized assistance, please <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>visit our Contact Us page</a> and our team will get back to you. Is there anything else about THE GLITCH I can help you with?";
     };
 
     const handleOption = (message) => {
@@ -204,9 +214,11 @@ const Chatbot = () => {
                     </div>
                     <div className="chatbot-messages">
                         {messages.map((msg, i) => (
-                            <div key={i} className={`message ${msg.from}`}>
-                                {msg.text}
-                            </div>
+                            <div 
+                                key={i} 
+                                className={`message ${msg.from}`}
+                                dangerouslySetInnerHTML={{ __html: msg.text }}
+                            />
                         ))}
 
                         {showOptions && (
