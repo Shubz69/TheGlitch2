@@ -10,11 +10,24 @@ import FancyAIHead from "../components/FancyAIHead";
 const Home = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const [showContent, setShowContent] = useState(true);
+    const [showContent, setShowContent] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [aiHeadState, setAiHeadState] = useState('idle');
     const [currentFeature, setCurrentFeature] = useState(0);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+
+    // Loading effect
+    useEffect(() => {
+        const loadingTimer = setTimeout(() => {
+            setIsLoading(false);
+            setTimeout(() => {
+                setShowContent(true);
+            }, 500); // Small delay for smooth transition
+        }, 2000); // 2 second loading screen
+
+        return () => clearTimeout(loadingTimer);
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -77,6 +90,41 @@ const Home = () => {
     return (
         <div className="home-container">
             <SharedBackground />
+            
+            {/* Loading Screen */}
+            {isLoading && (
+                <div className="loading-screen">
+                    <div className="loading-content">
+                        <div className="loading-logo">
+                            <div className="logo-text">THE GLITCH</div>
+                            <div className="logo-subtitle">AI-POWERED TRADING</div>
+                        </div>
+                        
+                        <div className="loading-animation">
+                            <div className="loading-spinner">
+                                <div className="spinner-ring"></div>
+                                <div className="spinner-ring"></div>
+                                <div className="spinner-ring"></div>
+                            </div>
+                        </div>
+                        
+                        <div className="loading-text">
+                            <div className="loading-dots">
+                                <span>Initializing</span>
+                                <span className="dot">.</span>
+                                <span className="dot">.</span>
+                                <span className="dot">.</span>
+                            </div>
+                        </div>
+                        
+                        <div className="loading-progress">
+                            <div className="progress-bar">
+                                <div className="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {showContent && (
                 <>
