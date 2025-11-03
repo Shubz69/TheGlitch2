@@ -192,8 +192,18 @@ export const AuthProvider = ({ children }) => {
           setMfaVerified(true);
         }
         
-        // Redirect to community after successful login
-        navigate('/community');
+        // Check subscription status after login
+        const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
+        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+        const isAdmin = data.role === 'ADMIN';
+        
+        // If no subscription and not admin, redirect to subscription page
+        if (!isAdmin && !hasActiveSubscription && !pendingSubscription) {
+            navigate('/subscription');
+        } else {
+            // Redirect to community after successful login
+            navigate('/community');
+        }
         
         return data;
       }

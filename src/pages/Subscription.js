@@ -11,8 +11,44 @@ const Subscription = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        // Check if user is authenticated
         if (!isAuthenticated) {
             navigate('/login');
+            return;
+        }
+        
+        // Check if user already has active subscription
+        const subscriptionStatus = localStorage.getItem('hasActiveSubscription');
+        const subscriptionExpiry = localStorage.getItem('subscriptionExpiry');
+        
+        if (subscriptionStatus === 'true') {
+            const expiryDate = subscriptionExpiry ? new Date(subscriptionExpiry) : null;
+            if (expiryDate && expiryDate > new Date()) {
+                // Has active subscription - redirect to community
+                navigate('/community');
+                return;
+            }
+        }
+        
+        // If new signup, automatically grant first month free
+        const isNewSignup = localStorage.getItem('newSignup') === 'true';
+        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+        
+        if (isNewSignup || pendingSubscription) {
+            // Set first month free subscription
+            const freeTrialExpiry = new Date();
+            freeTrialExpiry.setMonth(freeTrialExpiry.getMonth() + 1);
+            localStorage.setItem('hasActiveSubscription', 'true');
+            localStorage.setItem('subscriptionExpiry', freeTrialExpiry.toISOString());
+            localStorage.setItem('subscriptionType', 'free_trial');
+            localStorage.setItem('newSignup', 'false');
+            localStorage.setItem('pendingSubscription', 'false');
+            
+            // Redirect to community after setting free trial
+            setTimeout(() => {
+                navigate('/community');
+            }, 500);
+            return;
         }
     }, [isAuthenticated, navigate]);
 
