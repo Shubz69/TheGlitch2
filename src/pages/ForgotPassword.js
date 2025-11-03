@@ -23,21 +23,25 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
+            console.log('Attempting to send password reset email for:', email);
+            
             // Call the API service to send password reset email with MFA
             const success = await Api.sendPasswordResetEmail(email);
             
-            if (success) {
+            console.log('Password reset email result:', success);
+            
+            if (success === true || success === undefined) {
                 setSuccess('MFA verification code sent! Please check your email for the 6-digit code.');
                 setStep(2);
             } else {
                 setError('Failed to send reset email. Please try again.');
             }
         } catch (err) {
-            if (err.message === 'Email not found') {
-                setError('Email not found. Please check your email address or register for a new account.');
-            } else {
-                setError('Failed to send reset email. Please try again.');
-            }
+            console.error('Password reset error:', err);
+            
+            // Use the error message from the API
+            const errorMessage = err.message || 'Failed to send reset email. Please try again.';
+            setError(errorMessage);
         }
         
         setIsLoading(false);

@@ -579,11 +579,46 @@ const Api = {
     sendPasswordResetEmail: async (email) => {
         try {
             // Use real API only - no mock fallback for production
+            console.log('Sending password reset email request to:', `${API_BASE_URL}/api/auth/forgot-password`);
             const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
-            return response.data.success || true;
+            console.log('Password reset email response:', response.data);
+            
+            // Check various response formats
+            if (response.data && (response.data.success === true || response.data.success === false)) {
+                return response.data.success;
+            }
+            
+            // If response has message but no explicit success flag, assume success
+            if (response.data && response.data.message) {
+                return true;
+            }
+            
+            // If response status is 200, assume success
+            if (response.status === 200) {
+                return true;
+            }
+            
+            return false;
         } catch (apiError) {
             console.error('Failed to send password reset email:', apiError);
-            throw new Error(apiError.response?.data?.message || 'Failed to send reset email. Please try again.');
+            console.error('Error response:', apiError.response);
+            console.error('Error status:', apiError.response?.status);
+            console.error('Error data:', apiError.response?.data);
+            
+            // Provide more specific error messages
+            if (apiError.response?.status === 404) {
+                throw new Error('Email not found. Please check your email address or register for a new account.');
+            } else if (apiError.response?.status === 429) {
+                throw new Error('Too many requests. Please wait a few minutes before trying again.');
+            } else if (apiError.response?.status === 500) {
+                throw new Error('Server error. Please try again later.');
+            } else if (apiError.response?.data?.message) {
+                throw new Error(apiError.response.data.message);
+            } else if (apiError.message) {
+                throw new Error(apiError.message);
+            } else {
+                throw new Error('Failed to send reset email. Please check your connection and try again.');
+            }
         }
     },
 
