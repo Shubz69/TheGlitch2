@@ -13,8 +13,7 @@ import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrow
 import { BsStars } from 'react-icons/bs';
 import { RiAdminFill } from 'react-icons/ri';
 
-// Set this to false to use real API calls only
-const MOCK_MODE = false;
+// All API calls use real endpoints only - no mock mode
 
 // Emojis array for the emoji picker
 const emojis = [
@@ -49,96 +48,8 @@ const getAvatarPath = (avatarName) => {
     return `/avatars/${avatarName}`;
 };
 
-// Modified mock data with proper avatar paths
-const MOCK_DATA = {
-    channels: [
-        // Announcements Category
-        { id: 25, name: "welcome", description: "Welcome to the trading platform", accessLevel: "admin-only", category: "announcements" },
-        { id: 26, name: "announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "announcements" },
-        
-        // Staff Category
-        { id: 39, name: "staff-lounge", description: "Admin only channel", accessLevel: "admin-only", category: "staff" },
-        
-        // Courses Category
-        { id: 40, name: "intro-to-trading", description: "Introduction to Trading course channel", accessLevel: "open", courseId: 1, category: "courses" },
-        { id: 41, name: "technical-analysis", description: "Technical Analysis course channel", accessLevel: "open", courseId: 2, category: "courses" },
-        { id: 42, name: "fundamental-analysis", description: "Fundamental Analysis course channel", accessLevel: "open", courseId: 3, category: "courses" },
-        { id: 43, name: "crypto-trading", description: "Cryptocurrency Trading course channel", accessLevel: "open", courseId: 4, category: "courses" },
-        { id: 44, name: "day-trading", description: "Day Trading course channel", accessLevel: "open", courseId: 5, category: "courses" },
-        { id: 45, name: "swing-trading", description: "Swing Trading course channel", accessLevel: "open", courseId: 6, category: "courses" },
-        { id: 46, name: "trading-psychology", description: "Trading Psychology course channel", accessLevel: "open", courseId: 7, category: "courses" },
-        { id: 47, name: "risk-management", description: "Risk Management course channel", accessLevel: "open", courseId: 8, category: "courses" },
-        { id: 48, name: "trading-plan", description: "Trading Plan course channel", accessLevel: "open", courseId: 9, category: "courses" },
-        
-        // Trading Category
-        { id: 28, name: "general-chat", description: "General trading discussion", accessLevel: "open", category: "trading" },
-        { id: 34, name: "strategy-sharing", description: "Share and discuss trading strategies", accessLevel: "open", category: "trading" },
-        { id: 35, name: "trade-ideas", description: "Share your trading ideas", accessLevel: "open", category: "trading" },
-        { id: 36, name: "market-analysis", description: "Market analysis and insights", accessLevel: "open", category: "trading" },
-        { id: 29, name: "rookie-hub", description: "For new traders (level 1+)", accessLevel: "open", minLevel: 1, category: "trading" },
-        { id: 30, name: "pro-discussion", description: "For experienced traders (level 25+)", accessLevel: "open", minLevel: 25, category: "trading" },
-        
-        // General Category
-        { id: 27, name: "off-topic", description: "General off-topic chat", accessLevel: "open", category: "general" },
-        { id: 31, name: "gaming", description: "Gaming discussion", accessLevel: "open", category: "general" },
-        { id: 32, name: "music", description: "Music and entertainment", accessLevel: "open", category: "general" },
-        { id: 33, name: "memes", description: "Share memes and funny content", accessLevel: "open", category: "general" },
-        
-        // Support Category
-        { id: 37, name: "help-support", description: "Get help and support", accessLevel: "open", category: "support" },
-        { id: 38, name: "bug-reports", description: "Report bugs and issues", accessLevel: "open", category: "support" },
-        { id: 49, name: "feature-requests", description: "Request new features", accessLevel: "open", category: "support" },
-        
-        // Premium Category
-        { id: 50, name: "vip-lounge", description: "Exclusive VIP members chat", accessLevel: "open", category: "premium" },
-        { id: 51, name: "premium-signals", description: "Premium trading signals", accessLevel: "open", category: "premium" },
-        { id: 52, name: "elite-insights", description: "For advanced traders (level 50+)", accessLevel: "open", minLevel: 50, category: "premium" }
-    ],
-    onlineUsers: [
-        { 
-            id: 1, 
-            username: 'ShubzFx', 
-            avatar: '/avatars/avatar_ai.png', 
-            status: 'online',
-            role: 'PREMIUM'
-        },
-        { 
-            id: 2, 
-            username: 'test-user', 
-            avatar: '/avatars/avatar_tech.png', 
-            status: 'online',
-            role: 'FREE'
-        }
-    ]
-};
+// Online users will be fetched from API or computed from real data
 
-// Mock WebSocket for development
-const useMockWebSocket = (channelId, onMessageCallback) => {
-    const [isConnected] = useState(true);
-    const [connectionError] = useState(null);
-    
-    const sendMessage = useCallback((message) => {
-        console.log('MOCK WebSocket: Message sent', message);
-        
-        // Simulate message being added to state after a short delay
-        setTimeout(() => {
-            if (onMessageCallback) {
-                onMessageCallback({
-                    ...message,
-                    id: Date.now(),
-                    timestamp: Date.now(),
-                    channelId: channelId
-                });
-            }
-        }, 100);
-    }, [channelId, onMessageCallback]);
-
-    return {
-        isConnected,
-        connectionError,
-        sendMessage
-    };
-};
 
 // Emoji picker component
 const EmojiPicker = ({ onEmojiSelect, onClose }) => {
@@ -211,19 +122,26 @@ const Community = () => {
     const [filePreview, setFilePreview] = useState(null);
     const fileInputRef = useRef(null);
     
-    // Get effective MOCK mode
-    const effectiveMockMode = MOCK_MODE;
+    // Welcome message and channel visibility
+    const [hasReadWelcome, setHasReadWelcome] = useState(false);
+    const [showAllChannels, setShowAllChannels] = useState(false);
+    const [courses, setCourses] = useState([]);
     
-    // Initialize WebSocket connections
-    const realWebSocketResult = useWebSocket(
+    // Initialize WebSocket connection for real-time messaging
+    const { 
+        sendMessage: sendSocketMessage,
+        isConnected, 
+        connectionError 
+    } = useWebSocket(
         selectedChannel?.id,
         (message) => {
-            console.log('Real WebSocket: Message received', message);
+            console.log('WebSocket: Message received', message);
             setMessages(prev => {
                 const isDuplicate = prev.some(m => 
-                    m.content === message.content && 
+                    m.id === message.id ||
+                    (m.content === message.content && 
                     m.sender?.username === message.sender?.username &&
-                    Math.abs(new Date(m.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000
+                    Math.abs(new Date(m.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000)
                 );
                 
                 if (isDuplicate) {
@@ -232,7 +150,7 @@ const Community = () => {
                 }
                 
                 const newMessages = [...prev, message];
-                // Save to localStorage
+                // Save to localStorage as backup
                 if (selectedChannel?.id) {
                     saveMessagesToStorage(selectedChannel.id, newMessages);
                 }
@@ -240,29 +158,6 @@ const Community = () => {
             });
         }
     );
-    
-    const mockWebSocketResult = useMockWebSocket(
-        selectedChannel?.id,
-        (message) => {
-            console.log('Mock WebSocket: Message received', message);
-            setMessages(prev => {
-                const newMessages = [...prev, message];
-                // Save to localStorage
-                if (selectedChannel?.id) {
-                    saveMessagesToStorage(selectedChannel.id, newMessages);
-                }
-                return newMessages;
-            });
-        }
-    );
-    
-    const { 
-        sendMessage: sendSocketMessage,
-        isConnected, 
-        connectionError 
-    } = effectiveMockMode ? mockWebSocketResult : realWebSocketResult;
-
-    const shouldUseMockData = effectiveMockMode || !!connectionError;
 
     // ***** LOCALSTORAGE FUNCTIONS FOR MESSAGE PERSISTENCE *****
     
@@ -547,47 +442,74 @@ const Community = () => {
         setLoading(true);
         
         try {
-            // First, try to fetch from backend API for permanent persistence
-            try {
-                const response = await Api.getChannelMessages(channelId);
-                if (response && response.data && Array.isArray(response.data)) {
-                    const apiMessages = response.data;
-                    console.log(`Loaded ${apiMessages.length} messages from backend for channel ${channelId}`);
-                    
-                    // Save to localStorage as cache
-                    saveMessagesToStorage(channelId, apiMessages);
-                    
-                    // Set messages from API
-                    setMessages(apiMessages);
-                    setLoading(false);
-                    return;
-                }
-            } catch (apiError) {
-                console.error('Failed to fetch messages from API:', apiError);
-                // Only use localStorage as last resort cache if API completely fails
+            // Fetch from backend API for permanent persistence
+            const response = await Api.getChannelMessages(channelId);
+            if (response && response.data && Array.isArray(response.data)) {
+                const apiMessages = response.data;
+                console.log(`✅ Loaded ${apiMessages.length} messages from backend for channel ${channelId}`);
+                
+                // Save to localStorage as backup/cache
+                saveMessagesToStorage(channelId, apiMessages);
+                
+                // Set messages from API
+                setMessages(apiMessages);
+                setLoading(false);
+                return;
+            } else {
+                // Response format unexpected, try localStorage
                 const storedMessages = loadMessagesFromStorage(channelId);
                 if (storedMessages.length > 0) {
-                    console.warn(`Using cached messages from localStorage (${storedMessages.length} messages) - API unavailable`);
+                    console.log(`Loaded ${storedMessages.length} messages from localStorage`);
                     setMessages(storedMessages);
                 } else {
-                    console.warn('No cached messages found - API unavailable');
                     setMessages([]);
                 }
             }
-        } catch (error) {
-            console.error('Error fetching messages:', error);
-            // Fallback to localStorage
+        } catch (apiError) {
+            console.warn('Backend API unavailable, loading from localStorage:', apiError.message);
+            // Use localStorage as persistent storage - messages persist here
             const storedMessages = loadMessagesFromStorage(channelId);
-            setMessages(storedMessages || []);
+            if (storedMessages.length > 0) {
+                console.log(`✅ Loaded ${storedMessages.length} messages from localStorage`);
+                setMessages(storedMessages);
+            } else {
+                console.log('No messages found - starting with empty channel');
+                setMessages([]);
+            }
         }
         
         setLoading(false);
     }, []);
 
+    // Check if welcome message has been read
+    useEffect(() => {
+        const readStatus = localStorage.getItem('welcomeMessageRead') === 'true';
+        setHasReadWelcome(readStatus);
+        setShowAllChannels(readStatus);
+    }, []);
+
+    // Fetch courses for channel naming
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await Api.getCourses();
+                if (response && response.data && Array.isArray(response.data)) {
+                    setCourses(response.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch courses:', error);
+            }
+        };
+        
+        if (isAuthenticated) {
+            fetchCourses();
+        }
+    }, [isAuthenticated]);
+
     // Initialize component
     useEffect(() => {
         console.log("===========================");
-        console.log("MOCK_MODE:", MOCK_MODE);
+        console.log("Community component initializing - Real API Mode");
         
         const storedToken = localStorage.getItem('token');
         const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
@@ -663,13 +585,30 @@ const Community = () => {
                 // Use real API to fetch channels
                 const response = await Api.getChannels();
                 if (response && response.data && Array.isArray(response.data)) {
-                    const apiChannels = response.data.map(channel => ({
+                    let apiChannels = response.data.map(channel => ({
                         ...channel,
                         memberCount: channel.memberCount || 0,
                         lastActivity: channel.lastActivity || null,
                         unread: false,
                         locked: channel.accessLevel === 'admin-only'
                     }));
+                    
+                    // Update course channel names with actual course titles
+                    if (courses.length > 0) {
+                        apiChannels = apiChannels.map(channel => {
+                            if (channel.category === 'courses' && channel.courseId) {
+                                const course = courses.find(c => c.id === channel.courseId);
+                                if (course) {
+                                    return {
+                                        ...channel,
+                                        name: course.title.toLowerCase().replace(/\s+/g, '-'),
+                                        displayName: course.title
+                                    };
+                                }
+                            }
+                            return channel;
+                        });
+                    }
                     
                     console.log(`Loaded ${apiChannels.length} channels from API`);
                     setChannelList(apiChannels);
@@ -686,37 +625,57 @@ const Community = () => {
                     return;
                 }
             } catch (apiError) {
-                console.warn('Failed to fetch channels from API, using mock data fallback:', apiError.message);
+                console.warn('Failed to fetch channels from API:', apiError.message);
             }
             
-            // Fallback to mock data only if API fails
-            const mockChannels = MOCK_DATA.channels.map(channel => ({
-                ...channel,
-                memberCount: 0,
-                lastActivity: null,
-                unread: false,
-                locked: channel.accessLevel === 'admin-only'
-            }));
+            // Initialize online users count (will be fetched from API when available)
+            setOnlineUsers([]);
             
-            console.log(`Loaded ${mockChannels.length} mock channels as fallback`);
-            setChannelList(mockChannels);
-            
-            // Load online users
-            setOnlineUsers(MOCK_DATA.onlineUsers);
-            
-            // Select first channel or channel from URL
-            if (channelIdParam) {
-                const channel = mockChannels.find(c => c.id === parseInt(channelIdParam));
-                if (channel) {
-                    setSelectedChannel(channel);
+            // If API fails, create minimal channel structure from courses
+            // This ensures the UI works even if backend isn't ready
+            if (courses.length > 0) {
+                // Create basic channels structure from available courses
+                const courseChannels = courses.map((course, index) => ({
+                    id: 40 + index,
+                    name: course.title.toLowerCase().replace(/\s+/g, '-'),
+                    displayName: course.title,
+                    description: `${course.title} course channel`,
+                    accessLevel: "open",
+                    courseId: course.id,
+                    category: "courses",
+                    memberCount: 0,
+                    lastActivity: null,
+                    unread: false,
+                    locked: false
+                }));
+                
+                // Add essential channels
+                const essentialChannels = [
+                    { id: 25, name: "welcome", displayName: "Welcome", description: "Welcome to the trading platform", accessLevel: "open", category: "announcements", memberCount: 0, lastActivity: null, unread: false, locked: false },
+                    { id: 26, name: "announcements", displayName: "Announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "announcements", memberCount: 0, lastActivity: null, unread: false, locked: true },
+                    { id: 28, name: "general-chat", displayName: "General Chat", description: "General trading discussion", accessLevel: "open", category: "trading", memberCount: 0, lastActivity: null, unread: false, locked: false }
+                ];
+                
+                const allChannels = [...essentialChannels, ...courseChannels];
+                console.log(`Created ${allChannels.length} channels from courses (backend unavailable)`);
+                setChannelList(allChannels);
+                
+                // Select first channel or channel from URL
+                if (channelIdParam) {
+                    const channel = allChannels.find(c => c.id === parseInt(channelIdParam));
+                    if (channel) {
+                        setSelectedChannel(channel);
+                    }
+                } else if (allChannels.length > 0 && !selectedChannel) {
+                    setSelectedChannel(allChannels[0]);
                 }
-            } else if (mockChannels.length > 0 && !selectedChannel) {
-                setSelectedChannel(mockChannels[0]);
+            } else {
+                console.error('Unable to load channels - API unavailable and no courses loaded');
             }
         };
         
         loadChannels();
-    }, [isAuthenticated, channelIdParam, selectedChannel]);
+    }, [isAuthenticated, channelIdParam, selectedChannel, courses]);
 
     // Load messages when channel changes
     useEffect(() => {
@@ -725,6 +684,102 @@ const Community = () => {
             navigate(`/community/${selectedChannel.id}`);
         }
     }, [selectedChannel, fetchMessages, navigate]);
+    
+    // Add welcome message when welcome channel is selected for first time
+    useEffect(() => {
+        if (selectedChannel && selectedChannel.name === 'welcome' && !hasReadWelcome) {
+            // Check if welcome message already exists
+            const hasWelcomeMessage = messages.some(msg => msg.id === 'welcome-message');
+            
+            if (!hasWelcomeMessage) {
+                const welcomeMessage = {
+                    id: 'welcome-message',
+                    channelId: selectedChannel.id,
+                    content: `🎉 **WELCOME TO THE GLITCH COMMUNITY!** 🎉
+
+Welcome to the most elite trading and wealth-building community on the planet! We're thrilled to have you join us on this incredible journey toward financial freedom and generational wealth.
+
+## 📋 **COMMUNITY RULES**
+
+**1. Respect & Professionalism**
+   • Treat all members with respect and professionalism
+   • No harassment, discrimination, or personal attacks
+   • Maintain a positive and constructive environment
+
+**2. Trading & Investment Discussions**
+   • Share knowledge and insights, not financial advice
+   • All trades are at your own risk - we are not financial advisors
+   • Use proper risk management and never trade more than you can afford to lose
+
+**3. Content & Privacy**
+   • Keep conversations relevant to trading, wealth-building, and course topics
+   • Do not share personal financial information (account numbers, passwords, etc.)
+   • Respect intellectual property - do not share copyrighted course materials
+
+**4. Spam & Promotion**
+   • No spam, self-promotion, or affiliate links without permission
+   • Do not promote other trading services or products
+   • Keep discussions focused on learning and community growth
+
+**5. Course Access**
+   • Course-specific channels are for enrolled members only
+   • Share insights and ask questions related to your enrolled courses
+   • Complete courses in order for maximum learning effectiveness
+
+**6. Community Support**
+   • Help fellow members when you can
+   • Ask questions - we're all here to learn and grow together
+   • Report any issues or concerns to staff members
+
+**7. Platform Usage**
+   • Use appropriate language and avoid profanity
+   • Keep messages clear and concise
+   • Use channels for their intended purposes
+
+## 🚀 **GETTING STARTED**
+
+1. **Complete your profile** - Add your avatar and bio
+2. **Explore channels** - Check out different course and trading channels
+3. **Join discussions** - Start participating in conversations
+4. **Enroll in courses** - Begin your wealth-building journey
+5. **Earn XP** - Level up by being active in the community
+
+## 💎 **PREMIUM BENEFITS**
+
+Premium members get access to:
+• Exclusive VIP channels and content
+• Premium trading signals and insights
+• Advanced course materials
+• Priority support from our team
+• Elite trader discussions
+
+## ⚡ **QUICK TIPS**
+
+• Earn XP by sending messages, sharing files, and being active
+• Level up to unlock new channels and features
+• Check the announcements channel regularly for updates
+• Connect with other traders in the general chat channels
+
+Remember: **Success in trading comes from discipline, education, and consistent action.** We're here to support you every step of the way!
+
+Click the ✅ below to acknowledge you've read and agree to follow these rules, and unlock access to all channels.
+
+Let's build generational wealth together! 💰🚀`,
+                    sender: {
+                        id: 'system',
+                        username: 'THE GLITCH',
+                        avatar: '/avatars/avatar_ai.png',
+                        role: 'admin'
+                    },
+                    timestamp: new Date().toISOString(),
+                    file: null,
+                    isWelcomeMessage: true
+                };
+                
+                setMessages([welcomeMessage]);
+            }
+        }
+    }, [selectedChannel, hasReadWelcome, messages]);
 
     // Handle send message
     const handleSendMessage = async (e) => {
@@ -778,7 +833,7 @@ const Community = () => {
         removeSelectedFile();
 
         try {
-            // Save to backend API first for permanent persistence
+            // Save to backend API for permanent persistence
             try {
                 const response = await Api.sendMessage(selectedChannel.id, messageToSend);
                 
@@ -792,7 +847,7 @@ const Community = () => {
                     setMessages(finalMessages);
                     saveMessagesToStorage(selectedChannel.id, finalMessages);
                     
-                    console.log('✅ Message saved permanently to backend:', serverMessage);
+                    console.log('✅ Message saved to backend:', serverMessage);
                 } else {
                     // If response doesn't have expected format, keep optimistic message
                     // Convert temp ID to permanent ID
@@ -804,15 +859,22 @@ const Community = () => {
                         msg.id === optimisticMessage.id ? permanentMessage : msg
                     );
                     saveMessagesToStorage(selectedChannel.id, finalMessages);
-                    console.log('Message sent (back-end format may differ, using optimistic update)');
+                    console.log('Message sent and saved to localStorage');
                 }
             } catch (apiError) {
-                console.error('Failed to save message to backend:', apiError);
-                // Show error to user
-                alert('Failed to send message. Please check your connection and try again.');
-                // Remove optimistic message on error
-                setMessages(messages);
-                return;
+                console.error('Backend API unavailable, saving to localStorage:', apiError);
+                // Backend unavailable - save to localStorage for persistence
+                // Convert temp ID to permanent ID
+                const permanentMessage = {
+                    ...optimisticMessage,
+                    id: Date.now()
+                };
+                const finalMessages = updatedMessages.map(msg => 
+                    msg.id === optimisticMessage.id ? permanentMessage : msg
+                );
+                setMessages(finalMessages);
+                saveMessagesToStorage(selectedChannel.id, finalMessages);
+                console.log('Message saved to localStorage (backend unavailable)');
             }
             
             // ***** AWARD XP FOR SENDING MESSAGE *****
@@ -849,9 +911,22 @@ const Community = () => {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
+    // Handle welcome message acknowledgment
+    const handleWelcomeAcknowledgment = () => {
+        localStorage.setItem('welcomeMessageRead', 'true');
+        setHasReadWelcome(true);
+        setShowAllChannels(true);
+    };
+
     // Group channels by category
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
+        
+        // If channels are hidden, only show announcements and welcome
+        if (!showAllChannels && category !== 'announcements') {
+            return acc;
+        }
+        
         if (!acc[category]) {
             acc[category] = [];
         }
@@ -901,7 +976,7 @@ const Community = () => {
                                                 <span className="channel-icon">
                                                     {getChannelIcon(channel)}
                                                 </span>
-                                                <span className="channel-name">{channel.name}</span>
+                                                <span className="channel-name">{channel.displayName || channel.name}</span>
                                             </li>
                                         );
                                     })}
@@ -963,38 +1038,6 @@ const Community = () => {
                             </div>
                         </div>
                     </div>
-                    {/* XP Progress Bar */}
-                    {(() => {
-                        const progress = getXPProgress(storedUser?.xp || 0);
-                        return (
-                            <div style={{ width: '100%' }}>
-                                <div style={{
-                                    width: '100%',
-                                    height: '6px',
-                                    background: 'var(--bg-tertiary)',
-                                    borderRadius: '3px',
-                                    overflow: 'hidden',
-                                    position: 'relative'
-                                }}>
-                                    <div style={{
-                                        width: `${progress.progressPercentage}%`,
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, var(--purple-primary), var(--accent-blue))',
-                                        borderRadius: '3px',
-                                        transition: 'width 0.5s ease'
-                                    }} />
-                                </div>
-                                <div style={{
-                                    fontSize: '0.65rem',
-                                    color: 'var(--text-muted)',
-                                    marginTop: '2px',
-                                    textAlign: 'center'
-                                }}>
-                                    {progress.xpInCurrentLevel} / {progress.xpNeededForNextLevel} XP to Level {progress.nextLevel}
-                                </div>
-                            </div>
-                        );
-                    })()}
                 </div>
             </div>
             
@@ -1016,7 +1059,7 @@ const Community = () => {
                         <div className="chat-messages">
                             {messages.length === 0 ? (
                                 <div className="empty-state">
-                                    <h3>Welcome to #{selectedChannel.name}</h3>
+                                    <h3>Welcome to #{selectedChannel.displayName || selectedChannel.name}</h3>
                                     <p>{selectedChannel.description || 'No messages yet. Be the first to start the conversation!'}</p>
                                 </div>
                             ) : (
@@ -1034,7 +1077,50 @@ const Community = () => {
                                                     {formatTimestamp(message.timestamp)}
                                                 </span>
                                             </div>
-                                            <div className="message-text">{message.content}</div>
+                                            <div className="message-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                                                {message.isWelcomeMessage ? (
+                                                    message.content.split('\n').map((line, idx) => {
+                                                        const trimmedLine = line.trim();
+                                                        // Format markdown-style headers
+                                                        if (trimmedLine.startsWith('## ')) {
+                                                            return <h3 key={idx} style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '16px', marginBottom: '10px', color: 'var(--primary)' }}>{trimmedLine.substring(3)}</h3>;
+                                                        }
+                                                        // Format bold text (lines that start and end with **)
+                                                        if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**') && trimmedLine.length > 4) {
+                                                            return <div key={idx} style={{ fontWeight: 'bold', marginTop: '8px', marginBottom: '4px' }}>{trimmedLine.replace(/\*\*/g, '')}</div>;
+                                                        }
+                                                        // Empty lines
+                                                        if (trimmedLine === '') {
+                                                            return <br key={idx} />;
+                                                        }
+                                                        // Regular text lines
+                                                        return <div key={idx} style={{ marginBottom: '4px' }}>{line.replace(/\*\*/g, '')}</div>;
+                                                    })
+                                                ) : (
+                                                    message.content
+                                                )}
+                                            </div>
+                                            {message.isWelcomeMessage && !hasReadWelcome && (
+                                                <div style={{
+                                                    marginTop: '20px',
+                                                    padding: '16px',
+                                                    background: 'rgba(99, 102, 241, 0.1)',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '12px',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                                onClick={handleWelcomeAcknowledgment}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'}
+                                                >
+                                                    <span style={{ fontSize: '1.5rem' }}>✅</span>
+                                                    <span style={{ fontWeight: 600 }}>I've read and agree to the rules</span>
+                                                </div>
+                                            )}
                                             {message.file && message.file.preview && (
                                                 <div className="message-attachment">
                                                     <img 
@@ -1207,7 +1293,7 @@ const Community = () => {
                     <div className="online-header">
                         <h3>Online Users</h3>
                         <span className="online-count">
-                            {onlineUsers.filter(u => u.status === 'online').length} / {onlineUsers.length}
+                            {onlineUsers.filter(u => u.status === 'online').length || 0} / {onlineUsers.length || 0}
                         </span>
                     </div>
                     
@@ -1223,21 +1309,6 @@ const Community = () => {
                     </div>
                 </div>
                 
-                <div className="online-section">
-                    <ul className="online-users">
-                        {onlineUsers.map(user => (
-                            <li key={user.id} className="user-item">
-                                <div className="user-avatar-text">
-                                    {(user.username || 'U').substring(0, 2).toUpperCase()}
-                                </div>
-                                <div className="user-info">
-                                    <div className="user-name">{user.username}</div>
-                                    <div className={`user-role ${user.role}`}>{user.role}</div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
             </div>
 
             {/* Emoji Picker */}
