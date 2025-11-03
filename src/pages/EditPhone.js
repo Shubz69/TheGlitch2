@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ProfileEdit.css";
-import "../styles/SharedBackground.css";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const EditPhone = () => {
     const [phone, setPhone] = useState("");
@@ -16,7 +15,7 @@ const EditPhone = () => {
 
     return (
         <div className="edit-container">
-            <SharedBackground />
+            <BinaryBackground />
             <h2>Edit Phone Number</h2>
             <form onSubmit={handleSave}>
                 <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter phone number" required />

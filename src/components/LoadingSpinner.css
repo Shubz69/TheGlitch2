@@ -44,7 +44,7 @@
 .binary-digit {
     position: absolute;
     color: rgba(99, 102, 241, 0.3); /* var(--primary) with opacity */
-    font-family: 'Courier New', monospace;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 12px;
     font-weight: bold;
     animation: binary-fall linear infinite;

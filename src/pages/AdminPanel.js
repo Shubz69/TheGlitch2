@@ -3,8 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../utils/useWebSocket';
 import '../styles/AdminPanel.css';
-import '../styles/SharedBackground.css';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const AdminPanel = () => {
     const { user, isAuthenticated } = useAuth();
@@ -126,7 +125,7 @@ const AdminPanel = () => {
 
     return (
         <div className="admin-panel-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="admin-panel">
                 <div className="admin-header">
                     <h1 className="admin-title">REGISTERED USERS</h1>

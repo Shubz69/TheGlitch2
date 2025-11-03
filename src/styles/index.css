@@ -6,14 +6,14 @@
     --accent: #A78BFA;       /* Light Purple */
     --dark-purple: #4C1D95;  /* Deep Purple */
     
-    /* Greys */
-    --bg-dark: #0F0F1E;
-    --bg-medium: #1A1A2E;
-    --bg-light: #252541;
+    /* Very Dark Purple */
+    --bg-dark: #0a0a1a;
+    --bg-medium: #1a0f2e;
+    --bg-light: #251a3a;
     
     /* Fonts */
-    --font-main: Arial, sans-serif;
-    --font-secondary: Arial, sans-serif;
+    --font-main: 'Space Grotesk', sans-serif;
+    --font-secondary: 'Space Grotesk', sans-serif;
     
     /* Legacy variables for compatibility */
     --blue-primary: #6366F1;
@@ -31,20 +31,39 @@
 html, body, #root {
     margin: 0;
     padding: 0;
-    height: 100%;
-    background: var(--bg-dark);
+    min-height: 100%;
+    background: transparent;
     color: var(--primary);
-    font-family: Arial, sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     overflow-x: hidden;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-dark);
+  background-color: transparent;
   color: var(--primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex: 1;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex: 1;
 }
 
 .container {
@@ -118,7 +137,7 @@ footer {
   flex: 1;
   min-height: 100vh;
   padding-top: 60px;
-  padding-bottom: 100px; /* Increased to account for fixed footer */
+  padding-bottom: 0; /* No bottom padding needed since footer is relative */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -140,8 +159,8 @@ footer {
 .contact-container,
 .profile-container,
 .leaderboard-container {
-  padding-bottom: 100px; /* Ensure footer doesn't overlap */
-  min-height: calc(100vh - 160px); /* Account for navbar and footer */
+  padding-bottom: 0; /* Footer is now relative, no need for extra padding */
+  min-height: calc(100vh - 160px); /* Account for navbar */
 }
 
 * {

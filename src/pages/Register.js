@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import "../styles/Register.css";
-import "../styles/SharedBackground.css";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 import Api from '../services/Api';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
@@ -114,8 +113,7 @@ const Register = () => {
 
     return (
         <div className="register-container">
-            <SharedBackground />
-            
+            <BinaryBackground />
             <div className="register-form-container">
                 
                 <div className="form-header">

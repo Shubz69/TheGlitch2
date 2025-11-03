@@ -1,10 +1,10 @@
 /* Admin Messages Page */
 .admin-messages-container {
-    background: linear-gradient(135deg, #2A2A2A 0%, #3A3A3A 50%, #2A2A2A 100%);
+    background: #0a0a1a;
     min-height: 100vh;
     padding: 2rem;
     color: white;
-    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 /* Glitch Background Effect */
@@ -342,7 +342,7 @@
 .user-email {
     font-size: 0.9rem;
     color: #00ffff;
-    font-family: 'Courier New', monospace;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .message-time {

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
-import "../styles/SharedBackground.css";
 import { RiTerminalBoxFill } from 'react-icons/ri';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 import Api from '../services/Api';
 
 const ForgotPassword = () => {
@@ -289,7 +288,7 @@ const ForgotPassword = () => {
 
     return (
         <div className="login-container">
-            <SharedBackground />
+            <BinaryBackground />
             
             {step === 1 && renderStep1()}
             {step === 2 && renderStep2()}

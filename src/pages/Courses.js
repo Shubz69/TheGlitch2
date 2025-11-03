@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Courses.css';
-import '../styles/SharedBackground.css';
 import Api from '../services/Api';
 import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 // Fallback API URL
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
@@ -131,8 +130,7 @@ const Courses = () => {
     if (loading) {
         return (
             <div className="courses-container">
-                <SharedBackground />
-                <div className="stars"></div>
+                <BinaryBackground />
                 <div className="courses-loading">
                     <div className="loading-spinner"></div>
                     <p>Loading courses...</p>
@@ -144,8 +142,7 @@ const Courses = () => {
     if (error) {
         return (
             <div className="courses-container">
-                <SharedBackground />
-                <div className="stars"></div>
+                <BinaryBackground />
                 <div className="courses-error">
                     <h2>Oops!</h2>
                     <p>{error}</p>
@@ -157,8 +154,7 @@ const Courses = () => {
 
     return (
         <div className="courses-container">
-            <SharedBackground />
-            <div className="stars"></div>
+            <BinaryBackground />
             <div className="courses-header">
                 <h1 className="courses-title">COURSES</h1>
                 <p>Expand your knowledge with our comprehensive trading courses</p>

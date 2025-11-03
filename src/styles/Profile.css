@@ -5,10 +5,10 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    background: var(--bg-dark);
+    background: #0a0a1a;
     overflow: hidden;
     padding: 20px;
-    font-family: 'Courier New', 'Monaco', monospace;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .profile-content {

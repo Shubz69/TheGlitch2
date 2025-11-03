@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import '../styles/PublicProfile.css';
-import '../styles/SharedBackground.css';
 import { useAuth } from "../context/AuthContext";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 import { FaArrowLeft, FaMedal, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
 
@@ -95,7 +94,7 @@ const PublicProfile = () => {
     if (loading) {
         return (
             <div className="public-profile-container">
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="profile-card loading">
                     <div className="loader">Loading profile...</div>
                 </div>
@@ -106,7 +105,7 @@ const PublicProfile = () => {
     if (error) {
         return (
             <div className="public-profile-container">
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="profile-card error">
                     <div className="error-message">{error}</div>
                     <button className="back-button" onClick={goBack}>
@@ -120,7 +119,7 @@ const PublicProfile = () => {
     if (!profile) {
         return (
             <div className="public-profile-container">
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="profile-card error">
                     <div className="error-message">Profile not found</div>
                     <button className="back-button" onClick={goBack}>
@@ -138,7 +137,7 @@ const PublicProfile = () => {
 
     return (
         <div className="public-profile-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="profile-card">
                 <button className="back-button" onClick={goBack}>
                     <FaArrowLeft /> Back

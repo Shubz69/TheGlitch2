@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Explore.css';
-import '../styles/SharedBackground.css';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const Explore = () => {
   const [dataPoints, setDataPoints] = useState([]);
@@ -53,101 +52,9 @@ const Explore = () => {
     }
   ];
 
-  // Generate random data points for background visualization
-  useEffect(() => {
-    const generateSmoothData = () => {
-      const points = [];
-      let y = 50;
-      
-      // Generate more points for a smoother line
-      for (let i = 0; i < 50; i++) {
-        // Create a smoother curve with smaller variations between points
-        const nextY = y + (Math.random() * 6 - 3);
-        y = Math.max(30, Math.min(70, nextY)); // Keep within bounds
-        
-        points.push({
-          x: i * 2, // Spread points evenly
-          y: y
-        });
-      }
-      
-      setDataPoints(points);
-    };
-    
-    generateSmoothData();
-    
-    // Create blinking data points effect
-    const interval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * dataPoints.length);
-      if (chartRef.current && dataPoints.length > 0) {
-        const dataPoint = chartRef.current.querySelectorAll('.data-point')[randomIndex];
-        if (dataPoint) {
-          dataPoint.classList.add('highlight-point');
-          setTimeout(() => {
-            dataPoint.classList.remove('highlight-point');
-          }, 700);
-        }
-      }
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [dataPoints.length]);
-
   return (
     <div className="explore-page">
-      <SharedBackground />
-      {/* SVG Background Chart */}
-      <svg className="chart-background" viewBox="0 0 100 100" preserveAspectRatio="none" ref={chartRef}>
-        {/* Grid Lines */}
-        {[...Array(20)].map((_, i) => (
-          <line
-            key={`h-${i}`}
-            x1="0"
-            y1={i * 5}
-            x2="100"
-            y2={i * 5}
-            className="grid-line"
-          />
-        ))}
-        {[...Array(20)].map((_, i) => (
-          <line
-            key={`v-${i}`}
-            x1={i * 5}
-            y1="0"
-            x2={i * 5}
-            y2="100"
-            className="grid-line"
-          />
-        ))}
-        
-        {/* Support and Resistance Lines */}
-        <line x1="0" y1="30" x2="100" y2="30" className="resistance-line" />
-        <line x1="0" y1="70" x2="100" y2="70" className="support-line" />
-        
-        {/* Moving Average Line */}
-        <path
-          d="M0,55 L100,45"
-          className="ma-line"
-        />
-        
-        {/* Trend Line */}
-        <path
-          d={`M0,${dataPoints.length > 0 ? dataPoints[0].y : 50} ${dataPoints.map(p => `L${p.x},${p.y}`).join(' ')}`}
-          className="trend-line"
-        />
-        
-        {/* Data Points */}
-        {dataPoints.map((point, i) => (
-          <circle
-            key={i}
-            cx={point.x}
-            cy={point.y}
-            r="0.4"
-            className="data-point"
-          />
-        ))}
-      </svg>
-
+      <BinaryBackground />
       {/* Stock Ticker */}
       <div className="stock-ticker">
         <div className="ticker-wrap">

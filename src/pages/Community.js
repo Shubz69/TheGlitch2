@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import '../styles/Community.css';
-import '../styles/SharedBackground.css';
 import { useWebSocket } from '../utils/useWebSocket';
 import { useAuth } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Api from '../services/Api';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 // Icons
 import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrown, FaShieldAlt, FaBan, FaVolumeMute, FaTrash, FaPaperclip, FaTimes } from 'react-icons/fa';
@@ -545,12 +544,43 @@ const Community = () => {
     const fetchMessages = useCallback(async (channelId) => {
         if (!channelId) return;
         
-        // First, try to load from localStorage
-        const storedMessages = loadMessagesFromStorage(channelId);
-        if (storedMessages.length > 0) {
-            setMessages(storedMessages);
-        } else {
-            setMessages([]);
+        setLoading(true);
+        
+        try {
+            // First, try to fetch from backend API for permanent persistence
+            try {
+                const response = await Api.getChannelMessages(channelId);
+                if (response && response.data && Array.isArray(response.data)) {
+                    const apiMessages = response.data;
+                    console.log(`Loaded ${apiMessages.length} messages from backend for channel ${channelId}`);
+                    
+                    // Save to localStorage as cache
+                    saveMessagesToStorage(channelId, apiMessages);
+                    
+                    // Set messages from API
+                    setMessages(apiMessages);
+                    setLoading(false);
+                    return;
+                }
+            } catch (apiError) {
+                console.log('Backend API not available, trying localStorage fallback:', apiError.message);
+                // Fall through to localStorage fallback
+            }
+            
+            // Fallback: Load from localStorage if API fails
+            const storedMessages = loadMessagesFromStorage(channelId);
+            if (storedMessages.length > 0) {
+                console.log(`Loaded ${storedMessages.length} messages from localStorage for channel ${channelId}`);
+                setMessages(storedMessages);
+            } else {
+                console.log(`No messages found for channel ${channelId}`);
+                setMessages([]);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+            // Fallback to localStorage
+            const storedMessages = loadMessagesFromStorage(channelId);
+            setMessages(storedMessages || []);
         }
         
         setLoading(false);
@@ -675,35 +705,83 @@ const Community = () => {
             return;
         }
 
+        const messageContent = newMessage.trim();
+        const messageToSend = {
+            channelId: selectedChannel.id,
+            content: messageContent,
+            file: selectedFile ? {
+                name: selectedFile.name,
+                type: selectedFile.type,
+                size: selectedFile.size,
+                preview: filePreview
+            } : null
+        };
+
+        // Optimistic update - add message to UI immediately
+        const optimisticMessage = {
+            id: `temp_${Date.now()}`,
+            channelId: selectedChannel.id,
+            content: messageContent,
+            sender: {
+                id: userId,
+                username: storedUser?.username || storedUser?.name || 'User',
+                avatar: storedUser?.avatar || '/avatars/avatar_ai.png',
+                role: getCurrentUserRole()
+            },
+            timestamp: new Date().toISOString(),
+            file: selectedFile ? {
+                name: selectedFile.name,
+                type: selectedFile.type,
+                size: selectedFile.size,
+                preview: filePreview
+            } : null
+        };
+        
+        // Add message to state immediately for instant UI feedback
+        const updatedMessages = [...messages, optimisticMessage];
+        setMessages(updatedMessages);
+        
+        // Clear inputs immediately
+        setNewMessage('');
+        removeSelectedFile();
+
         try {
-            const message = {
-                id: Date.now(),
-                channelId: selectedChannel.id,
-                content: newMessage,
-                sender: {
-                    id: userId,
-                    username: storedUser?.username || storedUser?.name || 'User',
-                    avatar: storedUser?.avatar || '/avatars/avatar_ai.png',
-                    role: getCurrentUserRole()
-                },
-                timestamp: new Date().toISOString(),
-                file: selectedFile ? {
-                    name: selectedFile.name,
-                    type: selectedFile.type,
-                    size: selectedFile.size,
-                    preview: filePreview
-                } : null
-            };
-            
-            // Add message to state immediately
-            const updatedMessages = [...messages, message];
-            setMessages(updatedMessages);
-            
-            // Save to localStorage
-            saveMessagesToStorage(selectedChannel.id, updatedMessages);
+            // Save to backend API first for permanent persistence
+            try {
+                const response = await Api.sendMessage(selectedChannel.id, messageToSend);
+                
+                if (response && response.data) {
+                    // Replace optimistic message with server response (has real ID)
+                    const serverMessage = response.data;
+                    const finalMessages = updatedMessages
+                        .filter(msg => msg.id !== optimisticMessage.id) // Remove temp message
+                        .concat(serverMessage); // Add server message
+                    
+                    setMessages(finalMessages);
+                    saveMessagesToStorage(selectedChannel.id, finalMessages);
+                    
+                    console.log('✅ Message saved permanently to backend:', serverMessage);
+                } else {
+                    // If response doesn't have expected format, keep optimistic message
+                    // Convert temp ID to permanent ID
+                    const permanentMessage = {
+                        ...optimisticMessage,
+                        id: Date.now()
+                    };
+                    const finalMessages = updatedMessages.map(msg => 
+                        msg.id === optimisticMessage.id ? permanentMessage : msg
+                    );
+                    saveMessagesToStorage(selectedChannel.id, finalMessages);
+                    console.log('Message sent (back-end format may differ, using optimistic update)');
+                }
+            } catch (apiError) {
+                console.warn('Failed to save message to backend, using localStorage only:', apiError.message);
+                // Still save to localStorage as fallback
+                saveMessagesToStorage(selectedChannel.id, updatedMessages);
+            }
             
             // ***** AWARD XP FOR SENDING MESSAGE *****
-            const earnedXP = calculateMessageXP(newMessage, !!selectedFile);
+            const earnedXP = calculateMessageXP(messageContent, !!selectedFile);
             const xpResult = awardXP(earnedXP);
             
             if (xpResult) {
@@ -714,14 +792,11 @@ const Community = () => {
                     console.log(`🎉 LEVEL UP! You reached Level ${xpResult.newLevel}!`);
                 }
             }
-            
-            // Clear inputs
-            setNewMessage('');
-            removeSelectedFile();
-            
-            console.log('Message sent:', message);
         } catch (error) {
             console.error('Error sending message:', error);
+            // On error, remove optimistic message and show error
+            setMessages(messages);
+            alert('Failed to send message. Please try again.');
         }
     };
 
@@ -755,7 +830,7 @@ const Community = () => {
     // Render
     return (
         <div className="community-container">
-            <SharedBackground />
+            <BinaryBackground />
             
             {/* LEFT SIDEBAR - CHANNELS */}
             <div className="community-sidebar">

@@ -34,7 +34,6 @@ import VerifyMFA from './pages/VerifyMFA';
 
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import './styles/SharedBackground.css';
 
 import GDPRModal from './components/GDPRModal';
 
@@ -60,7 +59,7 @@ function AppRoutes() {
     }
 
     return (
-        <>
+        <div className="app-container">
             {showGDPR && <GDPRModal onAgree={handleAgreeGDPR} />}
 
             <Navbar />
@@ -110,7 +109,7 @@ function AppRoutes() {
             <Footer />
             {showChatbot && <Chatbot />}
             <ToastContainer position="bottom-right" autoClose={3000} />
-        </>
+        </div>
     );
 }
 

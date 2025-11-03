@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/MyCourses.css';
-import '../styles/SharedBackground.css';
 import { useNavigate } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const MyCourses = () => {
     const [courses, setCourses] = useState([]);
@@ -102,7 +101,7 @@ const MyCourses = () => {
     if (loading) {
         return (
             <div className="my-courses-container">
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="page-header">
                     <h1 className="page-title">
                         {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}
@@ -117,7 +116,7 @@ const MyCourses = () => {
 
     return (
         <div className="my-courses-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="page-header">
                 <h1 className="page-title">
                     {userRole === "ADMIN" ? "ALL COURSES" : "MY COURSES"}

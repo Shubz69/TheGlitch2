@@ -2,7 +2,7 @@
     min-height: 100vh;
     padding-top: 80px;
     padding-bottom: 100px;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background: #0a0a1a;
     position: relative;
     z-index: 1;
 }

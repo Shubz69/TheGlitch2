@@ -1,6 +1,6 @@
 .leaderboard-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #2A2A2A 0%, #3A3A3A 50%, #2A2A2A 100%);
+    background: #0a0a1a;
     color: #ffffff;
     position: relative;
     overflow: hidden;

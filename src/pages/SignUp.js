@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
-import "../styles/SharedBackground.css";
-import infinityLogo from "../styles/assets/infinity-logo.png";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
+import { useAuth } from "../context/AuthContext";
 
 function SignUp() {
     const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
     const [error, setError] = useState("");
-    const navigate = useNavigate(); // initialize useNavigate hook
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const { register } = useAuth();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,80 +29,99 @@ function SignUp() {
             return;
         }
 
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError("");
+
         try {
-            const response = await fetch("/api/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!response.ok) {
-                throw new Error("Registration failed.");
+            const response = await register({ email, password });
+            
+            // If MFA is required, the register function will redirect to verify-mfa
+            // Otherwise, redirect to community
+            if (response && response.status !== "MFA_REQUIRED") {
+                navigate("/community");
             }
-
-            const data = await response.json();
-            localStorage.setItem("token", data.token);
-
-            // Redirect to community page or profile after successful sign-up
-            navigate("/community"); // or use navigate('/profile');
         } catch (error) {
             console.error("Registration error:", error);
-            setError("Unable to register. Please try again later.");
+            setError(error.message || "Unable to register. Please try again later.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="login-container">
-            <SharedBackground />
-            <div className="login-box">
-                <img src={infinityLogo} alt="Infinity AI Logo" className="login-logo" />
-                <div className="brand-section">
-                    <h1 className="brand-title">THE GLITCH</h1>
-                    <p className="brand-subtitle">FUTURISTIC TRADING PLATFORM</p>
+            <BinaryBackground />
+            <div className="login-form-container">
+                <div className="form-header">
+                    <h2 className="login-title">SIGN UP</h2>
+                    <p className="login-subtitle">Create your new account</p>
                 </div>
-
-                {error && <p className="error-message">{error}</p>}
-
+                
+                {error && <div className="error-message">{error}</div>}
+                
                 <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label>Email</label>
+                    <div className="form-group">
+                        <label htmlFor="email" className="form-label">Email Address</label>
                         <input
                             type="email"
+                            id="email"
                             name="email"
-                            placeholder="Enter your email"
                             value={formData.email}
                             onChange={handleChange}
                             required
+                            autoComplete="email"
+                            placeholder="Enter your email"
+                            className="form-input"
                         />
                     </div>
-                    <div className="input-group">
-                        <label>Password</label>
+                    
+                    <div className="form-group">
+                        <label htmlFor="password" className="form-label">Password</label>
                         <input
                             type="password"
+                            id="password"
                             name="password"
-                            placeholder="Create a password"
                             value={formData.password}
                             onChange={handleChange}
                             required
+                            autoComplete="new-password"
+                            placeholder="Create a password"
+                            className="form-input"
                         />
                     </div>
-                    <div className="input-group">
-                        <label>Confirm Password</label>
+                    
+                    <div className="form-group">
+                        <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
                         <input
                             type="password"
+                            id="confirmPassword"
                             name="confirmPassword"
-                            placeholder="Confirm your password"
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             required
+                            autoComplete="new-password"
+                            placeholder="Confirm your password"
+                            className="form-input"
                         />
                     </div>
-
-                    <button type="submit" className="login-btn">Register</button>
+                    
+                    <button 
+                        type="submit" 
+                        className="login-button"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'REGISTERING...' : 'CREATE ACCOUNT'}
+                    </button>
                 </form>
-
-                <p style={{ color: '#ccc' }}>Already have an account?</p>
-                <button className="register-btn" onClick={() => navigate("/login")}>Sign In</button>
+                
+                <div className="register-link">
+                    <p>Already have an account? <Link to="/login">Sign In</Link></p>
+                </div>
             </div>
         </div>
     );

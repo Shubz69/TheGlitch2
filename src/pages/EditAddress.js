@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ProfileEdit.css";
-import "../styles/SharedBackground.css";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const EditAddress = () => {
     const [address, setAddress] = useState("");
@@ -16,7 +15,7 @@ const EditAddress = () => {
 
     return (
         <div className="edit-container">
-            <SharedBackground />
+            <BinaryBackground />
             <h2>Edit Address</h2>
             <form onSubmit={handleSave}>
                 <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter home address" required />

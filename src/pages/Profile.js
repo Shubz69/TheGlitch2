@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/Profile.css";
-import "../styles/SharedBackground.css";
 import { useNavigate } from 'react-router-dom';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 // Helper function to ensure avatar path is valid
 const getAvatarPath = (avatarName) => {
@@ -252,7 +251,7 @@ const Profile = () => {
 
     return (
         <div className="profile-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="profile-content">
                 <div className="profile-header">
                     <h1 className="profile-title">MY PROFILE</h1>

@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/NotFound.css';
-import '../styles/SharedBackground.css';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const NotFound = () => {
     const navigate = useNavigate();
@@ -18,7 +17,7 @@ const NotFound = () => {
     
     return (
         <div className="not-found-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="not-found-content">
                 <div className="error-code">404</div>
                 <div className="redirect-message">
@@ -36,7 +35,6 @@ const NotFound = () => {
                     </Link>
                 </div>
                 
-                <div className="stars"></div>
             </div>
         </div>
     );

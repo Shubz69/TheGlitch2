@@ -3,8 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/VerifyMFA.css";
-import "../styles/SharedBackground.css";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const VerifyMFA = () => {
     const [code, setCode] = useState("");
@@ -83,37 +82,6 @@ const VerifyMFA = () => {
         return () => clearInterval(interval);
     }, [timer]);
 
-    // Generate code background matrix effect
-    useEffect(() => {
-        const createCodeBackground = () => {
-            const codeBackground = document.querySelector('.code-background');
-            if (!codeBackground) return;
-            
-            codeBackground.innerHTML = '';
-            
-            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-            const totalLines = 50;
-            
-            for (let i = 0; i < totalLines; i++) {
-                const line = document.createElement('div');
-                line.className = 'code-line';
-                line.style.left = `${Math.random() * 100}%`;
-                line.style.animationDelay = `${Math.random() * 5}s`;
-                line.style.setProperty('--i', Math.floor(Math.random() * 10));
-                
-                const char = chars.charAt(Math.floor(Math.random() * chars.length));
-                line.textContent = char;
-                
-                codeBackground.appendChild(line);
-            }
-        };
-        
-        createCodeBackground();
-        
-        // Refresh the matrix effect every 10 seconds
-        const interval = setInterval(createCodeBackground, 10000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -207,9 +175,7 @@ const VerifyMFA = () => {
 
     return (
         <div className="login-container">
-            <SharedBackground />
-            {/* Matrix Code Background */}
-            <div className="code-background"></div>
+            <BinaryBackground />
             
             <div className="login-box">
                 <h2 className="gradient-text">🔐 MFA VERIFICATION</h2>

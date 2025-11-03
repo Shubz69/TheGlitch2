@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import "../styles/Login.css";
-import "../styles/SharedBackground.css";
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 import Api from '../services/Api';
 
 const Login = () => {
@@ -17,7 +16,7 @@ const Login = () => {
     const [userId, setUserId] = useState('');
     const [countdown, setCountdown] = useState(30);
     const [canResendCode, setCanResendCode] = useState(false);
-    const { login, isAuthenticated } = useAuth();
+    const { login: loginWithAuth, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     
     // Lightning background effect
@@ -90,31 +89,34 @@ const Login = () => {
         try {
             console.log('Attempting login with:', email);
             
-            // Use enhanced login with detailed error handling
-            const result = await Api.loginWithErrorDetails({ email, password });
+            // Use AuthContext login which handles MFA properly
+            const result = await loginWithAuth(email, password);
             
-            if (result.success) {
-                // Store token and user data
-                localStorage.setItem('token', result.token);
-                localStorage.setItem('user', JSON.stringify(result.user));
-                
-                // Trigger auth context update
+            // If MFA is required, the login function will redirect to verify-mfa
+            // If login succeeds, reload to update auth state
+            if (result && result.status === "MFA_REQUIRED") {
+                // MFA redirect is handled in AuthContext
+                setIsLoading(false);
+                return;
+            }
+            
+            // Successful login without MFA - reload to update context
+            if (result && result.token) {
                 window.location.reload();
-            } else {
-                // Handle specific error types
-                if (result.error === 'email') {
-                    setError('Email not found. Please check your email address or register for a new account.');
-                } else if (result.error === 'password') {
-                    setError('Incorrect password. Please try again or reset your password.');
-                } else {
-                    setError(result.message || 'An error occurred. Please try again.');
-                }
+                return;
             }
             
             setIsLoading(false);
         } catch (err) {
             console.error('Login error details:', err);
-            setError('An error occurred. Please try again.');
+            // Handle specific error types
+            if (err.message && err.message.includes('not found')) {
+                setError('Email not found. Please check your email address or register for a new account.');
+            } else if (err.message && err.message.includes('password')) {
+                setError('Incorrect password. Please try again or reset your password.');
+            } else {
+                setError(err.message || 'An error occurred. Please try again.');
+            }
             setIsLoading(false);
         }
     };
@@ -154,7 +156,7 @@ const Login = () => {
                 localStorage.setItem("mfaVerified", "true");
                 
                 // Use the login function to update context
-                await login(
+                await loginWithAuth(
                     res.data.token,
                     res.data.role, 
                     {
@@ -210,22 +212,7 @@ const Login = () => {
     if (showMfaVerification) {
         return (
             <div className="login-container">
-                <SharedBackground />
-                <div className="lightning-background">
-                    {lightningBolt && (
-                        <div 
-                            className="lightning-bolt"
-                            style={{
-                                left: `${lightningBolt.x}%`,
-                                top: `${lightningBolt.y}%`,
-                                opacity: lightningBolt.intensity,
-                                animationDuration: `${lightningBolt.duration}ms`
-                            }}
-                        />
-                    )}
-                    {flashEffect && <div className="flash-overlay" />}
-                </div>
-                
+                <BinaryBackground />
                 <div className="login-form-container">
                     <div className="brand-logo">
                         <div className="logo-icon">
@@ -291,23 +278,7 @@ const Login = () => {
     // Regular login interface
     return (
         <div className="login-container">
-            <SharedBackground />
-            {/* Lightning Background */}
-            <div className="lightning-background">
-                {lightningBolt && (
-                    <div 
-                        className="lightning-bolt"
-                        style={{
-                            left: `${lightningBolt.x}%`,
-                            top: `${lightningBolt.y}%`,
-                            opacity: lightningBolt.intensity,
-                            animationDuration: `${lightningBolt.duration}ms`
-                        }}
-                    />
-                )}
-                {flashEffect && <div className="flash-overlay" />}
-            </div>
-            
+            <BinaryBackground />
             <div className="login-form-container">
                 
                 <div className="form-header">

@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Messages.css';
-import '../styles/SharedBackground.css';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 import { FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 
 const Messages = () => {
@@ -93,7 +92,7 @@ const Messages = () => {
 
     return (
         <>
-            <SharedBackground />
+            <BinaryBackground />
             <div className="messages-page-container">
                 <div className="messages-page-header">
                     <button className="back-button" onClick={() => navigate(-1)}>

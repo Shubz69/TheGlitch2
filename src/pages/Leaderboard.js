@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Leaderboard.css';
-import '../styles/SharedBackground.css';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const Leaderboard = () => {
     const containerRef = useRef(null);
@@ -180,7 +179,7 @@ const Leaderboard = () => {
     if (loading) {
         return (
             <div className="leaderboard-container" ref={containerRef}>
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="loading-screen">
                     <div className="loading-spinner"></div>
                     <div className="loading-text">Loading Leaderboard...</div>
@@ -192,7 +191,7 @@ const Leaderboard = () => {
     if (error) {
         return (
             <div className="leaderboard-container">
-                <SharedBackground />
+                <BinaryBackground />
                 <div className="error-message">
                     <h2>⚠️ Error Loading Leaderboard</h2>
                     <p>{error}</p>
@@ -207,9 +206,7 @@ const Leaderboard = () => {
                         
                         return (
         <div className="leaderboard-container" ref={containerRef}>
-            <SharedBackground />
-            {/* Glitch Background Effect */}
-            <div className="glitch-bg"></div>
+            <BinaryBackground />
             
             {/* Header */}
             <div className="leaderboard-header">

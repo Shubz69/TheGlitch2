@@ -9,7 +9,7 @@
     --bg-medium: #374151; /* Medium grey */
     --bg-light: #4B5563; /* Light grey */
     --font-main: 'Space Grotesk', sans-serif;
-    --font-secondary: 'Inter', sans-serif;
+    --font-secondary: 'Space Grotesk', sans-serif;
 }
 
 .register-container {
@@ -17,7 +17,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-    background: var(--bg-dark);
+    background: #0a0a1a;
   position: relative;
   overflow: hidden;
     font-family: var(--font-secondary);
@@ -27,16 +27,7 @@
 
 /* Clean minimal background */
 .register-container::before {
-    content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-    background: 
-        radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
-  z-index: 1;
+    display: none;
 }
 
 /* CLEAN MODERN FORM CONTAINER */

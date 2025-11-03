@@ -2,11 +2,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "../styles/AdminUserList.css";
-import "../styles/SharedBackground.css";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import AdminApi from "../services/AdminApi";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const AdminUserList = () => {
     const { user } = useAuth();
@@ -120,7 +119,7 @@ const AdminUserList = () => {
 
     return (
         <div className="page-wrapper">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="container">
                 <h2 className="gradient-text">REGISTERED USERS</h2>
                 <p className="user-summary">

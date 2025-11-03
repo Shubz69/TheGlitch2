@@ -1,11 +1,11 @@
 .admin-panel-container {
     min-height: 100vh;
-    background: #000;
+    background: #0a0a1a;
     color: #ffffff;
     position: relative;
     overflow: hidden;
     padding: 20px;
-    font-family: 'Courier New', 'Monaco', monospace;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 /* Glitch Background Effect - using Contact Us style */

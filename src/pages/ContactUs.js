@@ -3,9 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { FaEnvelope, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import { IoSend } from 'react-icons/io5';
 import '../styles/ContactUs.css';
-import '../styles/SharedBackground.css';
 import Chatbot from "../components/Chatbot";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 // Simple Text Component
 const SimpleText = ({ text }) => {
@@ -88,9 +87,7 @@ const ContactUs = () => {
 
     return (
         <div className="contact-container">
-            <SharedBackground />
-            <div className="stars"></div>
-            
+            <BinaryBackground />
             <div className="contact-content">
                 <div className="contact-header">
                     <SimpleText text={fromMfa ? 'MFA Support' : 'Contact Us'} />

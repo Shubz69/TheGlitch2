@@ -5,6 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { useAuth } from '../context/AuthContext';
 import Api from '../services/Api';
 import WebSocketService from '../services/WebSocketService';
+import BinaryBackground from '../components/BinaryBackground';
 
 const AdminInbox = () => {
   const { user } = useAuth();
@@ -83,8 +84,10 @@ const AdminInbox = () => {
   const isOwn = (m) => String(m.senderId) === String(user?.id);
 
   return (
-    <Box sx={{ display: 'flex', height: 'calc(100vh - 160px)', p: 2 }}>
-      <Paper sx={{ width: 320, mr: 2, overflowY: 'auto' }}>
+    <>
+      <BinaryBackground />
+      <Box sx={{ display: 'flex', height: 'calc(100vh - 160px)', p: 2 }}>
+        <Paper sx={{ width: 320, mr: 2, overflowY: 'auto' }}>
         <Typography variant="h6" sx={{ p: 2 }}>Inbox</Typography>
         <Divider />
         <List>
@@ -121,7 +124,8 @@ const AdminInbox = () => {
           </Box>
         </form>
       </Paper>
-    </Box>
+      </Box>
+    </>
   );
 };
 

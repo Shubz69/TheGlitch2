@@ -1,4 +1,9 @@
 /* Navbar.css — Landing Page Style */
+/* Hide navbar during loading */
+body.loading-active .navbar {
+    display: none !important;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;

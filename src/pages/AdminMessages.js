@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AdminMessages.css';
-import '../styles/SharedBackground.css';
 import AdminApi from '../services/AdminApi';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 const AdminMessages = () => {
     const { user } = useAuth();
@@ -61,8 +60,7 @@ const AdminMessages = () => {
     if (!user || user.role !== 'ADMIN') {
         return (
             <div className="admin-messages-container">
-                <SharedBackground />
-                <div className="glitch-bg"></div>
+                <BinaryBackground />
                 <div className="access-denied">
                     <h1 className="glitch-title">ACCESS DENIED</h1>
                     <p>You must be an admin to view this page.</p>
@@ -73,9 +71,7 @@ const AdminMessages = () => {
 
     return (
         <div className="admin-messages-container">
-            <SharedBackground />
-            {/* Glitch Background Effect */}
-            <div className="glitch-bg"></div>
+            <BinaryBackground />
             
             <div className="admin-messages-content">
                 <div className="admin-header">

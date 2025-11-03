@@ -82,13 +82,11 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
         const updateEyeDirection = () => {
             if (mousePosition && neuralCanvas) {
                 const rect = neuralCanvas.getBoundingClientRect();
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const mouseX = mousePosition.x - rect.left;
-                const mouseY = mousePosition.y - rect.top;
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
                 
-                const deltaX = (mouseX - centerX) / centerX;
-                const deltaY = (mouseY - centerY) / centerY;
+                const deltaX = (mousePosition.x - centerX) / (rect.width / 2);
+                const deltaY = (mousePosition.y - centerY) / (rect.height / 2);
                 
                 setEyeDirection({
                     x: Math.max(-1, Math.min(1, deltaX)),
@@ -97,10 +95,14 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
             }
         };
 
+        // Update eye direction when mouse moves
         updateEyeDirection();
 
         // Animation loop
         const animate = () => {
+            // Update eye direction in animation loop for smooth tracking
+            updateEyeDirection();
+            
             neuralCtx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
 
             // Update pulse intensity based on state

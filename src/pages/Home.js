@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
-import "../styles/SharedBackground.css";
 import { useAuth } from "../context/AuthContext";
 import Chatbot from "../components/Chatbot";
-import SharedBackground from "../components/SharedBackground";
+import BinaryBackground from "../components/BinaryBackground";
 import FancyAIHead from "../components/FancyAIHead";
 
 const Home = () => {
@@ -75,27 +74,27 @@ const Home = () => {
 
     const features = [
         {
-            icon: "🧠",
-            title: "Neural Intelligence",
-            description: "Advanced AI algorithms that learn and adapt in real-time",
+            icon: "💰",
+            title: "8 Wealth Domains",
+            description: "Master Health & Fitness, E-Commerce, Forex, Crypto, Algorithmic FX, Intelligent Systems, Social Media, and Real Estate",
             color: "#1E90FF"
         },
         {
-            icon: "⚡",
-            title: "Quantum Speed",
-            description: "Ultra-low latency execution with sub-millisecond response",
+            icon: "🚀",
+            title: "Multiple Income Streams",
+            description: "Build generational wealth through diverse revenue channels and strategic investments",
             color: "#00CED1"
         },
         {
-            icon: "🔒",
-            title: "Military Security",
-            description: "Bank-grade encryption with blockchain verification",
+            icon: "📈",
+            title: "Proven Results",
+            description: "247% average ROI with 15 active income streams - real numbers from real traders",
             color: "#32CD32"
         },
         {
-            icon: "📊",
-            title: "Predictive Analytics",
-            description: "Pattern recognition and trend prediction algorithms",
+            icon: "🎓",
+            title: "Cutting-Edge Knowledge",
+            description: "Access comprehensive courses and strategies powered by the latest trading intelligence",
             color: "#FF69B4"
         }
     ];
@@ -105,33 +104,7 @@ const Home = () => {
             {/* Loading Screen - Outside container for full viewport coverage */}
             {isLoading && (
                 <div className="loading-screen">
-                    {/* Rainfall Code Background */}
-                    <div className="rainfall-background">
-                        {[...Array(50)].map((_, i) => (
-                            <div 
-                                key={i} 
-                                className="rainfall-column"
-                                style={{
-                                    left: `${(i * 100) / 50}%`,
-                                    animationDelay: `${Math.random() * 2}s`,
-                                    animationDuration: `${3 + Math.random() * 2}s`
-                                }}
-                            >
-                                {[...Array(30)].map((_, j) => (
-                                    <div 
-                                        key={j}
-                                        className="rainfall-character"
-                                        style={{
-                                            animationDelay: `${j * 0.1}s`
-                                        }}
-                                    >
-                                        {Math.random() > 0.5 ? '1' : '0'}
-                                    </div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                    
+                    <BinaryBackground />
                     {/* Main Loading Content */}
                     <div className="loading-content">
                         <div className="loading-title">THE GLITCH</div>
@@ -147,31 +120,12 @@ const Home = () => {
             )}
 
             <div className="home-container">
-                <SharedBackground />
+                <BinaryBackground />
             
             {showContent && (
                 <>
-                    {/* Floating Particles Background */}
-                    <div className="floating-particles">
-                        {[...Array(50)].map((_, i) => (
-                            <div 
-                                key={i} 
-                                className="particle"
-                                style={{
-                                    '--delay': `${i * 0.1}s`,
-                                    '--x': `${Math.random() * 100}%`,
-                                    '--y': `${Math.random() * 100}%`
-                                }}
-                            />
-                        ))}
-                    </div>
-
                     {/* Main Hero Section */}
                     <section className="hero-section">
-                        <div className="hero-background">
-                            <div className="grid-overlay"></div>
-                            <div className="energy-waves"></div>
-                        </div>
                         
                         <div className="hero-content">
                             <div className="hero-left">
@@ -217,33 +171,6 @@ const Home = () => {
                                         mousePosition={mousePosition}
                                     />
                                 </div>
-                                
-                                <div className="ai-controls">
-                                    <button 
-                                        className={`control-btn ${aiHeadState === 'thinking' ? 'active' : ''}`}
-                                        onClick={() => handleAiHeadInteraction('thinking')}
-                                    >
-                                        <div className="control-icon">🧠</div>
-                                        <span className="control-text">Think</span>
-                                        <div className="control-glow"></div>
-                                    </button>
-                                    <button 
-                                        className={`control-btn ${aiHeadState === 'analyzing' ? 'active' : ''}`}
-                                        onClick={() => handleAiHeadInteraction('analyzing')}
-                                    >
-                                        <div className="control-icon">📊</div>
-                                        <span className="control-text">Analyze</span>
-                                        <div className="control-glow"></div>
-                                    </button>
-                                    <button 
-                                        className={`control-btn ${aiHeadState === 'learning' ? 'active' : ''}`}
-                                        onClick={() => handleAiHeadInteraction('learning')}
-                                    >
-                                        <div className="control-icon">⚡</div>
-                                        <span className="control-text">Learn</span>
-                                        <div className="control-glow"></div>
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </section>
@@ -273,7 +200,6 @@ const Home = () => {
                                         <div 
                                             key={index}
                                             className={`feature-indicator ${index === currentFeature ? 'active' : ''}`}
-                                            onClick={() => setCurrentFeature(index)}
                                         >
                                             <span className="indicator-icon">{feature.icon}</span>
                                             <span className="indicator-title">{feature.title}</span>
@@ -309,12 +235,6 @@ const Home = () => {
                                     <div className="wealth-stat-icon">📈</div>
                                     <div className="wealth-stat-number">15</div>
                                     <div className="wealth-stat-label">INCOME STREAMS</div>
-                                    <div className="wealth-stat-glow"></div>
-                                </div>
-                                <div className="wealth-stat-card">
-                                    <div className="wealth-stat-icon">🏆</div>
-                                    <div className="wealth-stat-number">99</div>
-                                    <div className="wealth-stat-label">SUCCESS RATE</div>
                                     <div className="wealth-stat-glow"></div>
                                 </div>
                             </div>

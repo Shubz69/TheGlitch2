@@ -1,5 +1,5 @@
 .not-found-container {
-    background: linear-gradient(135deg, #0b001d 0%, #16002c 100%);
+    background: #0a0a1a;
     color: white;
     min-height: 100vh;
     display: flex;
@@ -7,7 +7,7 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .not-found-content {

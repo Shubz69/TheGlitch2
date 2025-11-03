@@ -1,11 +1,11 @@
 /* AdminUserList.css — Infinity Themed Admin Table */
 .page-wrapper {
     min-height: 100vh;
-    background: #000;
+    background: #0a0a1a;
     color: #ffffff;
     position: relative;
     overflow: hidden;
-    font-family: 'Courier New', 'Monaco', monospace;
+    font-family: 'Space Grotesk', sans-serif;
 }
 
 .container {

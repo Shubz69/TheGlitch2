@@ -158,18 +158,14 @@ const mockRegister = async (userData) => {
             
             resolve({
                 data: {
-                    token: token,
-                    user: {
-                        id: newUser.id,
-                        email: newUser.email,
-                        name: newUser.name,
-                        username: newUser.username,
-                        avatar: newUser.avatar,
-                        level: newUser.level,
-                        xp: newUser.xp,
-                        totalMessages: newUser.totalMessages,
-                        role: newUser.role
-                    }
+                    status: "MFA_REQUIRED",
+                    id: newUser.id,
+                    email: newUser.email,
+                    name: newUser.name,
+                    username: newUser.username,
+                    avatar: newUser.avatar,
+                    role: newUser.role,
+                    mfaVerified: false
                 }
             });
         }, 1000); // Simulate network delay
@@ -576,20 +572,26 @@ const Api = {
     // Password reset methods
     sendPasswordResetEmail: async (email) => {
         try {
-            // Check if email exists in mock users (case-insensitive)
-            const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (!user) {
-                throw new Error('Email not found');
+            // Try real API first
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+                return response.data.success || true;
+            } catch (apiError) {
+                // Fallback to mock for demo purposes
+                const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+                if (!user) {
+                    throw new Error('Email not found');
+                }
+                
+                // Simulate sending email with MFA code
+                const mfaCode = Math.floor(100000 + Math.random() * 900000).toString();
+                localStorage.setItem(`mfa_${email.toLowerCase()}`, mfaCode);
+                localStorage.setItem(`mfa_expiry_${email.toLowerCase()}`, Date.now() + 10 * 60 * 1000); // 10 minutes
+                
+                console.log(`MFA Code for ${email}: ${mfaCode}`); // For demo purposes
+                
+                return true;
             }
-            
-            // Simulate sending email with MFA code
-            const mfaCode = Math.floor(100000 + Math.random() * 900000).toString();
-            localStorage.setItem(`mfa_${email.toLowerCase()}`, mfaCode);
-            localStorage.setItem(`mfa_expiry_${email.toLowerCase()}`, Date.now() + 10 * 60 * 1000); // 10 minutes
-            
-            console.log(`MFA Code for ${email}: ${mfaCode}`); // For demo purposes
-            
-            return true;
         } catch (error) {
             throw new Error('Email not found');
         }
@@ -597,27 +599,40 @@ const Api = {
 
     verifyResetCode: async (email, code) => {
         try {
-            const storedCode = localStorage.getItem(`mfa_${email.toLowerCase()}`);
-            const expiry = localStorage.getItem(`mfa_expiry_${email.toLowerCase()}`);
-            
-            if (!storedCode || !expiry || Date.now() > parseInt(expiry)) {
-                throw new Error('Code expired or invalid');
+            // Try real API first
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/auth/verify-reset-code`, { email, code });
+                if (response.data.success && response.data.token) {
+                    return {
+                        success: true,
+                        token: response.data.token
+                    };
+                }
+                throw new Error('Invalid or expired code');
+            } catch (apiError) {
+                // Fallback to mock verification
+                const storedCode = localStorage.getItem(`mfa_${email.toLowerCase()}`);
+                const expiry = localStorage.getItem(`mfa_expiry_${email.toLowerCase()}`);
+                
+                if (!storedCode || !expiry || Date.now() > parseInt(expiry)) {
+                    throw new Error('Code expired or invalid');
+                }
+                
+                if (storedCode !== code) {
+                    throw new Error('Invalid code');
+                }
+                
+                // Generate a temporary token for password reset
+                const resetToken = btoa(JSON.stringify({
+                    email: email,
+                    exp: Date.now() + 15 * 60 * 1000 // 15 minutes
+                }));
+                
+                return {
+                    success: true,
+                    token: resetToken
+                };
             }
-            
-            if (storedCode !== code) {
-                throw new Error('Invalid code');
-            }
-            
-            // Generate a temporary token for password reset
-            const resetToken = btoa(JSON.stringify({
-                email: email,
-                exp: Date.now() + 15 * 60 * 1000 // 15 minutes
-            }));
-            
-            return {
-                success: true,
-                token: resetToken
-            };
         } catch (error) {
             throw new Error('Invalid or expired code');
         }
@@ -625,25 +640,32 @@ const Api = {
 
     resetPassword: async (token, newPassword) => {
         try {
-            const decoded = JSON.parse(atob(token));
-            
-            if (Date.now() > decoded.exp) {
-                throw new Error('Token expired');
-            }
-            
-            // Update password in mock users
-            const userIndex = MOCK_USERS.findIndex(u => u.email === decoded.email);
-            if (userIndex !== -1) {
-                MOCK_USERS[userIndex].password = newPassword;
+            // Try real API first
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { token, newPassword });
+                return response.data.success || true;
+            } catch (apiError) {
+                // Fallback to mock password reset
+                const decoded = JSON.parse(atob(token));
                 
-                // Clean up MFA data
-                localStorage.removeItem(`mfa_${decoded.email}`);
-                localStorage.removeItem(`mfa_expiry_${decoded.email}`);
+                if (Date.now() > decoded.exp) {
+                    throw new Error('Token expired');
+                }
                 
-                return true;
+                // Update password in mock users
+                const userIndex = MOCK_USERS.findIndex(u => u.email === decoded.email);
+                if (userIndex !== -1) {
+                    MOCK_USERS[userIndex].password = newPassword;
+                    
+                    // Clean up MFA data
+                    localStorage.removeItem(`mfa_${decoded.email}`);
+                    localStorage.removeItem(`mfa_expiry_${decoded.email}`);
+                    
+                    return true;
+                }
+                
+                throw new Error('User not found');
             }
-            
-            throw new Error('User not found');
         } catch (error) {
             throw new Error('Invalid or expired token');
         }

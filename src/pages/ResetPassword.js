@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 import '../styles/Login.css';
-import '../styles/SharedBackground.css';
 import Api from '../services/Api';
 
 const useQuery = () => {
@@ -48,7 +47,7 @@ const ResetPassword = () => {
 
   return (
     <div className="login-container">
-      <SharedBackground />
+      <BinaryBackground />
       <div className="login-form-container">
         <div className="form-header">
           <h2 className="login-title">CHANGE PASSWORD</h2>

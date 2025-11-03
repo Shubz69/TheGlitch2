@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #080113;
+    background-color: #0a0a1a;
     position: relative;
     overflow: hidden;
 }
@@ -24,7 +24,7 @@
 .code-line {
     position: absolute;
     color: rgba(30, 144, 255, 0.7); /* Blue instead of purple */
-    font-family: 'Courier New', monospace;
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 16px;
     white-space: nowrap;
     user-select: none;

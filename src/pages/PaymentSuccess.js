@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/PaymentSuccess.css";
-import "../styles/SharedBackground.css";
-import SharedBackground from '../components/SharedBackground';
+import BinaryBackground from '../components/BinaryBackground';
 
 // Define API base URL with fallback
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
@@ -130,7 +129,7 @@ const PaymentSuccess = () => {
 
     return (
         <div className="payment-success-container">
-            <SharedBackground />
+            <BinaryBackground />
             <div className="payment-success-card">
                 <div className={`success-icon ${error ? "error" : ""}`}>
                     {error ? "❌" : "✅"}
