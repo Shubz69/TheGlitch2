@@ -152,7 +152,7 @@ const Home = () => {
                                 
                                 <div className="hero-actions">
                                     <button className="primary-button" onClick={handleStartTrading}>
-                                        <span className="button-text">Start Trading</span>
+                                        <span className="button-text">Sign Up</span>
                                         <div className="button-particles"></div>
                                         <div className="button-glow"></div>
                                     </button>
