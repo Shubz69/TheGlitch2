@@ -1,17 +1,27 @@
 // Vercel serverless function for verify reset code
-// Note: This uses in-memory storage. For production, use Vercel KV or database.
+const mysql = require('mysql2/promise');
 
-// Shared reset codes storage - use global object for serverless functions
-// This won't persist across different serverless instances or regions
-// For production, integrate with Vercel KV, Vercel Postgres, or your database
-let resetCodes = new Map();
-
-if (typeof global !== 'undefined') {
-  if (!global.resetCodesStore) {
-    global.resetCodesStore = new Map();
+// Get MySQL connection
+const getDbConnection = async () => {
+  if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    return null;
   }
-  resetCodes = global.resetCodesStore;
-}
+
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+      ssl: process.env.MYSQL_SSL === 'true' ? {} : false
+    });
+    
+    return connection;
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+    return null;
+  }
+};
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -44,29 +54,86 @@ module.exports = async (req, res) => {
 
     const emailLower = email.toLowerCase();
     
-    // Retrieve code from storage
-    const stored = resetCodes.get(emailLower);
+    // Retrieve code from MySQL database
+    const db = await getDbConnection();
+    
+    if (!db) {
+      // Fallback to in-memory storage if DB not configured
+      if (typeof global !== 'undefined') {
+        if (!global.resetCodesStore) {
+          global.resetCodesStore = new Map();
+        }
+        const stored = global.resetCodesStore.get(emailLower);
+        
+        if (!stored) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid or expired code'
+          });
+        }
 
-    if (!stored) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid or expired code'
-      });
-    }
+        if (Date.now() > stored.expiresAt) {
+          global.resetCodesStore.delete(emailLower);
+          return res.status(400).json({
+            success: false,
+            message: 'Code has expired'
+          });
+        }
 
-    if (Date.now() > stored.expiresAt) {
-      resetCodes.delete(emailLower);
-      return res.status(400).json({
-        success: false,
-        message: 'Code has expired'
-      });
-    }
+        if (stored.code !== code) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid code'
+          });
+        }
 
-    if (stored.code !== code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid code'
-      });
+        global.resetCodesStore.delete(emailLower);
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Database not configured. Please contact support.'
+        });
+      }
+    } else {
+      try {
+        // Get code from database
+        const [rows] = await db.execute(
+          'SELECT * FROM reset_codes WHERE email = ? AND code = ? ORDER BY created_at DESC LIMIT 1',
+          [emailLower, code]
+        );
+
+        if (rows.length === 0) {
+          await db.end();
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid code'
+          });
+        }
+
+        const stored = rows[0];
+
+        // Check if expired
+        if (Date.now() > stored.expires_at) {
+          await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+          await db.end();
+          return res.status(400).json({
+            success: false,
+            message: 'Code has expired'
+          });
+        }
+
+        // Delete used code
+        await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+        await db.end();
+        console.log(`Reset code verified for ${emailLower}`);
+      } catch (dbError) {
+        console.error('Database error verifying code:', dbError.message);
+        await db.end();
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to verify code'
+        });
+      }
     }
 
     // Generate reset token
@@ -75,9 +142,6 @@ module.exports = async (req, res) => {
       code: code,
       expiresAt: Date.now() + (15 * 60 * 1000) // 15 minutes
     })).toString('base64');
-
-    // Remove used code
-    resetCodes.delete(emailLower);
 
     return res.status(200).json({
       success: true,

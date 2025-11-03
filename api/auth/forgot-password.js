@@ -1,5 +1,6 @@
 // Vercel serverless function for forgot password
 const nodemailer = require('nodemailer');
+const mysql = require('mysql2/promise');
 
 // Function to create transporter (called inside handler to catch errors better)
 const createEmailTransporter = () => {
@@ -39,18 +40,40 @@ const generateResetCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Store reset codes - shared module for serverless functions
-// Note: This won't persist across different serverless instances
-// For production, use Vercel KV, Vercel Postgres, or your database
-let resetCodes = new Map();
-
-// Export for use in other functions (serverless functions in same region may share this)
-if (typeof global !== 'undefined') {
-  if (!global.resetCodesStore) {
-    global.resetCodesStore = new Map();
+// Get MySQL connection
+const getDbConnection = async () => {
+  if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    return null;
   }
-  resetCodes = global.resetCodesStore;
-}
+
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+      ssl: process.env.MYSQL_SSL === 'true' ? {} : false
+    });
+    
+    // Create reset_codes table if it doesn't exist
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS reset_codes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        code VARCHAR(10) NOT NULL,
+        expires_at BIGINT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_email (email),
+        INDEX idx_expires (expires_at)
+      )
+    `);
+    
+    return connection;
+  } catch (error) {
+    console.error('Database connection error:', error.message);
+    return null;
+  }
+};
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -86,11 +109,39 @@ module.exports = async (req, res) => {
     const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
     const emailLower = email.toLowerCase();
 
-    // Store code (in production, use Vercel KV or database)
-    resetCodes.set(emailLower, {
-      code: resetCode,
-      expiresAt: expiresAt
-    });
+    // Store code in MySQL database
+    const db = await getDbConnection();
+    if (db) {
+      try {
+        // Delete any existing codes for this email
+        await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+        
+        // Insert new code
+        await db.execute(
+          'INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)',
+          [emailLower, resetCode, expiresAt]
+        );
+        
+        await db.end();
+        console.log(`Reset code stored in database for ${emailLower}`);
+      } catch (dbError) {
+        console.error('Database error storing reset code:', dbError.message);
+        await db.end();
+        // Continue with email sending even if DB fails (fallback to in-memory)
+      }
+    } else {
+      console.warn('Database not available, using in-memory storage (codes may not persist)');
+      // Fallback to in-memory storage if DB not configured
+      if (typeof global !== 'undefined') {
+        if (!global.resetCodesStore) {
+          global.resetCodesStore = new Map();
+        }
+        global.resetCodesStore.set(emailLower, {
+          code: resetCode,
+          expiresAt: expiresAt
+        });
+      }
+    }
 
     // Check if email is configured
     const hasEmailUser = !!process.env.EMAIL_USER;
