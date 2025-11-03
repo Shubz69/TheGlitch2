@@ -664,6 +664,13 @@ const Api = {
             
             // Handle HTTP error responses
             const status = apiError.response.status;
+            
+            // Always check for server-provided error messages first
+            if (apiError.response?.data?.message) {
+                throw new Error(apiError.response.data.message);
+            }
+            
+            // Fallback to status-specific messages if no custom message
             if (status === 404) {
                 throw new Error('Email not found. Please check your email address or register for a new account.');
             } else if (status === 405) {
@@ -673,10 +680,7 @@ const Api = {
             } else if (status === 500) {
                 throw new Error('Server error. Please try again later.');
             } else if (status === 400) {
-                const message = apiError.response?.data?.message || 'Invalid request. Please check your email address.';
-                throw new Error(message);
-            } else if (apiError.response?.data?.message) {
-                throw new Error(apiError.response.data.message);
+                throw new Error('Invalid request. Please check your email address.');
             } else {
                 throw new Error(`Failed to send reset email (Status: ${status}). Please try again.`);
             }
