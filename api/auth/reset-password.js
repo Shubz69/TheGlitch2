@@ -1,7 +1,7 @@
 // Vercel serverless function for reset password
 const bcrypt = require('bcrypt');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -76,5 +76,5 @@ export default async function handler(req, res) {
       message: 'Failed to reset password'
     });
   }
-}
+};
 
