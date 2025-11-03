@@ -43,7 +43,15 @@ const VerifyMFA = () => {
         // or if MFA is already verified, redirect away
         if (mfaVerified) {
             console.log('MFA verification already completed, redirecting');
-            navigate(location.state?.returnUrl || "/community");
+            const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
+            const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+            const isAdmin = user?.role === 'ADMIN';
+            
+            if (!isAdmin && !hasActiveSubscription && !pendingSubscription) {
+                navigate('/subscription');
+            } else {
+                navigate(location.state?.returnUrl || "/community");
+            }
             return;
         }
         
@@ -132,8 +140,18 @@ const VerifyMFA = () => {
                 // Call the verifyMfa function to update state
                 verifyMfa();
 
-                // Navigate to returnUrl if provided, otherwise to community
-                navigate(location.state?.returnUrl || "/community");
+                // Check subscription status after MFA verification
+                const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
+                const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+                const isAdmin = res.data.role === 'ADMIN';
+                
+                // If no subscription and not admin, redirect to subscription page
+                if (!isAdmin && !hasActiveSubscription && !pendingSubscription) {
+                    navigate('/subscription');
+                } else {
+                    // Navigate to returnUrl if provided, otherwise to community
+                    navigate(location.state?.returnUrl || "/community");
+                }
             } else {
                 throw new Error("Invalid response from server");
             }
