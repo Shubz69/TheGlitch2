@@ -31,6 +31,7 @@ import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
 import PaymentSuccess from './pages/PaymentSuccess';
 import VerifyMFA from './pages/VerifyMFA';
+import Subscription from './pages/Subscription';
 
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -97,6 +98,7 @@ function AppRoutes() {
                     <Route path="/public-profile/:userId" element={<PublicProfile />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/verify-mfa" element={<VerifyMFA />} />
+                    <Route path="/subscription" element={<Subscription />} />
 
 
 

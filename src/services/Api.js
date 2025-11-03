@@ -308,24 +308,19 @@ const Api = {
     },
     
     register: async (userData) => {
+        // Use real API only - no mock fallback for production
+        // Handle FormData for file uploads
+        const config = userData instanceof FormData ? {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        } : {};
+        
         try {
-            // Try real API first
-            // Handle FormData for file uploads
-            const config = userData instanceof FormData ? {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            } : {};
-            
             return await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config);
         } catch (apiError) {
-            // Only fallback to mock if API completely fails
-            console.warn('API registration failed, trying mock fallback:', apiError.message);
-            try {
-                return await mockRegister(userData);
-            } catch (error) {
-                throw apiError; // Throw API error, not mock error
-            }
+            console.error('Registration API error:', apiError);
+            throw apiError; // Throw API error directly - no mock fallback
         }
     },
     

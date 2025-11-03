@@ -45,18 +45,33 @@ function SignUp() {
         setSuccess("");
 
         try {
-            // Send verification code to email
+            // Send verification code to email - MUST succeed before proceeding
             const result = await Api.sendSignupVerificationEmail(email);
             
-            if (result) {
+            if (result === true || result === undefined) {
                 setSuccess("Verification code sent! Please check your email for the 6-digit code.");
                 setStep(2);
             } else {
-                setError("Failed to send verification email. Please try again.");
+                setError("Failed to send verification email. Your email address may not be valid. Please check and try again.");
+                // Do NOT proceed to step 2 if email fails
             }
         } catch (error) {
             console.error("Email verification error:", error);
-            setError(error.message || "Failed to send verification email. Please try again.");
+            // If email sending fails, user CANNOT proceed with signup
+            // This prevents signup with fake/invalid emails
+            let errorMsg = error.message || "Failed to send verification email. Please check your email address and try again.";
+            
+            // Provide more specific error messages
+            if (error.message && error.message.includes("already exists")) {
+                errorMsg = "An account with this email already exists. Please sign in instead.";
+            } else if (error.message && error.message.includes("invalid")) {
+                errorMsg = "Invalid email address. Please enter a valid email.";
+            } else if (error.message && error.message.includes("not configured")) {
+                errorMsg = "Email service is temporarily unavailable. Please try again later or contact support.";
+            }
+            
+            setError(errorMsg);
+            // Stay on step 1 - don't allow progression without email verification
         } finally {
             setIsLoading(false);
         }
@@ -105,6 +120,7 @@ function SignUp() {
     const handleCompleteRegistration = async () => {
         if (!emailVerified) {
             setError("Email must be verified before completing registration.");
+            setStep(2); // Go back to verification step
             return;
         }
 
@@ -115,14 +131,16 @@ function SignUp() {
             const response = await register({ email: formData.email, password: formData.password });
             
             // If MFA is required, the register function will redirect to verify-mfa
-            // Otherwise, redirect to community
+            // Otherwise, redirect to subscription page (first month free, then £99/month)
             if (response && response.status !== "MFA_REQUIRED") {
-                navigate("/community");
+                // Mark as new signup to show subscription page
+                localStorage.setItem('pendingSubscription', 'true');
+                localStorage.setItem('newSignup', 'true');
+                navigate("/subscription");
             }
         } catch (error) {
             console.error("Registration error:", error);
             setError(error.message || "Unable to register. Please try again later.");
-        } finally {
             setIsLoading(false);
         }
     };

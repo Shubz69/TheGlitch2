@@ -255,6 +255,14 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('mfaVerified', 'true');
           setMfaVerified(true);
         }
+        
+        // For new signups, redirect to subscription page
+        // Check if this is a new signup (from SignUp page)
+        if (localStorage.getItem('newSignup') === 'true') {
+          localStorage.setItem('pendingSubscription', 'true');
+          navigate('/subscription');
+          return data;
+        }
       }
       
       return data;

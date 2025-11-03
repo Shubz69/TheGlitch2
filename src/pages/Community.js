@@ -506,6 +506,49 @@ const Community = () => {
         }
     }, [isAuthenticated]);
 
+    // Check subscription status
+    const checkSubscription = () => {
+        const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
+        const subscriptionExpiry = localStorage.getItem('subscriptionExpiry');
+        
+        if (hasActiveSubscription && subscriptionExpiry) {
+            const expiryDate = new Date(subscriptionExpiry);
+            if (expiryDate > new Date()) {
+                return true; // Active subscription
+            } else {
+                // Subscription expired
+                localStorage.removeItem('hasActiveSubscription');
+                localStorage.removeItem('subscriptionExpiry');
+                return false;
+            }
+        }
+        return false;
+    };
+
+    // Check subscription before allowing access to community
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        
+        const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
+        const isAdmin = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin';
+        
+        // Admins bypass subscription requirement
+        if (isAdmin) {
+            return;
+        }
+        
+        // Check if user has active subscription
+        const hasActiveSubscription = checkSubscription();
+        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+        
+        if (!hasActiveSubscription && !pendingSubscription) {
+            // No subscription - redirect to subscription page
+            console.log("No active subscription - redirecting to subscription page");
+            navigate('/subscription');
+            return;
+        }
+    }, [isAuthenticated, navigate]);
+
     // Initialize component
     useEffect(() => {
         console.log("===========================");
@@ -521,6 +564,24 @@ const Community = () => {
         console.log("Is authenticated:", tokenIsValid);
         console.log("User object:", storedUserData);
         console.log("===========================");
+
+        if (!tokenIsValid) {
+            console.log("User not authenticated, redirecting to login");
+            navigate('/login');
+            return;
+        }
+        
+        // Check subscription (admins bypass)
+        const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
+        const isAdmin = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin';
+        const hasActiveSubscription = checkSubscription();
+        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+        
+        if (!isAdmin && !hasActiveSubscription && !pendingSubscription) {
+            console.log("No active subscription, redirecting to subscription page");
+            navigate('/subscription');
+            return;
+        }
 
         if (tokenIsValid) {
             // Ensure user has a displayable name
@@ -570,9 +631,6 @@ const Community = () => {
             console.log("Total messages:", enhancedUser.totalMessages);
             console.log("User is admin:", userIsAdmin);
             console.log("User role:", storedUserData.role);
-        } else {
-            console.log("User not authenticated, redirecting to login");
-            navigate('/login');
         }
     }, [navigate]);
 

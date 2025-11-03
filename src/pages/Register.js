@@ -77,7 +77,10 @@ const Register = () => {
 
             await Api.register(submitData);
 
-            // Registration successful - user is automatically logged in
+            // Registration successful - mark as new signup and redirect to subscription
+            localStorage.setItem('pendingSubscription', 'true');
+            localStorage.setItem('newSignup', 'true');
+            
             toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
                 position: "top-center",
                 autoClose: 3000,
@@ -86,22 +89,10 @@ const Register = () => {
                 pauseOnHover: true,
                 draggable: true,
             });
-
-            // Show welcome message after a brief delay
-            setTimeout(() => {
-                toast.info('💬 Check your Messages to chat with Admin anytime!', {
-                    position: "top-center",
-                    autoClose: 4000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                });
-            }, 1000);
             
-            // Redirect to community page after short delay
+            // Redirect to subscription page (first month free, then £99/month)
             setTimeout(() => {
-                navigate('/community');
+                navigate('/subscription');
             }, 1500);
         } catch (err) {
             console.error('Registration error:', err);

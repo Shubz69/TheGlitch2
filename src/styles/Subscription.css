@@ -1,0 +1,189 @@
+.subscription-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: #0a0a1a;
+    position: relative;
+}
+
+.subscription-card {
+    background: linear-gradient(135deg, rgba(26, 15, 46, 0.95), rgba(37, 26, 58, 0.95));
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.3),
+        0 0 60px rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    z-index: 10;
+    position: relative;
+}
+
+.subscription-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.subscription-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8B5CF6;
+    margin-bottom: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.subscription-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.subscription-content {
+    margin-bottom: 32px;
+}
+
+.subscription-benefits {
+    margin-bottom: 32px;
+}
+
+.subscription-benefits h2 {
+    color: #8B5CF6;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.subscription-benefits ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.subscription-benefits li {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 10px 0;
+    font-size: 0.95rem;
+    font-family: 'Space Grotesk', sans-serif;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.subscription-benefits li:last-child {
+    border-bottom: none;
+}
+
+.subscription-pricing {
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.pricing-highlight {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.pricing-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.pricing-amount {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8B5CF6;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.pricing-regular {
+    margin-bottom: 12px;
+}
+
+.pricing-note {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin-top: 16px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.subscription-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ff6b6b;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+}
+
+.subscription-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.subscribe-button {
+    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', sans-serif;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.subscribe-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #9f70f8, #7c7ff3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.subscribe-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.skip-button {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.skip-button:hover {
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .subscription-card {
+        padding: 32px 24px;
+    }
+
+    .subscription-header h1 {
+        font-size: 1.5rem;
+    }
+}
