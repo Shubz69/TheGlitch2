@@ -4,6 +4,8 @@ const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'your_stripe_key_here');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+const sqlite3 = require('better-sqlite3');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -16,6 +18,36 @@ const transporter = nodemailer.createTransporter({
     pass: process.env.EMAIL_PASS || 'your-app-password'
   }
 });
+
+// Database setup
+let db;
+try {
+  db = sqlite3('data.sqlite3');
+  console.log('Connected to SQLite database');
+  
+  // Create reset_codes table if it doesn't exist
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS reset_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER DEFAULT (strftime('%s', 'now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_reset_codes_email ON reset_codes(email);
+    CREATE INDEX IF NOT EXISTS idx_reset_codes_expires ON reset_codes(expires_at);
+  `);
+  
+  // Clean up expired codes on startup
+  const expiredCount = db.prepare('DELETE FROM reset_codes WHERE expires_at < ?').run(Date.now()).changes;
+  if (expiredCount > 0) {
+    console.log(`Cleaned up ${expiredCount} expired reset codes`);
+  }
+} catch (error) {
+  console.error('Database connection error:', error);
+  console.warn('Password reset will use in-memory storage (codes will be lost on restart)');
+  db = null;
+}
 
 // Middleware
 app.use(express.json());
@@ -127,8 +159,8 @@ app.post('/api/contact', async (req, res) => {
 });
 
 // Password Reset Endpoints
-// Store reset codes in memory (in production, use Redis or database)
-const resetCodes = new Map(); // email -> { code, expiresAt }
+// Use database if available, otherwise fallback to in-memory storage
+const resetCodes = new Map(); // email -> { code, expiresAt } (fallback)
 
 // Generate 6-digit code
 const generateResetCode = () => {
@@ -150,12 +182,22 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     // Generate 6-digit code
     const resetCode = generateResetCode();
     const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
+    const emailLower = email.toLowerCase();
     
-    // Store code
-    resetCodes.set(email.toLowerCase(), {
-      code: resetCode,
-      expiresAt: expiresAt
-    });
+    // Store code in database or memory
+    if (db) {
+      // Delete any existing codes for this email
+      db.prepare('DELETE FROM reset_codes WHERE email = ?').run(emailLower);
+      // Insert new code
+      db.prepare('INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)')
+        .run(emailLower, resetCode, expiresAt);
+    } else {
+      // Fallback to in-memory storage
+      resetCodes.set(emailLower, {
+        code: resetCode,
+        expiresAt: expiresAt
+      });
+    }
     
     // Send email with reset code
     const mailOptions = {
@@ -202,28 +244,60 @@ app.post('/api/auth/verify-reset-code', async (req, res) => {
       });
     }
     
-    const stored = resetCodes.get(email.toLowerCase());
+    const emailLower = email.toLowerCase();
+    let stored;
     
-    if (!stored) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid or expired code' 
-      });
-    }
-    
-    if (Date.now() > stored.expiresAt) {
-      resetCodes.delete(email.toLowerCase());
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Code has expired' 
-      });
-    }
-    
-    if (stored.code !== code) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid code' 
-      });
+    // Retrieve code from database or memory
+    if (db) {
+      const row = db.prepare('SELECT * FROM reset_codes WHERE email = ? AND code = ? ORDER BY created_at DESC LIMIT 1')
+        .get(emailLower, code);
+      
+      if (!row) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid code' 
+        });
+      }
+      
+      if (Date.now() > row.expires_at) {
+        db.prepare('DELETE FROM reset_codes WHERE email = ?').run(emailLower);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Code has expired' 
+        });
+      }
+      
+      stored = { code: row.code, expiresAt: row.expires_at };
+      // Delete used code
+      db.prepare('DELETE FROM reset_codes WHERE email = ?').run(emailLower);
+    } else {
+      // Fallback to in-memory storage
+      stored = resetCodes.get(emailLower);
+      
+      if (!stored) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid or expired code' 
+        });
+      }
+      
+      if (Date.now() > stored.expiresAt) {
+        resetCodes.delete(emailLower);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Code has expired' 
+        });
+      }
+      
+      if (stored.code !== code) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Invalid code' 
+        });
+      }
+      
+      // Remove used code
+      resetCodes.delete(emailLower);
     }
     
     // Generate reset token (JWT-like token for password reset)
@@ -232,9 +306,6 @@ app.post('/api/auth/verify-reset-code', async (req, res) => {
       code: code,
       expiresAt: Date.now() + (15 * 60 * 1000) // 15 minutes
     })).toString('base64');
-    
-    // Remove used code
-    resetCodes.delete(email.toLowerCase());
     
     res.json({ 
       success: true, 
@@ -288,9 +359,37 @@ app.post('/api/auth/reset-password', async (req, res) => {
       });
     }
     
-    // In a real app, update password in database here
-    // For now, just return success
-    console.log(`Password reset for ${tokenData.email} - password updated`);
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    
+    // Update password in database
+    if (db) {
+      // Check if users table exists
+      const tableExists = db.prepare(`
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='users'
+      `).get();
+      
+      if (tableExists) {
+        // Update user password
+        const result = db.prepare('UPDATE users SET password = ? WHERE email = ?')
+          .run(hashedPassword, tokenData.email.toLowerCase());
+        
+        if (result.changes === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'User not found' 
+          });
+        }
+        
+        console.log(`Password reset for ${tokenData.email} - password updated in database`);
+      } else {
+        console.warn('Users table not found - password reset logged but not saved');
+      }
+    } else {
+      console.log(`Password reset for ${tokenData.email} - password would be updated (database not connected)`);
+    }
     
     res.json({ 
       success: true, 
@@ -310,13 +409,41 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+// Cleanup expired codes periodically (every hour)
+if (db) {
+  setInterval(() => {
+    try {
+      const expiredCount = db.prepare('DELETE FROM reset_codes WHERE expires_at < ?').run(Date.now()).changes;
+      if (expiredCount > 0) {
+        console.log(`Cleaned up ${expiredCount} expired reset codes`);
+      }
+    } catch (error) {
+      console.error('Error cleaning up expired codes:', error);
+    }
+  }, 60 * 60 * 1000); // Every hour
+}
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  if (db) {
+    console.log('✓ Database connected - reset codes will persist');
+  } else {
+    console.log('⚠ Database not connected - using in-memory storage');
+  }
 });
 
 // To use this server:
-// 1. Install required packages: npm install express cors stripe
-// 2. Save this file as server.js in your project root
-// 3. Replace 'your_stripe_secret_key' with your actual Stripe secret key
-// 4. Run with: node server.js 
+// 1. Install required packages: npm install express cors stripe nodemailer bcrypt better-sqlite3
+// 2. Set environment variables:
+//    - EMAIL_USER: Your email address
+//    - EMAIL_PASS: Your email app password
+//    - STRIPE_SECRET_KEY: Your Stripe secret key
+// 3. Save this file as server.js in your project root
+// 4. Run with: node server.js
+//
+// Password Reset Features:
+// - Stores reset codes in SQLite database (data.sqlite3)
+// - Codes expire after 10 minutes
+// - Passwords are hashed with bcrypt before storage
+// - Automatic cleanup of expired codes
