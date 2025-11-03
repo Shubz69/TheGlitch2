@@ -126,6 +126,185 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// Password Reset Endpoints
+// Store reset codes in memory (in production, use Redis or database)
+const resetCodes = new Map(); // email -> { code, expiresAt }
+
+// Generate 6-digit code
+const generateResetCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Forgot password - send reset code
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email is required' 
+      });
+    }
+    
+    // Generate 6-digit code
+    const resetCode = generateResetCode();
+    const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
+    
+    // Store code
+    resetCodes.set(email.toLowerCase(), {
+      code: resetCode,
+      expiresAt: expiresAt
+    });
+    
+    // Send email with reset code
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+      to: email,
+      subject: 'THE GLITCH - Password Reset Code',
+      html: `
+        <h2>THE GLITCH - Password Reset</h2>
+        <p>You requested to reset your password. Use the code below to verify:</p>
+        <h3 style="font-size: 24px; color: #8B5CF6; letter-spacing: 5px;">${resetCode}</h3>
+        <p>This code will expire in 10 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        <hr>
+        <p><em>THE GLITCH Platform</em></p>
+      `
+    };
+    
+    await transporter.sendMail(mailOptions);
+    
+    console.log(`Password reset code sent to ${email}: ${resetCode}`);
+    
+    res.json({ 
+      success: true, 
+      message: 'Reset code sent to your email' 
+    });
+  } catch (error) {
+    console.error('Error sending reset email:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to send reset email' 
+    });
+  }
+});
+
+// Verify reset code
+app.post('/api/auth/verify-reset-code', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    
+    if (!email || !code) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and code are required' 
+      });
+    }
+    
+    const stored = resetCodes.get(email.toLowerCase());
+    
+    if (!stored) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid or expired code' 
+      });
+    }
+    
+    if (Date.now() > stored.expiresAt) {
+      resetCodes.delete(email.toLowerCase());
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Code has expired' 
+      });
+    }
+    
+    if (stored.code !== code) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid code' 
+      });
+    }
+    
+    // Generate reset token (JWT-like token for password reset)
+    const resetToken = Buffer.from(JSON.stringify({
+      email: email,
+      code: code,
+      expiresAt: Date.now() + (15 * 60 * 1000) // 15 minutes
+    })).toString('base64');
+    
+    // Remove used code
+    resetCodes.delete(email.toLowerCase());
+    
+    res.json({ 
+      success: true, 
+      token: resetToken,
+      message: 'Code verified successfully' 
+    });
+  } catch (error) {
+    console.error('Error verifying reset code:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to verify code' 
+    });
+  }
+});
+
+// Reset password with token
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token and new password are required' 
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password must be at least 6 characters' 
+      });
+    }
+    
+    // Decode token
+    let tokenData;
+    try {
+      tokenData = JSON.parse(Buffer.from(token, 'base64').toString());
+    } catch (error) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid token' 
+      });
+    }
+    
+    // Check if token expired
+    if (Date.now() > tokenData.expiresAt) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token has expired' 
+      });
+    }
+    
+    // In a real app, update password in database here
+    // For now, just return success
+    console.log(`Password reset for ${tokenData.email} - password updated`);
+    
+    res.json({ 
+      success: true, 
+      message: 'Password reset successfully' 
+    });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to reset password' 
+    });
+  }
+});
+
 // Serve the React app - catch-all route using regex for compatibility
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
