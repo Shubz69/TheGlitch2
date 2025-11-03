@@ -13,8 +13,8 @@ import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrow
 import { BsStars } from 'react-icons/bs';
 import { RiAdminFill } from 'react-icons/ri';
 
-// Set this to true to use mock data instead of real API calls
-const MOCK_MODE = true;
+// Set this to false to use real API calls only
+const MOCK_MODE = false;
 
 // Emojis array for the emoji picker
 const emojis = [
@@ -563,18 +563,16 @@ const Community = () => {
                     return;
                 }
             } catch (apiError) {
-                console.log('Backend API not available, trying localStorage fallback:', apiError.message);
-                // Fall through to localStorage fallback
-            }
-            
-            // Fallback: Load from localStorage if API fails
-            const storedMessages = loadMessagesFromStorage(channelId);
-            if (storedMessages.length > 0) {
-                console.log(`Loaded ${storedMessages.length} messages from localStorage for channel ${channelId}`);
-                setMessages(storedMessages);
-            } else {
-                console.log(`No messages found for channel ${channelId}`);
-                setMessages([]);
+                console.error('Failed to fetch messages from API:', apiError);
+                // Only use localStorage as last resort cache if API completely fails
+                const storedMessages = loadMessagesFromStorage(channelId);
+                if (storedMessages.length > 0) {
+                    console.warn(`Using cached messages from localStorage (${storedMessages.length} messages) - API unavailable`);
+                    setMessages(storedMessages);
+                } else {
+                    console.warn('No cached messages found - API unavailable');
+                    setMessages([]);
+                }
             }
         } catch (error) {
             console.error('Error fetching messages:', error);
@@ -660,30 +658,64 @@ const Community = () => {
     useEffect(() => {
         if (!isAuthenticated) return;
         
-        // Always use mock data for channels
-        const mockChannels = MOCK_DATA.channels.map(channel => ({
-            ...channel,
-            memberCount: 0,
-            lastActivity: null,
-            unread: false,
-            locked: channel.accessLevel === 'admin-only'
-        }));
-        
-        console.log(`Loaded ${mockChannels.length} channels`);
-        setChannelList(mockChannels);
-        
-        // Load online users
-        setOnlineUsers(MOCK_DATA.onlineUsers);
-        
-        // Select first channel or channel from URL
-        if (channelIdParam) {
-            const channel = mockChannels.find(c => c.id === parseInt(channelIdParam));
-            if (channel) {
-                setSelectedChannel(channel);
+        const loadChannels = async () => {
+            try {
+                // Use real API to fetch channels
+                const response = await Api.getChannels();
+                if (response && response.data && Array.isArray(response.data)) {
+                    const apiChannels = response.data.map(channel => ({
+                        ...channel,
+                        memberCount: channel.memberCount || 0,
+                        lastActivity: channel.lastActivity || null,
+                        unread: false,
+                        locked: channel.accessLevel === 'admin-only'
+                    }));
+                    
+                    console.log(`Loaded ${apiChannels.length} channels from API`);
+                    setChannelList(apiChannels);
+                    
+                    // Select first channel or channel from URL
+                    if (channelIdParam) {
+                        const channel = apiChannels.find(c => c.id === parseInt(channelIdParam));
+                        if (channel) {
+                            setSelectedChannel(channel);
+                        }
+                    } else if (apiChannels.length > 0 && !selectedChannel) {
+                        setSelectedChannel(apiChannels[0]);
+                    }
+                    return;
+                }
+            } catch (apiError) {
+                console.warn('Failed to fetch channels from API, using mock data fallback:', apiError.message);
             }
-        } else if (mockChannels.length > 0 && !selectedChannel) {
-            setSelectedChannel(mockChannels[0]);
-        }
+            
+            // Fallback to mock data only if API fails
+            const mockChannels = MOCK_DATA.channels.map(channel => ({
+                ...channel,
+                memberCount: 0,
+                lastActivity: null,
+                unread: false,
+                locked: channel.accessLevel === 'admin-only'
+            }));
+            
+            console.log(`Loaded ${mockChannels.length} mock channels as fallback`);
+            setChannelList(mockChannels);
+            
+            // Load online users
+            setOnlineUsers(MOCK_DATA.onlineUsers);
+            
+            // Select first channel or channel from URL
+            if (channelIdParam) {
+                const channel = mockChannels.find(c => c.id === parseInt(channelIdParam));
+                if (channel) {
+                    setSelectedChannel(channel);
+                }
+            } else if (mockChannels.length > 0 && !selectedChannel) {
+                setSelectedChannel(mockChannels[0]);
+            }
+        };
+        
+        loadChannels();
     }, [isAuthenticated, channelIdParam, selectedChannel]);
 
     // Load messages when channel changes
@@ -775,9 +807,12 @@ const Community = () => {
                     console.log('Message sent (back-end format may differ, using optimistic update)');
                 }
             } catch (apiError) {
-                console.warn('Failed to save message to backend, using localStorage only:', apiError.message);
-                // Still save to localStorage as fallback
-                saveMessagesToStorage(selectedChannel.id, updatedMessages);
+                console.error('Failed to save message to backend:', apiError);
+                // Show error to user
+                alert('Failed to send message. Please check your connection and try again.');
+                // Remove optimistic message on error
+                setMessages(messages);
+                return;
             }
             
             // ***** AWARD XP FOR SENDING MESSAGE *****

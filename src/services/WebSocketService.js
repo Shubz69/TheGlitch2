@@ -12,21 +12,23 @@ class WebSocketService {
         this.encryptionKey = process.env.REACT_APP_ENCRYPTION_KEY || 'default-encryption-key';
     }
 
-    connect(endpoint = process.env.REACT_APP_API_URL + '/ws', callback = () => {}) {
+    connect(endpoint = null, callback = () => {}) {
+        const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
+        const wsEndpoint = endpoint || `${API_BASE_URL}/ws`;
         if (this.isConnected) {
             console.log('WebSocket already connected');
             callback();
             return;
         }
 
-        const socket = new SockJS(endpoint);
+        const socket = new SockJS(wsEndpoint);
         this.stompClient = Stomp.over(socket);
         
         // Disable debug logs
         this.stompClient.debug = () => {};
 
         this.stompClient.connect({}, () => {
-            console.log('WebSocket connected');
+            console.log('WebSocket connected to:', wsEndpoint);
             this.isConnected = true;
             callback();
         }, (error) => {
