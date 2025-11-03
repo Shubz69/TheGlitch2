@@ -75,6 +75,27 @@ const getDbConnection = async () => {
   }
 };
 
+// Check if user exists in database
+const checkUserExists = async (email) => {
+  const db = await getDbConnection();
+  if (!db) {
+    return null; // Can't check if DB not available
+  }
+
+  try {
+    const [users] = await db.execute(
+      'SELECT id, email FROM users WHERE email = ? LIMIT 1',
+      [email.toLowerCase()]
+    );
+    await db.end();
+    return users.length > 0;
+  } catch (error) {
+    console.error('Error checking if user exists:', error.message);
+    await db.end();
+    return null; // Return null on error (don't reveal if email exists)
+  }
+};
+
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -104,29 +125,49 @@ module.exports = async (req, res) => {
       });
     }
 
+    const emailLower = email.toLowerCase();
+
+    // Check if user exists in database
+    const userExists = await checkUserExists(emailLower);
+    
+    if (userExists === false) {
+      // User definitely doesn't exist
+      return res.status(404).json({
+        success: false,
+        message: 'This email does not exist in our system. Please check your email address or sign up for a new account.'
+      });
+    }
+    
+    // If userExists is null (can't check), proceed anyway for security (don't reveal if email exists)
+    if (userExists === true) {
+      console.log(`User found for ${emailLower}, proceeding with password reset`);
+    }
+
     // Generate 6-digit code
     const resetCode = generateResetCode();
     const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
-    const emailLower = email.toLowerCase();
 
     // Store code in MySQL database
-    const db = await getDbConnection();
     if (db) {
       try {
-        // Delete any existing codes for this email
-        await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
-        
-        // Insert new code
-        await db.execute(
-          'INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)',
-          [emailLower, resetCode, expiresAt]
-        );
-        
-        await db.end();
-        console.log(`Reset code stored in database for ${emailLower}`);
+        // Reconnect if connection was closed
+        const dbConnection = db.ended ? await getDbConnection() : db;
+        if (dbConnection) {
+          // Delete any existing codes for this email
+          await dbConnection.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+          
+          // Insert new code
+          await dbConnection.execute(
+            'INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)',
+            [emailLower, resetCode, expiresAt]
+          );
+          
+          await dbConnection.end();
+          console.log(`Reset code stored in database for ${emailLower}`);
+        }
       } catch (dbError) {
         console.error('Database error storing reset code:', dbError.message);
-        await db.end();
+        if (!db.ended) await db.end();
         // Continue with email sending even if DB fails (fallback to in-memory)
       }
     } else {
