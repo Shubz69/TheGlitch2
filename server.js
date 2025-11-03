@@ -168,7 +168,8 @@ const generateResetCode = () => {
 };
 
 // Forgot password - send reset code
-app.post('/api/auth/forgot-password', async (req, res) => {
+// Handle both /api/auth/forgot-password and /forgot-password for compatibility
+app.post(['/api/auth/forgot-password', '/forgot-password'], async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -233,7 +234,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 });
 
 // Verify reset code
-app.post('/api/auth/verify-reset-code', async (req, res) => {
+app.post(['/api/auth/verify-reset-code', '/verify-reset-code'], async (req, res) => {
   try {
     const { email, code } = req.body;
     
@@ -322,7 +323,7 @@ app.post('/api/auth/verify-reset-code', async (req, res) => {
 });
 
 // Reset password with token
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post(['/api/auth/reset-password', '/reset-password'], async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     
