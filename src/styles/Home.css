@@ -38,7 +38,7 @@ body, html {
     align-items: center !important;
     justify-content: center !important;
     z-index: 99999 !important;
-    animation: fadeOut 0.5s ease-out 9.5s forwards;
+    animation: fadeOut 0.5s ease-out 2.5s forwards;
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;

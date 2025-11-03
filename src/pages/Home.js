@@ -32,7 +32,7 @@ const Home = () => {
             setTimeout(() => {
                 setShowContent(true);
             }, 500); // Small delay for smooth transition
-        }, 10000); // 10 second loading screen
+        }, 3000); // 3 second loading screen
 
         return () => {
             clearTimeout(loadingTimer);
