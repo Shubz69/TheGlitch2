@@ -196,7 +196,10 @@ const mockRegister = async (userData) => {
 const PUBLIC_ENDPOINTS = [
     '/api/courses',
     '/api/auth/login',
-    '/api/auth/register'
+    '/api/auth/register',
+    '/api/auth/forgot-password',
+    '/api/auth/verify-reset-code',
+    '/api/auth/reset-password'
 ];
 
 // Helper function to check if a URL is public
@@ -663,6 +666,8 @@ const Api = {
             const status = apiError.response.status;
             if (status === 404) {
                 throw new Error('Email not found. Please check your email address or register for a new account.');
+            } else if (status === 405) {
+                throw new Error('Password reset endpoint is not configured correctly on the server. Please contact support.');
             } else if (status === 429) {
                 throw new Error('Too many requests. Please wait a few minutes before trying again.');
             } else if (status === 500) {
