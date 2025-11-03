@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -40,14 +40,26 @@ import GDPRModal from './components/GDPRModal';
 function AppRoutes() {
     const { user, loading } = useAuth();
     const showChatbot = true;
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
 
     const [showGDPR, setShowGDPR] = useState(false);
+    
     useEffect(() => {
         const accepted = localStorage.getItem("gdprAccepted");
         if (!accepted) {
-            setShowGDPR(true);
+            // If on home page, delay GDPR modal to show after loading screen (3 seconds)
+            // Otherwise show immediately
+            if (isHomePage) {
+                const gdprTimer = setTimeout(() => {
+                    setShowGDPR(true);
+                }, 3500); // Show 0.5 seconds after loading screen ends
+                return () => clearTimeout(gdprTimer);
+            } else {
+                setShowGDPR(true);
+            }
         }
-    }, []);
+    }, [isHomePage]);
     const handleAgreeGDPR = () => {
         localStorage.setItem("gdprAccepted", "true");
         setShowGDPR(false);
