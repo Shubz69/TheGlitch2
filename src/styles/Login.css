@@ -218,6 +218,35 @@
     transform: translateY(-1px);
 }
 
+.link-button {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.link-button:hover:not(:disabled) {
+    color: var(--secondary);
+}
+
+.link-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.email-sent {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
 /* Error message */
 .error-message {
     background: rgba(239, 68, 68, 0.1);
