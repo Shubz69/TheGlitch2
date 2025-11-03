@@ -1,5 +1,6 @@
 // Vercel serverless function for reset password
 const bcrypt = require('bcrypt');
+const mysql = require('mysql2/promise');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -69,46 +70,84 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Update password in the main backend database
-    // Try to call the main backend API if it has a password update endpoint
-    const backendUrl = process.env.BACKEND_URL || 'https://theglitch.world';
-    
-    try {
-      // Attempt to update password via main backend API
-      const fetch = require('node-fetch');
-      const updateResponse = await fetch(`${backendUrl}/api/auth/update-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: tokenData.email,
-          password: hashedPassword
-        })
-      });
+    // Update password in the database
+    // Try MySQL connection first (for Java backend database)
+    let passwordUpdated = false;
 
-      if (updateResponse.ok) {
-        console.log(`Password reset for ${tokenData.email} - updated via backend API`);
-        return res.status(200).json({
-          success: true,
-          message: 'Password reset successfully'
+    // Try MySQL database connection
+    if (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_PASSWORD && process.env.MYSQL_DATABASE) {
+      try {
+        const connection = await mysql.createConnection({
+          host: process.env.MYSQL_HOST,
+          user: process.env.MYSQL_USER,
+          password: process.env.MYSQL_PASSWORD,
+          database: process.env.MYSQL_DATABASE,
+          ssl: process.env.MYSQL_SSL === 'true' ? {} : false
         });
+
+        // Update password in users table
+        const [result] = await connection.execute(
+          'UPDATE users SET password = ? WHERE email = ?',
+          [hashedPassword, tokenData.email.toLowerCase()]
+        );
+
+        await connection.end();
+
+        if (result.affectedRows > 0) {
+          console.log(`Password reset for ${tokenData.email} - updated in MySQL database`);
+          passwordUpdated = true;
+        } else {
+          console.warn(`Password reset for ${tokenData.email} - user not found in database`);
+          return res.status(404).json({
+            success: false,
+            message: 'User not found'
+          });
+        }
+      } catch (dbError) {
+        console.error('MySQL update error:', dbError.message);
+        // Continue to try backend API as fallback
       }
-    } catch (backendError) {
-      console.warn('Could not update password via backend API, password has been hashed but not saved:', backendError.message);
-      // Continue to return success - password is hashed but needs to be saved
-      // The backend should implement /api/auth/update-password endpoint
     }
 
-    // If backend update failed or endpoint doesn't exist, log for manual update
-    console.log(`Password reset for ${tokenData.email} - password hashed: ${hashedPassword.substring(0, 20)}...`);
-    console.warn('IMPORTANT: Password has been hashed but NOT saved to database. Backend needs /api/auth/update-password endpoint.');
+    // Fallback: Try backend API endpoint
+    if (!passwordUpdated) {
+      try {
+        const backendUrl = process.env.BACKEND_URL || 'https://theglitch.world';
+        const fetch = require('node-fetch');
+        
+        const updateResponse = await fetch(`${backendUrl}/api/auth/update-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: tokenData.email,
+            password: hashedPassword
+          })
+        });
 
-    // Still return success - user gets confirmation, but password needs to be manually updated in DB
+        if (updateResponse.ok) {
+          console.log(`Password reset for ${tokenData.email} - updated via backend API`);
+          passwordUpdated = true;
+        }
+      } catch (backendError) {
+        console.error('Backend API update error:', backendError.message);
+      }
+    }
+
+    // If still not updated, return error
+    if (!passwordUpdated) {
+      console.error(`CRITICAL: Password reset for ${tokenData.email} - password hashed but NOT saved to database`);
+      return res.status(500).json({
+        success: false,
+        message: 'Password reset failed. Database connection unavailable. Please contact support.'
+      });
+    }
+
+    // Success - password updated in database
     return res.status(200).json({
       success: true,
-      message: 'Password reset successfully',
-      warning: 'Password hash generated. If login fails, backend needs to implement password update endpoint.'
+      message: 'Password reset successfully'
     });
   } catch (error) {
     console.error('Error resetting password:', error);
