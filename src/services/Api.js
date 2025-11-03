@@ -199,7 +199,9 @@ const PUBLIC_ENDPOINTS = [
     '/api/auth/register',
     '/api/auth/forgot-password',
     '/api/auth/verify-reset-code',
-    '/api/auth/reset-password'
+    '/api/auth/reset-password',
+    '/api/auth/send-signup-verification',
+    '/api/auth/verify-signup-code'
 ];
 
 // Helper function to check if a URL is public
@@ -712,6 +714,92 @@ const Api = {
         } catch (apiError) {
             console.error('Failed to reset password:', apiError);
             throw new Error(apiError.response?.data?.message || 'Invalid or expired token');
+        }
+    },
+
+    // Signup email verification methods
+    sendSignupVerificationEmail: async (email) => {
+        try {
+            console.log('Sending signup verification email request to:', `${API_BASE_URL}/api/auth/send-signup-verification`);
+            
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout: 15000 // 15 second timeout
+            };
+            
+            const response = await axios.post(`${API_BASE_URL}/api/auth/send-signup-verification`, { email }, config);
+            console.log('Signup verification email response:', response.data);
+            
+            // Check various response formats
+            if (response.data && (response.data.success === true || response.data.success === false)) {
+                return response.data.success;
+            }
+            
+            // If response has message but no explicit success flag, assume success
+            if (response.data && response.data.message) {
+                return true;
+            }
+            
+            // If response status is 200, assume success
+            if (response.status === 200) {
+                return true;
+            }
+            
+            return false;
+        } catch (apiError) {
+            console.error('Failed to send signup verification email:', apiError);
+            
+            // Handle network errors
+            if (!apiError.response) {
+                if (apiError.code === 'ERR_NETWORK' || apiError.message.includes('Network Error')) {
+                    throw new Error('Unable to connect to server. Please check your internet connection and try again.');
+                } else if (apiError.message.includes('timeout')) {
+                    throw new Error('Request timed out. Please try again.');
+                } else {
+                    throw new Error('Unable to reach server. Please try again later.');
+                }
+            }
+            
+            // Handle HTTP error responses
+            const status = apiError.response.status;
+            
+            // Always check for server-provided error messages first
+            if (apiError.response?.data?.message) {
+                throw new Error(apiError.response.data.message);
+            }
+            
+            // Fallback to status-specific messages
+            if (status === 400) {
+                throw new Error('Invalid email address. Please check and try again.');
+            } else if (status === 409) {
+                throw new Error('An account with this email already exists. Please sign in instead.');
+            } else if (status === 429) {
+                throw new Error('Too many requests. Please wait a few minutes before trying again.');
+            } else if (status === 500) {
+                throw new Error('Server error. Please try again later.');
+            } else {
+                throw new Error('Failed to send verification email. Please try again.');
+            }
+        }
+    },
+
+    verifySignupCode: async (email, code) => {
+        try {
+            // Use real API only - no mock fallback for production
+            const response = await axios.post(`${API_BASE_URL}/api/auth/verify-signup-code`, { email, code });
+            if (response.data && (response.data.verified === true || response.data.success === true)) {
+                return {
+                    verified: true,
+                    token: response.data.token || null
+                };
+            }
+            throw new Error('Invalid or expired code');
+        } catch (apiError) {
+            console.error('Failed to verify signup code:', apiError);
+            throw new Error(apiError.response?.data?.message || 'Invalid or expired code');
         }
     },
 
