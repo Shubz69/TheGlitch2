@@ -1,10 +1,17 @@
 // Vercel serverless function for verify reset code
 // Note: This uses in-memory storage. For production, use Vercel KV or database.
 
-// Shared reset codes storage (in production, use Vercel KV)
-// This is a workaround - codes won't persist across serverless invocations
-// For production, integrate with Vercel KV or your database
-const resetCodes = require('./reset-codes-store');
+// Shared reset codes storage - use global object for serverless functions
+// This won't persist across different serverless instances or regions
+// For production, integrate with Vercel KV, Vercel Postgres, or your database
+let resetCodes = new Map();
+
+if (typeof global !== 'undefined') {
+  if (!global.resetCodesStore) {
+    global.resetCodesStore = new Map();
+  }
+  resetCodes = global.resetCodesStore;
+}
 
 export default async function handler(req, res) {
   // Handle CORS

@@ -15,9 +15,18 @@ const generateResetCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Store reset codes - using Vercel KV or environment cache
-// For production, use Vercel KV or a database
-const resetCodes = new Map(); // In-memory cache (use KV/DB in production)
+// Store reset codes - shared module for serverless functions
+// Note: This won't persist across different serverless instances
+// For production, use Vercel KV, Vercel Postgres, or your database
+let resetCodes = new Map();
+
+// Export for use in other functions (serverless functions in same region may share this)
+if (typeof global !== 'undefined') {
+  if (!global.resetCodesStore) {
+    global.resetCodesStore = new Map();
+  }
+  resetCodes = global.resetCodesStore;
+}
 
 export default async function handler(req, res) {
   // Handle CORS
