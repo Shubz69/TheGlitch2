@@ -8,5 +8,5 @@
     "api/auth/*.js": {
       "maxDuration": 30
     }
-  },
+  }
 }
