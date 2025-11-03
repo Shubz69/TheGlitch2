@@ -672,7 +672,7 @@ const Api = {
             
             // Fallback to status-specific messages if no custom message
             if (status === 404) {
-                throw new Error('Email not found. Please check your email address or register for a new account.');
+                throw new Error('This email does not exist in our system. Please check your email address or sign up for a new account.');
             } else if (status === 405) {
                 throw new Error('Password reset endpoint is not configured correctly on the server. Please contact support.');
             } else if (status === 429) {
