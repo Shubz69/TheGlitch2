@@ -604,20 +604,34 @@ const Api = {
             console.error('Error response:', apiError.response);
             console.error('Error status:', apiError.response?.status);
             console.error('Error data:', apiError.response?.data);
+            console.error('Error message:', apiError.message);
             
-            // Provide more specific error messages
-            if (apiError.response?.status === 404) {
+            // Handle network errors (no response from server)
+            if (!apiError.response) {
+                if (apiError.code === 'ERR_NETWORK' || apiError.message.includes('Network Error')) {
+                    throw new Error('Network error. Please check your internet connection and try again.');
+                } else if (apiError.message.includes('timeout')) {
+                    throw new Error('Request timed out. Please try again.');
+                } else {
+                    throw new Error('Unable to reach server. Please try again later.');
+                }
+            }
+            
+            // Handle HTTP error responses
+            const status = apiError.response.status;
+            if (status === 404) {
                 throw new Error('Email not found. Please check your email address or register for a new account.');
-            } else if (apiError.response?.status === 429) {
+            } else if (status === 429) {
                 throw new Error('Too many requests. Please wait a few minutes before trying again.');
-            } else if (apiError.response?.status === 500) {
+            } else if (status === 500) {
                 throw new Error('Server error. Please try again later.');
+            } else if (status === 400) {
+                const message = apiError.response?.data?.message || 'Invalid request. Please check your email address.';
+                throw new Error(message);
             } else if (apiError.response?.data?.message) {
                 throw new Error(apiError.response.data.message);
-            } else if (apiError.message) {
-                throw new Error(apiError.message);
             } else {
-                throw new Error('Failed to send reset email. Please check your connection and try again.');
+                throw new Error(`Failed to send reset email (Status: ${status}). Please try again.`);
             }
         }
     },
