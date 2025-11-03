@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
 import "../styles/Chatbot.css";
 
 const Chatbot = () => {
+    const { isAuthenticated, user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
@@ -21,15 +23,19 @@ const Chatbot = () => {
 
     useEffect(() => {
         if (isOpen) {
+            const welcomeMessage = isAuthenticated 
+                ? `👋 Welcome back, ${user?.username || user?.name || 'there'}! I'm THE GLITCH AI assistant. I can answer any questions you have about trading, courses, your account, or anything else. Choose a question below or type your own!`
+                : "👋 Welcome to <span className='glitch-brand' data-text='THE GLITCH'>THE GLITCH</span>! I can answer questions about our website. <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>Sign up</a> or <a href='/login' style='color: #8B5CF6; text-decoration: underline;'>log in</a> to unlock full chatbot capabilities and ask me anything!\nChoose a question or type your own.";
+            
             setMessages([
                 {
                     from: "bot",
-                    text: "👋 Welcome to <span className='glitch-brand' data-text='THE GLITCH'>THE GLITCH</span>! How can I help you today?\nChoose a question or type your own.",
+                    text: welcomeMessage,
                 },
             ]);
             setShowOptions(true);
         }
-    }, [isOpen]);
+    }, [isOpen, isAuthenticated, user]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,13 +51,31 @@ const Chatbot = () => {
         try {
             // Try to use the live API first
             const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://theglitch.world';
+            const token = localStorage.getItem('token');
+            
+            // Prepare headers - include auth token if user is logged in
+            const headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            };
+            
+            // Add auth token if user is logged in
+            if (isAuthenticated && token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+            
+            // Prepare request body with user context
+            const requestBody = {
+                message,
+                authenticated: isAuthenticated,
+                userId: user?.id || null,
+                userEmail: user?.email || null
+            };
+            
             const res = await fetch(`${API_BASE_URL}/api/chatbot`, {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({ message }),
+                headers: headers,
+                body: JSON.stringify(requestBody),
             });
 
             let replyText = "⚠️ The chatbot encountered an error. Please try again later.";
@@ -92,13 +116,50 @@ const Chatbot = () => {
         }
     };
 
-    // Improved fallback function with more comprehensive responses
+    // Improved fallback function with authentication-aware responses
     const getSimulatedResponse = (message) => {
         const msg = message.toLowerCase();
         
+        // If not logged in, only answer simple website questions
+        if (!isAuthenticated) {
+            // Greetings
+            if (msg.includes("hello") || msg.includes("hi ") || msg.includes("hey") || msg.match(/^hi$/) || msg.match(/^hey$/)) {
+                return "Hello! Welcome to THE GLITCH! 👋 I can answer questions about our website. <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>Sign up</a> or <a href='/login' style='color: #8B5CF6; text-decoration: underline;'>log in</a> to unlock full chatbot capabilities and ask me anything!";
+            }
+            
+            // Simple website info
+            if (msg.includes("what") && (msg.includes("glitch") || msg.includes("platform") || msg.includes("website"))) {
+                return "THE GLITCH is a trading education platform focused on building generational wealth through 8 wealth domains: Health & Fitness, E-Commerce, Forex, Crypto, Algorithmic FX, Intelligent Systems, Social Media, and Real Estate. <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>Sign up</a> to access our courses and community!";
+            }
+            
+            // Courses info
+            if (msg.includes("course") || msg.includes("learn")) {
+                return "We offer courses in 8 wealth-building domains. Visit our <a href='/courses' style='color: #8B5CF6; text-decoration: underline;'>Courses page</a> to see all available courses. <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>Sign up</a> to enroll!";
+            }
+            
+            // Pricing
+            if (msg.includes("price") || msg.includes("cost")) {
+                return "Our courses range from free to premium. Visit our <a href='/courses' style='color: #8B5CF6; text-decoration: underline;'>Courses page</a> to see pricing. <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>Create an account</a> to get started!";
+            }
+            
+            // Sign up/Login
+            if (msg.includes("sign up") || msg.includes("register") || msg.includes("create account") || msg.includes("join")) {
+                return "Great! You can <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>sign up here</a> to access all our courses and features. It only takes a minute!";
+            }
+            
+            // Contact
+            if (msg.includes("contact") || msg.includes("support") || msg.includes("help")) {
+                return "You can <a href='/contact-us' style='color: #8B5CF6; text-decoration: underline;'>contact our support team</a> or <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>sign up</a> to access the full chatbot that can answer any question!";
+            }
+            
+            // Default for non-logged in users
+            return "I can help with basic questions about THE GLITCH website. For advanced questions and personalized assistance, please <a href='/register' style='color: #8B5CF6; text-decoration: underline;'>sign up</a> or <a href='/login' style='color: #8B5CF6; text-decoration: underline;'>log in</a> to unlock full chatbot capabilities!";
+        }
+        
+        // If logged in, provide full responses - answer ANY question
         // Greetings
         if (msg.includes("hello") || msg.includes("hi ") || msg.includes("hey") || msg.match(/^hi$/) || msg.match(/^hey$/)) {
-            return "Hello! I'm THE GLITCH, your trading assistant. How can I help you today?";
+            return `Hello ${user?.username || user?.name || 'there'}! 👋 I'm THE GLITCH AI assistant. I can help you with any questions about trading, courses, your account, or anything else. What would you like to know?`;
         }
         
         // Course related queries
@@ -110,9 +171,9 @@ const Chatbot = () => {
                 return "Yes, our courses include video tutorials, interactive lessons, quizzes, and downloadable resources.";
             }
             if (msg.includes("track") || msg.includes("progress")) {
-                return "You can track your course progress in the 'My Courses' section after logging in. It shows completion percentage and which modules you've finished.";
+                return "You can track your course progress in the 'My Courses' section. It shows completion percentage and which modules you've finished.";
             }
-            return "We offer various trading courses from beginner to advanced levels. Popular options include Introduction to Trading (free), Technical Analysis ($49.99), and Advanced Options Trading ($79.99).";
+            return "We offer various trading courses from beginner to advanced levels across 8 wealth domains. Popular options include Introduction to Trading (free), Technical Analysis ($49.99), and Advanced Options Trading ($79.99).";
         }
         
         // Pricing related queries
@@ -128,27 +189,27 @@ const Chatbot = () => {
         
         // Platform features
         if (msg.includes("feature") || msg.includes("tool") || msg.includes("function")) {
-            return "THE GLITCH provides educational resources on various trading topics including stocks, forex, and cryptocurrencies. Our platform is focused on helping you learn trading strategies, not on providing direct trading capabilities. Is there something specific about THE GLITCH trading platform you'd like to know?";
+            return "THE GLITCH provides educational resources across 8 wealth domains: Health & Fitness, E-Commerce, Forex, Crypto, Algorithmic FX, Intelligent Systems, Social Media, and Real Estate. Our platform focuses on helping you build generational wealth through multiple income streams.";
         }
         
         // Community related
         if (msg.includes("community") || msg.includes("forum") || msg.includes("chat") || msg.includes("discuss")) {
-            return "Our community is a great place to connect with other traders, share strategies, and get help. You can access it after logging in, and it's free for all users!";
+            return "Our community is a great place to connect with other traders, share strategies, and get help. You can access it in the Community section, and it's free for all logged-in users!";
         }
         
         // Technical support
         if (msg.includes("help") || msg.includes("support") || msg.includes("problem") || msg.includes("issue") || msg.includes("error")) {
-            return "I'm here to help! For technical issues, you can <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>contact our support team</a>. For general questions about trading or our platform, feel free to ask me!";
+            return "I'm here to help! For technical issues, you can <a href='/contact-us' style='color: #8B5CF6; text-decoration: underline;'>contact our support team</a>. For general questions about trading or our platform, feel free to ask me anything!";
         }
         
         // Account and payment issues
         if (msg.includes("account") || msg.includes("password") || msg.includes("login") || msg.includes("payment") || msg.includes("billing") || msg.includes("refund")) {
-            return "For account, payment, or billing-related questions, please visit our <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>Contact Us page</a> to submit a support request. Our team will assist you within 24 hours.";
+            return "For account, payment, or billing-related questions, please visit our <a href='/contact-us' style='color: #8B5CF6; text-decoration: underline;'>Contact Us page</a> to submit a support request. Our team will assist you within 24 hours.";
         }
         
         // About the platform
         if (msg.includes("about") || msg.includes("what") || msg.includes("how") || msg.includes("platform")) {
-            return "THE GLITCH is your pathway to building generational wealth through multiple streams of knowledge. We teach you to make money work for you, break bad financial habits, and create lasting prosperity.";
+            return "THE GLITCH is your pathway to building generational wealth through multiple streams of knowledge. We teach you to make money work for you, break bad financial habits, and create lasting prosperity across 8 powerful domains.";
         }
         
         // Generational wealth questions
@@ -156,8 +217,18 @@ const Chatbot = () => {
             return "We focus on teaching you how to build generational wealth through multiple income streams. Our courses cover trading, investing, e-commerce, and more—all designed to help you achieve true financial freedom!";
         }
         
-        // Default response - direct to contact if can't help
-        return "I'm not quite sure how to help with that specific question. 🤔 For personalized assistance, please <a href='/contact' style='color: #8B5CF6; text-decoration: underline;'>visit our Contact Us page</a> and our team will get back to you. Is there anything else about THE GLITCH I can help you with?";
+        // Trading questions (logged in users only)
+        if (msg.includes("trade") || msg.includes("trading") || msg.includes("forex") || msg.includes("crypto") || msg.includes("stock") || msg.includes("investment")) {
+            return "I can help with trading questions! We cover Forex, Crypto, Algorithmic FX, and more. Which area would you like to learn about? You can also check our <a href='/courses' style='color: #8B5CF6; text-decoration: underline;'>courses</a> for in-depth lessons.";
+        }
+        
+        // Personal questions (logged in users only)
+        if (msg.includes("my") && (msg.includes("course") || msg.includes("progress") || msg.includes("level") || msg.includes("xp"))) {
+            return `Check your <a href='/my-courses' style='color: #8B5CF6; text-decoration: underline;'>My Courses</a> page to see your enrolled courses and progress. Your level and XP are visible in your <a href='/profile' style='color: #8B5CF6; text-decoration: underline;'>Profile</a>.`;
+        }
+        
+        // Default response for logged in users - try to answer anything
+        return "I'm here to help with any questions you have! Try asking about our courses, trading strategies, community features, your account, or anything else. For complex questions, visit our <a href='/contact-us' style='color: #8B5CF6; text-decoration: underline;'>Contact Us page</a>. What else can I help you with?";
     };
 
     const handleOption = (message) => {
