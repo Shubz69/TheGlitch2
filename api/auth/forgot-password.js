@@ -1,22 +1,38 @@
 // Vercel serverless function for forgot password
 const nodemailer = require('nodemailer');
 
-// Initialize email transporter (only if env vars are set)
-let transporter = null;
+// Function to create transporter (called inside handler to catch errors better)
+const createEmailTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Missing EMAIL_USER or EMAIL_PASS environment variables');
+    return null;
+  }
 
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   try {
-    transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.EMAIL_USER.trim(),
+        pass: process.env.EMAIL_PASS.trim()
       }
     });
+    
+    // Test the transporter
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error('Email transporter verification failed:', error);
+      } else {
+        console.log('Email transporter verified successfully');
+      }
+    });
+    
+    return transporter;
   } catch (error) {
     console.error('Failed to create email transporter:', error);
+    console.error('Error details:', error.message, error.stack);
+    return null;
   }
-}
+};
 
 // Generate 6-digit code
 const generateResetCode = () => {
@@ -79,30 +95,34 @@ module.exports = async (req, res) => {
     // Check if email is configured
     const hasEmailUser = !!process.env.EMAIL_USER;
     const hasEmailPass = !!process.env.EMAIL_PASS;
-    const hasTransporter = !!transporter;
     
     console.log('Email config check:', {
-      hasTransporter,
       hasEmailUser,
       hasEmailPass,
       emailUserLength: process.env.EMAIL_USER ? process.env.EMAIL_USER.length : 0,
-      emailPassLength: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0
+      emailPassLength: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
+      emailUserValue: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}...` : 'undefined'
     });
     
-    if (!hasTransporter || !hasEmailUser || !hasEmailPass) {
+    if (!hasEmailUser || !hasEmailPass) {
       console.error('Email configuration missing:', {
-        transporter: hasTransporter,
         EMAIL_USER: hasEmailUser,
         EMAIL_PASS: hasEmailPass
       });
       return res.status(500).json({
         success: false,
-        message: 'Email service is not configured. Please contact support.',
-        debug: process.env.NODE_ENV === 'development' ? {
-          hasEmailUser,
-          hasEmailPass,
-          hasTransporter
-        } : undefined
+        message: 'Email service is not configured. Please contact support.'
+      });
+    }
+
+    // Create transporter inside handler to get better error reporting
+    const transporter = createEmailTransporter();
+    
+    if (!transporter) {
+      console.error('Failed to create email transporter even though env vars are set');
+      return res.status(500).json({
+        success: false,
+        message: 'Email service configuration error. Please contact support.'
       });
     }
 
