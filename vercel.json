@@ -3,5 +3,14 @@
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install",
-  "devCommand": "npm start"
+  "devCommand": "npm start",
+  "functions": {
+    "api/auth/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "EMAIL_USER": "@email_user",
+    "EMAIL_PASS": "@email_pass"
+  }
 }
