@@ -77,11 +77,32 @@ module.exports = async (req, res) => {
     });
 
     // Check if email is configured
-    if (!transporter || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('Email configuration missing. EMAIL_USER or EMAIL_PASS not set.');
+    const hasEmailUser = !!process.env.EMAIL_USER;
+    const hasEmailPass = !!process.env.EMAIL_PASS;
+    const hasTransporter = !!transporter;
+    
+    console.log('Email config check:', {
+      hasTransporter,
+      hasEmailUser,
+      hasEmailPass,
+      emailUserLength: process.env.EMAIL_USER ? process.env.EMAIL_USER.length : 0,
+      emailPassLength: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0
+    });
+    
+    if (!hasTransporter || !hasEmailUser || !hasEmailPass) {
+      console.error('Email configuration missing:', {
+        transporter: hasTransporter,
+        EMAIL_USER: hasEmailUser,
+        EMAIL_PASS: hasEmailPass
+      });
       return res.status(500).json({
         success: false,
-        message: 'Email service is not configured. Please contact support.'
+        message: 'Email service is not configured. Please contact support.',
+        debug: process.env.NODE_ENV === 'development' ? {
+          hasEmailUser,
+          hasEmailPass,
+          hasTransporter
+        } : undefined
       });
     }
 
