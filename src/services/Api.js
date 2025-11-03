@@ -580,7 +580,17 @@ const Api = {
         try {
             // Use real API only - no mock fallback for production
             console.log('Sending password reset email request to:', `${API_BASE_URL}/api/auth/forgot-password`);
-            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+            
+            // Configure request with proper headers and timeout
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout: 15000 // 15 second timeout
+            };
+            
+            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email }, config);
             console.log('Password reset email response:', response.data);
             
             // Check various response formats
@@ -608,12 +618,24 @@ const Api = {
             
             // Handle network errors (no response from server)
             if (!apiError.response) {
+                // Check for CORS errors specifically
+                if (apiError.message && (apiError.message.includes('CORS') || apiError.message.includes('Cross-Origin'))) {
+                    throw new Error('Server connection issue. Please contact support if this persists.');
+                }
+                
+                // Check for blocked requests (often CORS-related)
                 if (apiError.code === 'ERR_NETWORK' || apiError.message.includes('Network Error')) {
-                    throw new Error('Network error. Please check your internet connection and try again.');
+                    // Check if it's likely a CORS or backend issue
+                    if (apiError.request && apiError.request.status === 0) {
+                        throw new Error('Unable to connect to server. The password reset service may be temporarily unavailable. Please try again in a few moments or contact support.');
+                    }
+                    throw new Error('Connection error. Please check your internet connection and try again.');
                 } else if (apiError.message.includes('timeout')) {
                     throw new Error('Request timed out. Please try again.');
+                } else if (apiError.code === 'ERR_CERT' || apiError.message.includes('certificate')) {
+                    throw new Error('Security certificate error. Please contact support.');
                 } else {
-                    throw new Error('Unable to reach server. Please try again later.');
+                    throw new Error('Unable to reach server. Please try again later or contact support.');
                 }
             }
             
