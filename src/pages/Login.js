@@ -77,7 +77,7 @@ const Login = () => {
     useEffect(() => {
         // Redirect if already authenticated
         if (isAuthenticated) {
-            navigate('/'); // or navigate('/courses');
+            navigate('/community');
         }
     }, [isAuthenticated, navigate]);
 
@@ -100,9 +100,9 @@ const Login = () => {
                 return;
             }
             
-            // Successful login without MFA - reload to update context
+            // Successful login without MFA - redirect to community
             if (result && result.token) {
-                window.location.reload();
+                navigate('/community');
                 return;
             }
             

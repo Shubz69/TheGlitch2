@@ -31,7 +31,7 @@ const Navbar = () => {
             </button>
 
             <ul className={`nav-links ${mobileMenuOpen ? 'show' : ''}`}>
-                <li><Link to="/">Home</Link></li>
+                {!user && <li><Link to="/">Home</Link></li>}
                 {user && <li><Link to="/community">Community</Link></li>}
                 <li><Link to="/courses">Courses</Link></li>
                 {!user && <li><Link to="/explore">Explore</Link></li>}
@@ -93,11 +93,11 @@ const Navbar = () => {
                     <FaTimes />
                 </button>
                 <ul className="mobile-nav-links">
-                    <li><Link to="/" onClick={toggleMobileMenu}>Home</Link></li>
+                    {!user && <li><Link to="/" onClick={toggleMobileMenu}>Home</Link></li>}
                     {user && <li><Link to="/community" onClick={toggleMobileMenu}>Community</Link></li>}
                     <li><Link to="/courses" onClick={toggleMobileMenu}>Courses</Link></li>
-                    <li><Link to="/explore" onClick={toggleMobileMenu}>Explore</Link></li>
-                    <li><Link to="/why-glitch" onClick={toggleMobileMenu}>Why Glitch</Link></li>
+                    {!user && <li><Link to="/explore" onClick={toggleMobileMenu}>Explore</Link></li>}
+                    {!user && <li><Link to="/why-glitch" onClick={toggleMobileMenu}>Why Glitch</Link></li>}
                     <li><Link to="/contact" onClick={toggleMobileMenu}>Contact Us</Link></li>
                     {user && <li><Link to="/leaderboard" onClick={toggleMobileMenu}>Leaderboard</Link></li>}
                     {user?.role?.toUpperCase() === "ADMIN" && (

@@ -192,6 +192,9 @@ export const AuthProvider = ({ children }) => {
           setMfaVerified(true);
         }
         
+        // Redirect to community after successful login
+        navigate('/community');
+        
         return data;
       }
     } catch (error) {
