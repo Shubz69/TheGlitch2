@@ -38,6 +38,12 @@ const ForgotPassword = () => {
             }
         } catch (err) {
             console.error('Password reset error:', err);
+            console.error('Error details:', {
+                message: err.message,
+                code: err.code,
+                response: err.response,
+                request: err.request
+            });
             
             // Use the error message from the API
             const errorMessage = err.message || 'Failed to send reset email. Please try again.';
