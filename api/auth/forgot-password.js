@@ -1,14 +1,22 @@
 // Vercel serverless function for forgot password
 const nodemailer = require('nodemailer');
 
-// Initialize email transporter
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+// Initialize email transporter (only if env vars are set)
+let transporter = null;
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  try {
+    transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+  } catch (error) {
+    console.error('Failed to create email transporter:', error);
   }
-});
+}
 
 // Generate 6-digit code
 const generateResetCode = () => {
@@ -68,6 +76,15 @@ module.exports = async (req, res) => {
       expiresAt: expiresAt
     });
 
+    // Check if email is configured
+    if (!transporter || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('Email configuration missing. EMAIL_USER or EMAIL_PASS not set.');
+      return res.status(500).json({
+        success: false,
+        message: 'Email service is not configured. Please contact support.'
+      });
+    }
+
     // Send email with reset code
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -84,7 +101,15 @@ module.exports = async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send email. Please check email configuration.'
+      });
+    }
 
     console.log(`Password reset code sent to ${email}: ${resetCode}`);
 

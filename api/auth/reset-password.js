@@ -57,13 +57,22 @@ module.exports = async (req, res) => {
     }
 
     // Hash the new password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    let hashedPassword;
+    try {
+      const saltRounds = 10;
+      hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    } catch (hashError) {
+      console.error('Error hashing password:', hashError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to process password reset'
+      });
+    }
 
     // In production, update password in your database here
     // For now, we'll just return success
     // TODO: Connect to your database and update the user's password
-    console.log(`Password reset for ${tokenData.email} - password hashed: ${hashedPassword.substring(0, 20)}...`);
+    console.log(`Password reset for ${tokenData.email} - password hashed successfully`);
 
     return res.status(200).json({
       success: true,
