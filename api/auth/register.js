@@ -165,8 +165,8 @@ module.exports = async (req, res) => {
 
       // Insert new user
       const [result] = await db.execute(
-        'INSERT INTO users (username, email, password, name, avatar, role) VALUES (?, ?, ?, ?, ?, ?)',
-        [usernameLower, emailLower, hashedPassword, name || username, avatar || '/avatars/avatar_ai.png', 'USER']
+        'INSERT INTO users (username, email, password, name, avatar, role, muted, mfa_verified, dtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [usernameLower, emailLower, hashedPassword, name || username, avatar || '/avatars/avatar_ai.png', 'USER', 0, 0, 'UserModel']
       );
 
       const userId = result.insertId;
