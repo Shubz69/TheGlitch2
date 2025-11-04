@@ -571,8 +571,7 @@ const Community = () => {
             return;
         }
         
-        // Check subscription (admins bypass)
-        const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
+        // Check subscription (admins bypass) - using storedUserData from line 558
         const isAdmin = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin';
         const hasActiveSubscription = checkSubscription();
         const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
