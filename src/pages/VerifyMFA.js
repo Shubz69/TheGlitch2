@@ -103,7 +103,8 @@ const VerifyMFA = () => {
         }
 
         try {
-            const res = await axios.post("https://theglitch.world/api/auth/verify-mfa", {
+            const API_BASE_URL = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' && window.location.origin.includes('theglitch.world') ? window.location.origin : 'https://www.theglitch.world');
+            const res = await axios.post(`${API_BASE_URL}/api/auth/verify-mfa`, {
                 userId,
                 code,
                 email: emailAddress // Send email as a backup if userId is missing
@@ -171,7 +172,8 @@ const VerifyMFA = () => {
             // Send either userId or email depending on what we have
             const payload = userId ? { userId } : { email: emailAddress };
             
-            await axios.post("https://theglitch.world/api/auth/resend-mfa", payload);
+            const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://www.theglitch.world';
+            await axios.post(`${API_BASE_URL}/api/auth/resend-mfa`, payload);
             setTimer(30);
             setCanResend(false);
             alert("Code resent to your email.");

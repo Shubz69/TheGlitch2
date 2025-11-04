@@ -314,13 +314,40 @@ const Api = {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
-        } : {};
+        } : {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
         
         try {
-            return await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config);
+            const response = await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config);
+            return response;
         } catch (apiError) {
             console.error('Registration API error:', apiError);
-            throw apiError; // Throw API error directly - no mock fallback
+            
+            // Provide better error messages
+            if (apiError.response) {
+                // Server responded with error
+                const status = apiError.response.status;
+                const errorMessage = apiError.response.data?.message || apiError.response.data?.error || 'Registration failed';
+                
+                if (status === 404) {
+                    throw new Error('Registration service is not available. Please contact support or try again later.');
+                } else if (status === 409) {
+                    throw new Error(errorMessage || 'An account with this email or username already exists. Please sign in instead.');
+                } else if (status === 400) {
+                    throw new Error(errorMessage || 'Invalid registration data. Please check your information and try again.');
+                } else {
+                    throw new Error(errorMessage || 'Registration failed. Please try again later.');
+                }
+            } else if (apiError.request) {
+                // Request made but no response
+                throw new Error('Unable to reach server. Please check your connection and try again.');
+            } else {
+                // Error setting up request
+                throw new Error('An error occurred during registration. Please try again.');
+            }
         }
     },
     
