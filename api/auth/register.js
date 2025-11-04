@@ -15,15 +15,32 @@ const getDbConnection = async () => {
   }
 
   try {
-    const connection = await mysql.createConnection({
+    const connectionConfig = {
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
-      connectTimeout: 10000, // 10 second timeout
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 10000,
       acquireTimeout: 10000
+    };
+
+    // SSL configuration
+    if (process.env.MYSQL_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    } else {
+      connectionConfig.ssl = false;
+    }
+
+    console.log('Attempting database connection:', {
+      host: connectionConfig.host,
+      user: connectionConfig.user,
+      database: connectionConfig.database,
+      port: connectionConfig.port,
+      ssl: connectionConfig.ssl
     });
+
+    const connection = await mysql.createConnection(connectionConfig);
     
     // Test the connection
     await connection.ping();
@@ -51,7 +68,18 @@ const getDbConnection = async () => {
       message: error.message,
       code: error.code,
       errno: error.errno,
-      sqlState: error.sqlState
+      sqlState: error.sqlState,
+      syscall: error.syscall,
+      address: error.address,
+      port: error.port,
+      stack: error.stack
+    });
+    console.error('Connection config used:', {
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      database: process.env.MYSQL_DATABASE,
+      port: process.env.MYSQL_PORT || 3306,
+      ssl: process.env.MYSQL_SSL
     });
     return null;
   }
