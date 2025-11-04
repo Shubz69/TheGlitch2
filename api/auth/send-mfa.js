@@ -150,7 +150,7 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({ 
       success: true, 
-      message: 'MFA code sent successfully' 
+      message: req.body.resend ? 'MFA code resent successfully' : 'MFA code sent successfully' 
     });
   } catch (error) {
     console.error('Error sending MFA code:', error);

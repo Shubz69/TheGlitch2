@@ -173,7 +173,7 @@ const VerifyMFA = () => {
             const payload = userId ? { userId } : { email: emailAddress };
             
             const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://www.theglitch.world';
-            await axios.post(`${API_BASE_URL}/api/auth/resend-mfa`, payload);
+            await axios.post(`${API_BASE_URL}/api/auth/send-mfa`, { ...payload, resend: true });
             setTimer(30);
             setCanResend(false);
             alert("Code resent to your email.");

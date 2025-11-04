@@ -198,8 +198,7 @@ const PUBLIC_ENDPOINTS = [
     '/api/auth/login',
     '/api/auth/register',
     '/api/auth/forgot-password',
-    '/api/auth/verify-reset-code',
-    '/api/auth/reset-password',
+    '/api/auth/password-reset',
     '/api/auth/send-signup-verification',
     '/api/auth/verify-signup-code'
 ];
@@ -712,9 +711,10 @@ const Api = {
     },
 
     verifyResetCode: async (email, code) => {
+        // Use combined password-reset endpoint with action='verify'
         try {
             // Use real API only - no mock fallback for production
-            const response = await axios.post(`${API_BASE_URL}/api/auth/verify-reset-code`, { email, code });
+            const response = await axios.post(`${API_BASE_URL}/api/auth/password-reset`, { action: 'verify', email, code });
             if (response.data.success && response.data.token) {
                 return {
                     success: true,
@@ -731,7 +731,7 @@ const Api = {
     resetPassword: async (token, newPassword) => {
         try {
             // Use real API only - no mock fallback for production
-            const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { token, newPassword });
+            const response = await axios.post(`${API_BASE_URL}/api/auth/password-reset`, { action: 'reset', token, newPassword });
             return response.data.success || true;
         } catch (apiError) {
             console.error('Failed to reset password:', apiError);
