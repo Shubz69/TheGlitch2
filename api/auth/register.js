@@ -3,14 +3,30 @@ const bcrypt = require('bcrypt'); // bcrypt is in package.json
 
 // Get database connection
 const getDbConnection = async () => {
+  // Check if required environment variables are set
+  if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    console.error('Missing MySQL environment variables:', {
+      hasHost: !!process.env.MYSQL_HOST,
+      hasUser: !!process.env.MYSQL_USER,
+      hasPassword: !!process.env.MYSQL_PASSWORD,
+      hasDatabase: !!process.env.MYSQL_DATABASE
+    });
+    return null;
+  }
+
   try {
     const connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
+      ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      connectTimeout: 10000, // 10 second timeout
+      acquireTimeout: 10000
     });
+    
+    // Test the connection
+    await connection.ping();
     
     // Create users table if it doesn't exist
     await connection.execute(`
@@ -27,9 +43,16 @@ const getDbConnection = async () => {
       )
     `);
     
+    console.log('Database connection successful');
     return connection;
   } catch (error) {
     console.error('Database connection error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      sqlState: error.sqlState
+    });
     return null;
   }
 };

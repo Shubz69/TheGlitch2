@@ -5,8 +5,30 @@
   "installCommand": "npm install",
   "devCommand": "npm start",
   "functions": {
-    "api/auth/*.js": {
+    "api/**/*.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/courses",
+      "destination": "/api/courses.js"
+    },
+    {
+      "source": "/api/community/channels",
+      "destination": "/api/community/channels.js"
+    },
+    {
+      "source": "/api/community/channels/:channelId/messages",
+      "destination": "/api/community/channels/messages.js?channelId=:channelId"
+    },
+    {
+      "source": "/api/stripe/create-subscription",
+      "destination": "/api/stripe/create-subscription.js"
+    },
+    {
+      "source": "/api/stripe/direct-checkout",
+      "destination": "/api/stripe/direct-checkout.js"
+    }
+  ]
 }
