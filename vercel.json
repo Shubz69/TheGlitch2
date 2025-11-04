@@ -37,6 +37,10 @@
     {
       "source": "/api/auth/password-reset",
       "destination": "/api/auth/password-reset.js"
+    },
+    {
+      "source": "/api/auth/signup-verification",
+      "destination": "/api/auth/signup-verification.js"
     }
   ]
 }
