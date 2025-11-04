@@ -1,0 +1,115 @@
+SETUP RAILWAY.MYSQL FOR VERCEL + MYSQL WORKBENCH
+
+STEP 1: CREATE RAILWAY DATABASE
+1. Go to https://railway.app
+2. Sign up with GitHub (free)
+3. Click "New Project"
+4. Click "Add MySQL"
+5. Wait for database to create (takes 1-2 minutes)
+6. Click on the MySQL service
+7. Go to "Connect" tab
+8. Copy these connection details:
+   - Host: (shown in connection string)
+   - Port: 3306
+   - Database: railway
+   - User: root
+   - Password: (shown - copy this!)
+
+STEP 2: IMPORT YOUR DATA TO RAILWAY
+1. Open MySQL Workbench on your PC
+2. Create new connection:
+   - Connection Name: Railway MySQL
+   - Hostname: (from Railway connection string)
+   - Port: 3306
+   - Username: root
+   - Password: (from Railway)
+   - Default Schema: railway
+3. Click "Test Connection" - should work!
+4. Click "OK" to save
+5. Connect to the database
+6. Go to "Server" → "Data Import"
+7. Select "Import from Self-Contained File"
+8. Choose each SQL file from: C:\Users\1230s\Downloads\attachments
+9. Import them one by one (or use the import script)
+
+ALTERNATIVE: Use command line
+Run: import_to_cloud.bat
+Enter Railway connection details when prompted
+
+STEP 3: ADD TO VERCEL
+1. Go to Vercel Dashboard → Settings → Environment Variables
+2. Add/Update these:
+   MYSQL_HOST = (Railway host from connection string)
+   MYSQL_USER = root
+   MYSQL_PASSWORD = (Railway password)
+   MYSQL_DATABASE = railway
+   MYSQL_SSL = false
+3. Redeploy
+
+STEP 4: VERIFY
+1. Try registering a user on your site
+2. Check MySQL Workbench - you should see the new user in the database!
+
+RAILWAY IS FREE:
+- $5 credit/month free
+- Works perfectly with Vercel
+- Allows remote connections
+- Can use MySQL Workbench to manage data
+
+
+STEP 1: CREATE RAILWAY DATABASE
+1. Go to https://railway.app
+2. Sign up with GitHub (free)
+3. Click "New Project"
+4. Click "Add MySQL"
+5. Wait for database to create (takes 1-2 minutes)
+6. Click on the MySQL service
+7. Go to "Connect" tab
+8. Copy these connection details:
+   - Host: (shown in connection string)
+   - Port: 3306
+   - Database: railway
+   - User: root
+   - Password: (shown - copy this!)
+
+STEP 2: IMPORT YOUR DATA TO RAILWAY
+1. Open MySQL Workbench on your PC
+2. Create new connection:
+   - Connection Name: Railway MySQL
+   - Hostname: (from Railway connection string)
+   - Port: 3306
+   - Username: root
+   - Password: (from Railway)
+   - Default Schema: railway
+3. Click "Test Connection" - should work!
+4. Click "OK" to save
+5. Connect to the database
+6. Go to "Server" → "Data Import"
+7. Select "Import from Self-Contained File"
+8. Choose each SQL file from: C:\Users\1230s\Downloads\attachments
+9. Import them one by one (or use the import script)
+
+ALTERNATIVE: Use command line
+Run: import_to_cloud.bat
+Enter Railway connection details when prompted
+
+STEP 3: ADD TO VERCEL
+1. Go to Vercel Dashboard → Settings → Environment Variables
+2. Add/Update these:
+   MYSQL_HOST = (Railway host from connection string)
+   MYSQL_USER = root
+   MYSQL_PASSWORD = (Railway password)
+   MYSQL_DATABASE = railway
+   MYSQL_SSL = false
+3. Redeploy
+
+STEP 4: VERIFY
+1. Try registering a user on your site
+2. Check MySQL Workbench - you should see the new user in the database!
+
+RAILWAY IS FREE:
+- $5 credit/month free
+- Works perfectly with Vercel
+- Allows remote connections
+- Can use MySQL Workbench to manage data
+

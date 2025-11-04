@@ -1,0 +1,99 @@
+RAILWAY + VERCEL CONNECTION SETUP
+
+STEP 1: GET RAILWAY CONNECTION DETAILS
+1. Go to Railway Dashboard → Your MySQL Service
+2. Click "Connect" or "Variables" tab
+3. Copy these values:
+   - MYSQLHOST (hostname, e.g., containers-us-west-xxx.railway.app)
+   - MYSQLPORT (usually 3306)
+   - MYSQLDATABASE (usually "railway")
+   - MYSQLUSER (usually "root")
+   - MYSQLPASSWORD (the password string)
+
+STEP 2: ADD TO VERCEL
+Go to Vercel → Your Project → Settings → Environment Variables
+Add these EXACT variable names:
+
+MYSQL_HOST = (value from Railway MYSQLHOST)
+MYSQL_USER = (value from Railway MYSQLUSER)
+MYSQL_PASSWORD = (value from Railway MYSQLPASSWORD)
+MYSQL_DATABASE = (value from Railway MYSQLDATABASE)
+MYSQL_PORT = (value from Railway MYSQLPORT, or 3306)
+MYSQL_SSL = false
+
+STEP 3: IMPORT YOUR DATA
+Option A: MySQL Workbench
+1. Open MySQL Workbench
+2. Create new connection:
+   - Hostname: (Railway MYSQLHOST)
+   - Port: (Railway MYSQLPORT or 3306)
+   - Username: (Railway MYSQLUSER)
+   - Password: (Railway MYSQLPASSWORD)
+   - Default Schema: (Railway MYSQLDATABASE)
+3. Test Connection → Should work!
+4. Connect
+5. Go to Server → Data Import
+6. Import each SQL file from C:\Users\1230s\Downloads\attachments
+
+Option B: Command Line
+Run: import_to_cloud.bat
+Enter Railway connection details when prompted
+
+STEP 4: REDEPLOY VERCEL
+1. Go to Vercel Dashboard
+2. Click "Redeploy" on latest deployment
+3. Or push a new commit to trigger deployment
+
+STEP 5: TEST
+1. Try registering a user on your site
+2. Check MySQL Workbench - new user should appear!
+
+
+STEP 1: GET RAILWAY CONNECTION DETAILS
+1. Go to Railway Dashboard → Your MySQL Service
+2. Click "Connect" or "Variables" tab
+3. Copy these values:
+   - MYSQLHOST (hostname, e.g., containers-us-west-xxx.railway.app)
+   - MYSQLPORT (usually 3306)
+   - MYSQLDATABASE (usually "railway")
+   - MYSQLUSER (usually "root")
+   - MYSQLPASSWORD (the password string)
+
+STEP 2: ADD TO VERCEL
+Go to Vercel → Your Project → Settings → Environment Variables
+Add these EXACT variable names:
+
+MYSQL_HOST = (value from Railway MYSQLHOST)
+MYSQL_USER = (value from Railway MYSQLUSER)
+MYSQL_PASSWORD = (value from Railway MYSQLPASSWORD)
+MYSQL_DATABASE = (value from Railway MYSQLDATABASE)
+MYSQL_PORT = (value from Railway MYSQLPORT, or 3306)
+MYSQL_SSL = false
+
+STEP 3: IMPORT YOUR DATA
+Option A: MySQL Workbench
+1. Open MySQL Workbench
+2. Create new connection:
+   - Hostname: (Railway MYSQLHOST)
+   - Port: (Railway MYSQLPORT or 3306)
+   - Username: (Railway MYSQLUSER)
+   - Password: (Railway MYSQLPASSWORD)
+   - Default Schema: (Railway MYSQLDATABASE)
+3. Test Connection → Should work!
+4. Connect
+5. Go to Server → Data Import
+6. Import each SQL file from C:\Users\1230s\Downloads\attachments
+
+Option B: Command Line
+Run: import_to_cloud.bat
+Enter Railway connection details when prompted
+
+STEP 4: REDEPLOY VERCEL
+1. Go to Vercel Dashboard
+2. Click "Redeploy" on latest deployment
+3. Or push a new commit to trigger deployment
+
+STEP 5: TEST
+1. Try registering a user on your site
+2. Check MySQL Workbench - new user should appear!
+

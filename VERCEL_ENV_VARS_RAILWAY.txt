@@ -1,0 +1,35 @@
+ADD THESE TO VERCEL ENVIRONMENT VARIABLES:
+
+Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+
+Add these exact variables:
+
+MYSQL_HOST = switchback.proxy.rlwy.net
+MYSQL_USER = root
+MYSQL_PASSWORD = cwuuYDzDwAJkNSjHySZsKIdGHMpJHwBT
+MYSQL_DATABASE = railway
+MYSQL_PORT = 47440
+MYSQL_SSL = false
+
+NOTE: If you want to use "Platform" database instead of "railway":
+1. Create database "Platform" in Railway (via MySQL Workbench)
+2. Change MYSQL_DATABASE = Platform
+3. Import your SQL files to "Platform" database
+
+
+Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+
+Add these exact variables:
+
+MYSQL_HOST = switchback.proxy.rlwy.net
+MYSQL_USER = root
+MYSQL_PASSWORD = cwuuYDzDwAJkNSjHySZsKIdGHMpJHwBT
+MYSQL_DATABASE = railway
+MYSQL_PORT = 47440
+MYSQL_SSL = false
+
+NOTE: If you want to use "Platform" database instead of "railway":
+1. Create database "Platform" in Railway (via MySQL Workbench)
+2. Change MYSQL_DATABASE = Platform
+3. Import your SQL files to "Platform" database
+

@@ -1,0 +1,43 @@
+QUICK FIX: The SQL files are looking for database "trading_platform" but Railway uses "railway"
+
+SOLUTION 1: Create trading_platform database (RECOMMENDED)
+1. In MySQL Workbench, open a new SQL tab
+2. Type and execute:
+   CREATE DATABASE IF NOT EXISTS trading_platform;
+3. Now try importing again - it should work!
+
+SOLUTION 2: Change Vercel to use trading_platform
+After creating the database, update Vercel environment variables:
+MYSQL_DATABASE = trading_platform (instead of railway)
+
+SOLUTION 3: Skip import, use auto-create (FASTEST)
+Your code auto-creates tables on first use!
+1. Just add Vercel environment variables with:
+   MYSQL_DATABASE = railway
+2. Redeploy Vercel
+3. Try registering - it will auto-create users table
+4. Import your existing data later if needed
+
+RECOMMENDED: Solution 1 - Create the database, then import
+
+
+SOLUTION 1: Create trading_platform database (RECOMMENDED)
+1. In MySQL Workbench, open a new SQL tab
+2. Type and execute:
+   CREATE DATABASE IF NOT EXISTS trading_platform;
+3. Now try importing again - it should work!
+
+SOLUTION 2: Change Vercel to use trading_platform
+After creating the database, update Vercel environment variables:
+MYSQL_DATABASE = trading_platform (instead of railway)
+
+SOLUTION 3: Skip import, use auto-create (FASTEST)
+Your code auto-creates tables on first use!
+1. Just add Vercel environment variables with:
+   MYSQL_DATABASE = railway
+2. Redeploy Vercel
+3. Try registering - it will auto-create users table
+4. Import your existing data later if needed
+
+RECOMMENDED: Solution 1 - Create the database, then import
+

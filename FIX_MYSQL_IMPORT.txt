@@ -1,0 +1,49 @@
+FIX FOR "No database selected" ERROR:
+
+The SQL files don't specify which database to use. Here's how to fix:
+
+OPTION 1: Select Database First (EASIEST)
+1. In MySQL Workbench, connect to Railway MySQL
+2. In the left sidebar (Navigator), find "SCHEMAS"
+3. Double-click "railway" to set it as default
+4. Or right-click "railway" → "Set as Default Schema"
+5. Now try importing again - it should work!
+
+OPTION 2: Use Import Script
+Run: import_railway.bat
+It automatically specifies the database name
+
+OPTION 3: Manual SQL Import
+1. In MySQL Workbench, open a SQL query tab
+2. Type: USE railway;
+3. Then for each SQL file:
+   - Go to File → Open SQL Script
+   - Select the SQL file
+   - Click "Execute" button (lightning bolt icon)
+
+RECOMMENDED: Use Option 1 (set railway as default schema)
+
+
+The SQL files don't specify which database to use. Here's how to fix:
+
+OPTION 1: Select Database First (EASIEST)
+1. In MySQL Workbench, connect to Railway MySQL
+2. In the left sidebar (Navigator), find "SCHEMAS"
+3. Double-click "railway" to set it as default
+4. Or right-click "railway" → "Set as Default Schema"
+5. Now try importing again - it should work!
+
+OPTION 2: Use Import Script
+Run: import_railway.bat
+It automatically specifies the database name
+
+OPTION 3: Manual SQL Import
+1. In MySQL Workbench, open a SQL query tab
+2. Type: USE railway;
+3. Then for each SQL file:
+   - Go to File → Open SQL Script
+   - Select the SQL file
+   - Click "Execute" button (lightning bolt icon)
+
+RECOMMENDED: Use Option 1 (set railway as default schema)
+

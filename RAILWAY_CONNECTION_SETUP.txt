@@ -1,0 +1,85 @@
+RAILWAY CONNECTION DETAILS - WHAT YOU SHARED:
+MYSQLHOST - ${{RAILWAY_PRIVATE_DOMAIN}}
+MYSQLPASSWORD - ${{MYSQL_ROOT_PASSWORD}}
+MYSQLUSER - root
+MYSQLDATABASE - Platform
+MYSQLPORT - 3306
+MYSQL_SSL = false
+
+⚠️ IMPORTANT: The ${{...}} are Railway template variables.
+You need to get the ACTUAL values from Railway!
+
+STEP 1: GET ACTUAL VALUES FROM RAILWAY
+1. Go to Railway Dashboard → Your MySQL Service
+2. Click "Connect" or "Variables" tab
+3. Look for "Public Network" or "Connection" section
+4. You should see the ACTUAL hostname (not ${{RAILWAY_PRIVATE_DOMAIN}})
+   - It will look like: containers-us-west-xxx.railway.app
+5. For password, click "Show" or "Reveal" next to MYSQL_ROOT_PASSWORD
+   - Copy the actual password string
+
+STEP 2: WHAT YOU NEED FOR VERCEL
+Once you have the actual values, add these to Vercel:
+
+MYSQL_HOST = (actual hostname, e.g., containers-us-west-xxx.railway.app)
+MYSQL_USER = root
+MYSQL_PASSWORD = (actual password from Railway)
+MYSQL_DATABASE = Platform
+MYSQL_PORT = 3306
+MYSQL_SSL = false
+
+STEP 3: FOR MYSQL WORKBENCH
+Use the same actual values:
+- Hostname: (actual Railway hostname)
+- Port: 3306
+- Username: root
+- Password: (actual Railway password)
+- Default Schema: Platform
+
+NOTE: If Railway shows ${{RAILWAY_PRIVATE_DOMAIN}}, try:
+1. Click "Connect" tab (not Variables)
+2. Look for "Public Network" section
+3. Or check the "Settings" tab for connection details
+
+MYSQLHOST - ${{RAILWAY_PRIVATE_DOMAIN}}
+MYSQLPASSWORD - ${{MYSQL_ROOT_PASSWORD}}
+MYSQLUSER - root
+MYSQLDATABASE - Platform
+MYSQLPORT - 3306
+MYSQL_SSL = false
+
+⚠️ IMPORTANT: The ${{...}} are Railway template variables.
+You need to get the ACTUAL values from Railway!
+
+STEP 1: GET ACTUAL VALUES FROM RAILWAY
+1. Go to Railway Dashboard → Your MySQL Service
+2. Click "Connect" or "Variables" tab
+3. Look for "Public Network" or "Connection" section
+4. You should see the ACTUAL hostname (not ${{RAILWAY_PRIVATE_DOMAIN}})
+   - It will look like: containers-us-west-xxx.railway.app
+5. For password, click "Show" or "Reveal" next to MYSQL_ROOT_PASSWORD
+   - Copy the actual password string
+
+STEP 2: WHAT YOU NEED FOR VERCEL
+Once you have the actual values, add these to Vercel:
+
+MYSQL_HOST = (actual hostname, e.g., containers-us-west-xxx.railway.app)
+MYSQL_USER = root
+MYSQL_PASSWORD = (actual password from Railway)
+MYSQL_DATABASE = Platform
+MYSQL_PORT = 3306
+MYSQL_SSL = false
+
+STEP 3: FOR MYSQL WORKBENCH
+Use the same actual values:
+- Hostname: (actual Railway hostname)
+- Port: 3306
+- Username: root
+- Password: (actual Railway password)
+- Default Schema: Platform
+
+NOTE: If Railway shows ${{RAILWAY_PRIVATE_DOMAIN}}, try:
+1. Click "Connect" tab (not Variables)
+2. Look for "Public Network" section
+3. Or check the "Settings" tab for connection details
+
