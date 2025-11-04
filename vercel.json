@@ -29,6 +29,14 @@
     {
       "source": "/api/stripe/direct-checkout",
       "destination": "/api/stripe/direct-checkout.js"
+    },
+    {
+      "source": "/api/auth/login",
+      "destination": "/api/auth/login.js"
+    },
+    {
+      "source": "/api/auth/password-reset",
+      "destination": "/api/auth/password-reset.js"
     }
   ]
 }
