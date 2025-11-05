@@ -162,7 +162,12 @@ export const AuthProvider = ({ children }) => {
         }
         
         // Store the token and set user data
-        localStorage.setItem('token', data.token);
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          console.log('Token stored in localStorage');
+        } else {
+          console.error('No token in login response');
+        }
         
         // If there's a refreshToken in the response, store it
         if (data.refreshToken) {
@@ -174,15 +179,16 @@ export const AuthProvider = ({ children }) => {
           username: data.username,
           email: data.email,
           name: data.name,
-          avatar: data.avatar,
+          avatar: data.avatar || '/avatars/avatar_ai.png',
           phone: data.phone || "",
           address: data.address || "",
-          role: data.role,
+          role: data.role || 'USER',
           mfaVerified: data.mfaVerified || false
         };
         
         // Store user data in localStorage for other components
         localStorage.setItem('user', JSON.stringify(userInfo));
+        console.log('User data stored:', userInfo);
         
         setUser(userInfo);
         

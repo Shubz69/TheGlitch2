@@ -172,16 +172,26 @@ module.exports = async (req, res) => {
       const userId = result.insertId;
 
       // Generate JWT token (3-part format: header.payload.signature)
-      const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
-      const payload = Buffer.from(JSON.stringify({
+      // Convert to base64url (replace + with -, / with _, remove = padding)
+      const toBase64Url = (str) => {
+        return Buffer.from(str).toString('base64')
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=/g, '');
+      };
+      
+      const header = toBase64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const payload = toBase64Url(JSON.stringify({
         id: userId,
         email: emailLower,
         username: usernameLower,
         role: 'USER',
         exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-      })).toString('base64url');
-      const signature = Buffer.from('signature').toString('base64url');
+      }));
+      const signature = toBase64Url('signature-' + Date.now());
       const token = `${header}.${payload}.${signature}`;
+      
+      console.log('Generated token (length):', token.length, 'parts:', token.split('.').length);
 
       await db.end();
 
