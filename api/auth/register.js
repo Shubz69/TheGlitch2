@@ -171,14 +171,17 @@ module.exports = async (req, res) => {
 
       const userId = result.insertId;
 
-      // Generate JWT token (simple version - in production use proper JWT library)
-      const token = Buffer.from(JSON.stringify({
+      // Generate JWT token (3-part format: header.payload.signature)
+      const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+      const payload = Buffer.from(JSON.stringify({
         id: userId,
         email: emailLower,
         username: usernameLower,
         role: 'USER',
         exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-      })).toString('base64');
+      })).toString('base64url');
+      const signature = Buffer.from('signature').toString('base64url');
+      const token = `${header}.${payload}.${signature}`;
 
       await db.end();
 

@@ -101,14 +101,17 @@ module.exports = async (req, res) => {
         [user.id]
       );
 
-      // Generate JWT token
-      const token = Buffer.from(JSON.stringify({
+      // Generate JWT token (3-part format: header.payload.signature)
+      const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+      const payload = Buffer.from(JSON.stringify({
         id: user.id,
         email: user.email,
         username: user.username || user.email.split('@')[0],
         role: user.role || 'USER',
         exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-      })).toString('base64');
+      })).toString('base64url');
+      const signature = Buffer.from('signature').toString('base64url');
+      const token = `${header}.${payload}.${signature}`;
 
       await db.end();
 

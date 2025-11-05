@@ -203,17 +203,24 @@ const Register = () => {
             localStorage.setItem('pendingSubscription', 'true');
             localStorage.setItem('newSignup', 'true');
             
+            // Registration successful - redirect immediately
+            console.log('Registration successful, redirecting to community...');
+            
             toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
                 position: "top-center",
-                autoClose: 2000,
+                autoClose: 1500,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
             });
             
-            // Redirect to community page immediately
-            navigate('/community');
+            // Redirect immediately without waiting for toast
+            setTimeout(() => {
+                navigate('/community', { replace: true });
+                // Force page reload to ensure auth state is updated
+                window.location.href = '/community';
+            }, 500);
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';
