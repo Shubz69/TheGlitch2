@@ -79,7 +79,7 @@ module.exports = async (req, res) => {
         await db.end();
         return res.status(401).json({
           success: false,
-          message: 'Invalid email or password'
+          message: 'The account connected to this email is not in use'
         });
       }
 
@@ -91,7 +91,7 @@ module.exports = async (req, res) => {
         await db.end();
         return res.status(401).json({
           success: false,
-          message: 'Invalid email or password'
+          message: 'Incorrect password for this account'
         });
       }
 

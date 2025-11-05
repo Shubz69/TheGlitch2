@@ -109,13 +109,23 @@ const Login = () => {
             setIsLoading(false);
         } catch (err) {
             console.error('Login error details:', err);
-            // Handle specific error types
-            if (err.message && err.message.includes('not found')) {
-                setError('Email not found. Please check your email address or register for a new account.');
-            } else if (err.message && err.message.includes('password')) {
-                setError('Incorrect password. Please try again or reset your password.');
+            // Handle specific error messages from API
+            let errorMessage = err.message || 'An error occurred. Please try again.';
+            
+            // Check if the error response has a specific message
+            if (err.response?.data?.message) {
+                errorMessage = err.response.data.message;
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            // Map common error patterns to user-friendly messages
+            if (errorMessage.includes('not in use') || errorMessage.includes('not found')) {
+                setError('The account connected to this email is not in use');
+            } else if (errorMessage.includes('Incorrect password') || errorMessage.includes('password')) {
+                setError('Incorrect password for this account');
             } else {
-                setError(err.message || 'An error occurred. Please try again.');
+                setError(errorMessage);
             }
             setIsLoading(false);
         }
