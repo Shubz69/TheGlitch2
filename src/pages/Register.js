@@ -135,11 +135,18 @@ const Register = () => {
                 setError("");
                 setSuccess("Email verified successfully! Completing registration...");
                 setEmailVerified(true);
+                
+                // Store verification status in localStorage as backup
+                localStorage.setItem('emailVerified', 'true');
+                
+                // Set step and loading state
                 setStep(3);
                 setIsLoading(true); // Keep loading state for registration
                 
-                // Automatically proceed to registration immediately
-                handleCompleteRegistration();
+                // Wait a moment for state to update, then proceed to registration
+                setTimeout(() => {
+                    handleCompleteRegistration();
+                }, 100);
             } else {
                 setError("Invalid verification code. Please check your email and try again.");
                 setSuccess(""); // Clear success message
@@ -223,11 +230,15 @@ const Register = () => {
             setError('');
             setSuccess('');
             
-            // Redirect immediately to community page
-            // Use window.location for a hard redirect to ensure it works
+            // Force a hard redirect to community page
+            // Use full URL to ensure it works regardless of current route
+            const baseUrl = window.location.origin;
+            console.log('Redirecting to:', `${baseUrl}/community`);
+            
+            // Use window.location.replace for a hard redirect (no back button)
             setTimeout(() => {
-                window.location.href = '/community';
-            }, 800);
+                window.location.replace(`${baseUrl}/community`);
+            }, 1000);
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';

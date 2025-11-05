@@ -103,6 +103,9 @@ const checkEmailExists = async (email) => {
 };
 
 module.exports = async (req, res) => {
+  // Set content type to JSON first to ensure we always return JSON
+  res.setHeader('Content-Type', 'application/json');
+  
   // Handle CORS - allow both www and non-www origins
   const origin = req.headers.origin || '*';
   res.setHeader('Access-Control-Allow-Origin', origin);
@@ -120,7 +123,17 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { action, email, code } = req.body;
+    // Parse request body if needed (Vercel sometimes passes it as a string)
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (parseError) {
+        return res.status(400).json({ success: false, message: 'Invalid JSON in request body' });
+      }
+    }
+    
+    const { action, email, code } = body;
 
     // ACTION: SEND VERIFICATION CODE
     if (action === 'send' || !action) {
@@ -132,7 +145,7 @@ module.exports = async (req, res) => {
       }
 
       const emailLower = email.toLowerCase();
-      const usernameLower = req.body.username ? req.body.username.toLowerCase() : null;
+      const usernameLower = body.username ? body.username.toLowerCase() : null;
 
       // Check if email already exists in the system
       const emailExists = await checkEmailExists(emailLower);
