@@ -120,25 +120,32 @@ const Register = () => {
             return;
         }
 
+        // Prevent multiple verification attempts
+        if (emailVerified) {
+            setError("Email already verified. Please wait while we complete your registration...");
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const result = await Api.verifySignupCode(formData.email, verificationCode);
             
             if (result && result.verified) {
                 setEmailVerified(true);
                 setSuccess("Email verified successfully! Completing registration...");
+                setError(""); // Clear any previous errors
                 setStep(3);
+                setIsLoading(true); // Keep loading state for registration
                 
-                // Automatically proceed to registration
-                setTimeout(() => {
-                    handleCompleteRegistration();
-                }, 500);
+                // Automatically proceed to registration immediately
+                handleCompleteRegistration();
             } else {
                 setError("Invalid verification code. Please check your email and try again.");
+                setIsLoading(false);
             }
         } catch (err) {
             console.error("Code verification error:", err);
             setError(err.message || "Invalid verification code. Please try again.");
-        } finally {
             setIsLoading(false);
         }
     };
@@ -148,12 +155,19 @@ const Register = () => {
         if (!emailVerified) {
             setError("Email must be verified before registration can complete.");
             setStep(2); // Go back to verification step
+            setIsLoading(false);
+            return;
+        }
+
+        // Prevent multiple registration attempts
+        if (isLoading && step === 3) {
+            console.log("Registration already in progress, please wait...");
             return;
         }
 
         setIsLoading(true);
         setError('');
-        setSuccess('');
+        setSuccess('Completing registration...');
 
         try {
             const submitData = {
@@ -367,10 +381,10 @@ const Register = () => {
                 <button 
                     type="submit" 
                     className="register-button"
-                    disabled={isLoading || verificationCode.length !== 6}
+                    disabled={isLoading || verificationCode.length !== 6 || emailVerified}
                     style={{ marginTop: '20px' }}
                 >
-                    {isLoading ? 'VERIFYING...' : 'VERIFY CODE'}
+                    {isLoading ? (emailVerified ? 'COMPLETING REGISTRATION...' : 'VERIFYING...') : 'VERIFY CODE'}
                 </button>
             </form>
             
