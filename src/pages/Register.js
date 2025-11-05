@@ -162,7 +162,10 @@ const Register = () => {
 
     // Step 3: Complete registration after email verification
     const handleCompleteRegistration = async () => {
-        if (!emailVerified) {
+        // Double-check email is verified (use state directly if needed)
+        const isVerified = emailVerified || localStorage.getItem('emailVerified') === 'true';
+        
+        if (!isVerified) {
             setError("Email must be verified before registration can complete.");
             setSuccess(""); // Clear success message when showing error
             setStep(2); // Go back to verification step
@@ -213,6 +216,9 @@ const Register = () => {
             // Set subscription flags
             localStorage.setItem('pendingSubscription', 'true');
             localStorage.setItem('newSignup', 'true');
+            
+            // Clear email verification flag
+            localStorage.removeItem('emailVerified');
             
             // Registration successful - redirect immediately
             console.log('Registration successful, redirecting to community...');
