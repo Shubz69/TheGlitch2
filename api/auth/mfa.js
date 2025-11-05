@@ -43,7 +43,6 @@ const getDbConnection = async () => {
       database: process.env.MYSQL_DATABASE,
       port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
       connectTimeout: 10000,
-      acquireTimeout: 10000
     };
 
     if (process.env.MYSQL_SSL === 'true') {
