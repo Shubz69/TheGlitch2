@@ -985,37 +985,10 @@ Let's build generational wealth together! 💰🚀`,
     const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin';
     const showSubscribeBanner = !isAdminForBanner && !hasActiveSubscription;
 
-    // Handle subscribe button click
-    const handleSubscribe = async () => {
-        try {
-            const response = await fetch('https://www.theglitch.world/api/stripe/create-subscription', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    trialPeriodDays: 90 // 3 months free
-                })
-            });
-
-            if (response.ok) {
-                const { checkoutUrl } = await response.json();
-                if (checkoutUrl) {
-                    window.location.href = checkoutUrl;
-                } else {
-                    // Fallback: redirect to subscription page
-                    navigate('/subscription');
-                }
-            } else {
-                // Fallback: redirect to subscription page
-                navigate('/subscription');
-            }
-        } catch (error) {
-            console.error('Error creating subscription:', error);
-            // Fallback: redirect to subscription page
-            navigate('/subscription');
-        }
+    // Handle subscribe button click - redirect to Stripe payment link
+    const handleSubscribe = () => {
+        // Redirect to Stripe payment link
+        window.location.href = 'https://buy.stripe.com/7sY00i9fefKA1oP0f7dIA0j';
     };
 
     // Render

@@ -38,59 +38,9 @@ const Subscription = () => {
         // Remove this auto-grant feature
     }, [isAuthenticated, navigate]);
 
-    const handleSubscribe = async () => {
-        setLoading(true);
-        setError('');
-
-        try {
-            // For now, if backend API is not available, activate free trial directly
-            // In production, this should call the backend Stripe API
-            try {
-                // Try backend API first
-                const response = await fetch('https://www.theglitch.world/api/stripe/create-subscription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({
-                        priceId: 'price_monthly_subscription',
-                        trialPeriodDays: 90 // 3 months free
-                    })
-                });
-
-                if (response.ok) {
-                    const { sessionId, url } = await response.json();
-                    if (url) {
-                        // Redirect to Stripe Checkout
-                        window.location.href = url;
-                        return;
-                    }
-                }
-            } catch (apiError) {
-                console.warn('Backend subscription API unavailable, activating free trial directly:', apiError);
-            }
-            
-            // Fallback: Activate free trial directly (for development/testing)
-            // Set subscription as active with 30-day free trial
-            localStorage.setItem('hasActiveSubscription', 'true');
-            localStorage.setItem('subscriptionStatus', 'active');
-            localStorage.removeItem('pendingSubscription');
-            localStorage.removeItem('subscriptionSkipped');
-            
-            // Set expiry date (30 days from now for free trial)
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + 30);
-            localStorage.setItem('subscriptionExpiry', expiryDate.toISOString());
-            
-            // Redirect to community
-            navigate('/community');
-            
-        } catch (err) {
-            console.error('Subscription error:', err);
-            setError('Failed to start subscription process. Please try again or contact support.');
-            setLoading(false);
-        }
+    const handleSubscribe = () => {
+        // Redirect directly to Stripe payment link
+        window.location.href = 'https://buy.stripe.com/7sY00i9fefKA1oP0f7dIA0j';
     };
 
     const handleSkipForNow = () => {
