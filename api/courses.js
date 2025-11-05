@@ -33,10 +33,14 @@ const getDbConnection = async () => {
 };
 
 module.exports = async (req, res) => {
+  // Set JSON content type first
+  res.setHeader('Content-Type', 'application/json');
+  
   // Handle CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -100,28 +104,28 @@ module.exports = async (req, res) => {
           
           if (updatedRows && updatedRows.length > 0) {
             const courses = updatedRows.map(row => ({
-              id: row.id,
-              title: row.title,
-              description: row.description,
-              level: row.level,
-              duration: row.duration,
-              price: parseFloat(row.price),
-              imageUrl: row.image_url
-            }));
+              id: row.id || null,
+              title: row.title || 'Unnamed Course',
+              description: row.description || '',
+              level: row.level || 'All Levels',
+              duration: row.duration || 0,
+              price: parseFloat(row.price) || 0,
+              imageUrl: row.image_url || ''
+            })).filter(course => course.id !== null && course.title !== 'Unnamed Course');
             return res.status(200).json(courses);
           }
         } else if (rows && rows.length > 0) {
           await db.end();
-          // Map database rows to API format
+          // Map database rows to API format with null checks
           const courses = rows.map(row => ({
-            id: row.id,
-            title: row.title,
-            description: row.description,
-            level: row.level,
-            duration: row.duration,
-            price: parseFloat(row.price),
-            imageUrl: row.image_url
-          }));
+            id: row.id || null,
+            title: row.title || 'Unnamed Course',
+            description: row.description || '',
+            level: row.level || 'All Levels',
+            duration: row.duration || 0,
+            price: parseFloat(row.price) || 0,
+            imageUrl: row.image_url || ''
+          })).filter(course => course.id !== null && course.title !== 'Unnamed Course');
           return res.status(200).json(courses);
         } else {
           await db.end();
@@ -136,10 +140,17 @@ module.exports = async (req, res) => {
     return res.status(200).json(defaultCourses);
   } catch (error) {
     console.error('Error fetching courses:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch courses. Please try again later.' 
-    });
+    // Always return JSON, even on errors
+    try {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch courses. Please try again later.',
+        courses: defaultCourses // Return default courses as fallback
+      });
+    } catch (jsonError) {
+      // If JSON response fails, send plain text
+      res.status(500).end('Internal Server Error');
+    }
   }
 };
 

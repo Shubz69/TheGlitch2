@@ -26,8 +26,10 @@ const Courses = () => {
                 console.log('Fetching courses from:', `${API_BASE_URL}/api/courses`);
                 const response = await Api.getCourses();
                 
-                // Ensure response.data is an array
-                const coursesData = Array.isArray(response.data) ? response.data : [];
+                // Ensure response.data is an array and filter out invalid courses
+                const coursesData = Array.isArray(response.data) 
+                    ? response.data.filter(course => course && course.id && course.title)
+                    : [];
                 setCourses(coursesData);
                 
                 // Check if we're using mock data by examining the course IDs
@@ -168,18 +170,20 @@ const Courses = () => {
             
             <div className="courses-grid">
                 {Array.isArray(courses) && courses.length > 0 ? (
-                    courses.map(course => (
+                    courses
+                        .filter(course => course && course.id && course.title)
+                        .map(course => (
                         <div className="course-card" key={course.id}>
                             <div className="course-image">
                                 {course.imageUrl ? (
-                                    <img src={course.imageUrl} alt={course.title} />
+                                    <img src={course.imageUrl} alt={course.title || 'Course'} />
                                 ) : (
-                                    <div className="placeholder-image">{course.title.charAt(0)}</div>
+                                    <div className="placeholder-image">{(course.title && course.title.length > 0) ? course.title.charAt(0).toUpperCase() : '?'}</div>
                                 )}
                             </div>
                             <div className="course-info">
-                                <h3>{course.title.toUpperCase()}</h3>
-                                <p className="course-description">{course.description}</p>
+                                <h3>{(course.title || 'Unnamed Course').toUpperCase()}</h3>
+                                <p className="course-description">{course.description || 'No description available'}</p>
                                 <div className="course-cta">
                                     <span className="coming-soon-badge">
                                         COMING SOON
