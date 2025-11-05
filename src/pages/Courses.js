@@ -191,7 +191,7 @@ const Courses = () => {
                             </div>
                             <div className="course-info">
                                 <h3>{(course.title || 'Unnamed Course').toUpperCase()}</h3>
-                                <p className="course-description">{course.description || 'No description available'}</p>
+                                <p className="course-description" style={{ whiteSpace: 'pre-line' }}>{course.description || 'No description available'}</p>
                                 <div className="course-cta">
                                     <span className="coming-soon-badge">
                                         COMING SOON
