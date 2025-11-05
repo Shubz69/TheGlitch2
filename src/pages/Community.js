@@ -113,6 +113,8 @@ const Community = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [onlineCount, setOnlineCount] = useState(0);
     const messagesEndRef = useRef(null);
     const messageInputRef = useRef(null);
     
@@ -1536,18 +1538,18 @@ Let's build generational wealth together! 💰🚀`,
                     <div className="online-header">
                         <h3>Online Users</h3>
                         <span className="online-count">
-                            {onlineUsers.filter(u => u.status === 'online').length || 0} / {onlineUsers.length || 0}
+                            {onlineCount} / {totalUsers}
                         </span>
                     </div>
                     
                     <div className="user-stats">
                         <div className="stat-item">
                             <span className="stat-label">Online:</span>
-                            <span className="stat-value">{onlineUsers.filter(u => u.status === 'online').length}</span>
+                            <span className="stat-value">{onlineCount}</span>
                         </div>
                         <div className="stat-item">
                             <span className="stat-label">Total Users:</span>
-                            <span className="stat-value">{onlineUsers.length}</span>
+                            <span className="stat-value">{totalUsers}</span>
                         </div>
                     </div>
                 </div>

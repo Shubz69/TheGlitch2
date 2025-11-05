@@ -73,16 +73,18 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // Consider users online if they were active in the last 5 minutes
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
         
         const [rows] = await db.execute(
           `SELECT id, username, email, name, avatar, role, last_seen 
            FROM users 
-           WHERE last_seen >= ? OR last_seen IS NULL
+           WHERE last_seen >= ? OR (last_seen IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE))
            ORDER BY last_seen DESC`,
           [fiveMinutesAgo]
         );
         
+        // Get total users count (including deleted/banned status)
         const [allUsers] = await db.execute('SELECT COUNT(*) as total FROM users');
         await db.end();
 

@@ -65,6 +65,10 @@
     {
       "source": "/api/contact",
       "destination": "/api/admin/index.js"
+    },
+    {
+      "source": "/api/community/update-presence",
+      "destination": "/api/community/update-presence.js"
     }
   ]
 }
