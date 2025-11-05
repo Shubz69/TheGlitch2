@@ -367,14 +367,27 @@ const Community = () => {
     // Check if user can post in channel
     const canUserPostInChannel = (channel) => {
         const userRole = getCurrentUserRole();
+        const channelName = (channel.name || '').toLowerCase();
+        const isWelcomeChannel = channelName === 'welcome';
+        const isAnnouncementsChannel = channelName === 'announcements';
         
         // Admin-only channels: only admins can post
-        if (channel.accessLevel === 'admin-only') {
+        if (channel.accessLevel === 'admin-only' || channel.locked) {
             return userRole === 'admin' || isAdmin;
         }
         
-        // All other channels: if you can access, you can post
-        return canUserAccessChannel(channel);
+        // Welcome and announcements channels: read-only for everyone (except admins)
+        if ((isWelcomeChannel || isAnnouncementsChannel) && !isAdmin) {
+            return false; // Read-only for non-admins
+        }
+        
+        // Subscribed users can post in all other channels
+        if (hasActiveSubscription) {
+            return true;
+        }
+        
+        // Non-subscribed users can only post in announcements/welcome (but we already blocked those)
+        return false;
     };
 
     // Scroll to bottom of messages
@@ -962,11 +975,24 @@ Let's build generational wealth together! 💰🚀`,
     // Group channels by category
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
+        const channelName = (channel.name || '').toLowerCase();
+        const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked;
+        const isWelcomeChannel = channelName === 'welcome';
+        const isAnnouncementsChannel = channelName === 'announcements';
         
-        // Admins always see all channels, regardless of showAllChannels flag
-        // If channels are hidden for non-admins, only show announcements and welcome
-        if (!isAdmin && !showAllChannels && category !== 'announcements') {
-            return acc;
+        // Admins always see all channels
+        if (isAdmin) {
+            // Admins see everything - no filtering
+        } else if (hasActiveSubscription) {
+            // Subscribed users: Show ALL channels EXCEPT welcome, announcements, and admin-only channels
+            if (isWelcomeChannel || isAnnouncementsChannel || isAdminChannel) {
+                return acc; // Skip these channels for subscribed users
+            }
+        } else {
+            // Non-subscribed users: Only show announcements and welcome (until they subscribe)
+            if (category !== 'announcements' || isAdminChannel) {
+                return acc;
+            }
         }
         
         if (!acc[category]) {
@@ -979,7 +1005,7 @@ Let's build generational wealth together! 💰🚀`,
     // Category order
     const categoryOrder = ['announcements', 'staff', 'courses', 'trading', 'general', 'support', 'premium'];
 
-    // Check subscription status for banner
+    // Check subscription status for banner and channel visibility
     const hasActiveSubscription = checkSubscription();
     const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
     const storedUserDataForBanner = JSON.parse(localStorage.getItem('user') || '{}');

@@ -65,10 +65,14 @@ const Subscription = () => {
             expiryDate.setDate(expiryDate.getDate() + 30);
             localStorage.setItem('subscriptionExpiry', expiryDate.toISOString());
             
-            // Redirect to community
+            // Force hard redirect to community page with full URL
+            const baseUrl = window.location.origin;
+            console.log('Subscription successful, redirecting to community...');
+            
             setTimeout(() => {
-                navigate('/community');
-            }, 2000);
+                // Use window.location.replace for hard redirect (no back button)
+                window.location.replace(`${baseUrl}/community`);
+            }, 1500);
         }
     }, [navigate]);
 
