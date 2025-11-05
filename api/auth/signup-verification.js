@@ -168,21 +168,30 @@ module.exports = async (req, res) => {
       const verificationCode = generateVerificationCode();
       const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes expiration
 
+      console.log(`Generated verification code for ${emailLower}: ${verificationCode}, expires at: ${expiresAt}`);
+
       // Store code in database
       const db = await getDbConnection();
       if (db) {
         try {
           // Delete any existing codes for this email
           await db.execute('DELETE FROM signup_verification_codes WHERE email = ?', [emailLower]);
+          console.log(`Deleted old codes for ${emailLower}`);
           
-          // Insert new code
+          // Insert new code (ensure code is stored as string)
           await db.execute(
             'INSERT INTO signup_verification_codes (email, code, expires_at) VALUES (?, ?, ?)',
-            [emailLower, verificationCode, expiresAt]
+            [emailLower, verificationCode.toString(), expiresAt]
           );
+          console.log(`Stored verification code for ${emailLower}`);
           await db.end();
         } catch (dbError) {
           console.error('Database error storing verification code:', dbError);
+          console.error('Error details:', {
+            message: dbError.message,
+            code: dbError.code,
+            stack: dbError.stack
+          });
           await db.end();
         }
       }
@@ -238,17 +247,22 @@ module.exports = async (req, res) => {
     // ACTION: VERIFY CODE
     if (action === 'verify') {
       if (!email || !code) {
+        console.error('Verify action missing required fields:', { email: !!email, code: !!code });
         return res.status(400).json({ 
           success: false, 
           message: 'Email and verification code are required' 
         });
       }
 
-      const emailLower = email.toLowerCase();
+      const emailLower = email.toLowerCase().trim();
+      const codeTrimmed = code.toString().trim();
+
+      console.log(`Verifying code for email: ${emailLower}, code: ${codeTrimmed}`);
 
       // Retrieve code from database
       const db = await getDbConnection();
       if (!db) {
+        console.error('Database connection failed during verification');
         return res.status(500).json({ 
           success: false, 
           message: 'Database connection error. Please try again later.' 
@@ -256,26 +270,42 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // First, check all codes for this email to debug
+        const [allCodes] = await db.execute(
+          'SELECT * FROM signup_verification_codes WHERE email = ? ORDER BY created_at DESC',
+          [emailLower]
+        );
+        console.log(`Found ${allCodes.length} verification code(s) for ${emailLower}`);
+
+        // Now check for exact match
         const [rows] = await db.execute(
           'SELECT * FROM signup_verification_codes WHERE email = ? AND code = ? ORDER BY created_at DESC LIMIT 1',
-          [emailLower, code]
+          [emailLower, codeTrimmed]
         );
+
+        console.log(`Code verification query result: ${rows.length} matching code(s)`);
 
         if (!rows || rows.length === 0) {
           await db.end();
+          console.error(`Invalid code: ${codeTrimmed} for email: ${emailLower}`);
           return res.status(400).json({ 
             success: false, 
-            message: 'Invalid verification code' 
+            message: 'Invalid verification code. Please check the code and try again.' 
           });
         }
 
         const verificationRecord = rows[0];
+        const currentTime = Date.now();
+        const expiresAt = parseInt(verificationRecord.expires_at);
+
+        console.log(`Code expires at: ${expiresAt}, current time: ${currentTime}`);
 
         // Check if code has expired
-        if (Date.now() > verificationRecord.expires_at) {
+        if (currentTime > expiresAt) {
           // Delete expired code
           await db.execute('DELETE FROM signup_verification_codes WHERE email = ?', [emailLower]);
           await db.end();
+          console.error(`Code expired for ${emailLower}`);
           return res.status(400).json({ 
             success: false, 
             message: 'Verification code has expired. Please request a new one.' 
@@ -283,8 +313,10 @@ module.exports = async (req, res) => {
         }
 
         // Code is valid - delete it so it can't be reused
-        await db.execute('DELETE FROM signup_verification_codes WHERE email = ?', [emailLower]);
+        await db.execute('DELETE FROM signup_verification_codes WHERE email = ? AND code = ?', [emailLower, codeTrimmed]);
         await db.end();
+
+        console.log(`Code verified successfully for ${emailLower}`);
 
         return res.status(200).json({ 
           success: true, 
@@ -293,7 +325,12 @@ module.exports = async (req, res) => {
         });
       } catch (dbError) {
         console.error('Database error verifying code:', dbError);
-        await db.end();
+        console.error('Error details:', {
+          message: dbError.message,
+          code: dbError.code,
+          stack: dbError.stack
+        });
+        if (db) await db.end();
         return res.status(500).json({ 
           success: false, 
           message: 'Database error. Please try again later.' 
