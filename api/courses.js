@@ -115,25 +115,9 @@ module.exports = async (req, res) => {
           }
         }
         
-        // Re-fetch courses after syncing
-        if (needsUpdate || rows.length < defaultCourses.length) {
-          // Insert missing courses or update existing ones
-          for (const course of defaultCourses) {
-            const [existing] = await db.execute('SELECT id FROM courses WHERE id = ?', [course.id]);
-            if (existing.length === 0) {
-              await db.execute(
-                'INSERT INTO courses (id, title, description, level, duration, price, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [course.id, course.title, course.description, course.level, course.duration, course.price, course.imageUrl]
-              );
-            } else {
-              // Update existing course to ensure it has latest data
-              await db.execute(
-                'UPDATE courses SET title = ?, description = ?, level = ?, duration = ?, price = ?, image_url = ? WHERE id = ?',
-                [course.title, course.description, course.level, course.duration, course.price, course.imageUrl, course.id]
-              );
-            }
-          }
-          // Re-fetch after inserting
+        // Re-fetch courses after syncing if we made updates
+        if (needsUpdate) {
+          console.log('Courses API: Re-fetching courses after sync');
           const [updatedRows] = await db.execute('SELECT * FROM courses ORDER BY id ASC');
           await db.end();
           
@@ -147,7 +131,7 @@ module.exports = async (req, res) => {
               price: parseFloat(row.price) || 0,
               imageUrl: row.image_url || ''
             })).filter(course => course.id !== null && course.title !== 'Unnamed Course');
-            console.log(`Courses API: Returning ${courses.length} courses from database`);
+            console.log(`Courses API: Returning ${courses.length} courses from database after sync`);
             return res.status(200).json(courses);
           }
         }
