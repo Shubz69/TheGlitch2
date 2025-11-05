@@ -164,25 +164,42 @@ const Register = () => {
                 avatar: '/avatars/avatar_ai.png'
             };
 
-            await Api.register(submitData);
+            const response = await Api.register(submitData);
 
-            // Registration successful - redirect to community page with subscribe button
+            // Registration successful - store authentication data
+            if (response && response.data) {
+                // Store token if provided
+                if (response.data.token) {
+                    localStorage.setItem('token', response.data.token);
+                }
+                
+                // Store user data
+                const userData = {
+                    id: response.data.id,
+                    username: response.data.username,
+                    email: response.data.email,
+                    name: response.data.name || response.data.username,
+                    avatar: response.data.avatar || '/avatars/avatar_ai.png',
+                    role: response.data.role || 'USER'
+                };
+                localStorage.setItem('user', JSON.stringify(userData));
+            }
+            
+            // Set subscription flags
             localStorage.setItem('pendingSubscription', 'true');
             localStorage.setItem('newSignup', 'true');
             
             toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
                 position: "top-center",
-                autoClose: 3000,
+                autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
             });
             
-            // Redirect to community page (will show subscribe button)
-            setTimeout(() => {
-                navigate('/community');
-            }, 1500);
+            // Redirect to community page immediately
+            navigate('/community');
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';
