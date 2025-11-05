@@ -5,20 +5,45 @@ const mysql = require('mysql2/promise');
 // Get MySQL connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    console.error('Missing MySQL environment variables for password-reset');
     return null;
   }
 
   try {
-    const connection = await mysql.createConnection({
+    const connectionConfig = {
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? {} : false
-    });
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 10000,
+      acquireTimeout: 10000
+    };
+
+    if (process.env.MYSQL_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    } else {
+      connectionConfig.ssl = false;
+    }
+
+    const connection = await mysql.createConnection(connectionConfig);
+    
+    // Test the connection
+    await connection.ping();
+    
+    console.log('Database connection successful for password-reset');
     return connection;
   } catch (error) {
-    console.error('Database connection error:', error.message);
+    console.error('Database connection error in password-reset:', error.message);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      sqlState: error.sqlState,
+      syscall: error.syscall,
+      address: error.address,
+      port: error.port
+    });
     return null;
   }
 };
@@ -105,10 +130,17 @@ module.exports = async (req, res) => {
         });
       } catch (dbError) {
         console.error('Database error verifying code:', dbError.message);
-        await db.end();
+        console.error('Database error details:', {
+          message: dbError.message,
+          code: dbError.code,
+          errno: dbError.errno
+        });
+        if (db && !db.ended) {
+          await db.end();
+        }
         return res.status(500).json({
           success: false,
-          message: 'Failed to verify code'
+          message: `Failed to verify code: ${dbError.message || 'Database error'}`
         });
       }
     }
@@ -179,10 +211,17 @@ module.exports = async (req, res) => {
         }
       } catch (dbError) {
         console.error('MySQL update error:', dbError.message);
-        await db.end();
+        console.error('Database error details:', {
+          message: dbError.message,
+          code: dbError.code,
+          errno: dbError.errno
+        });
+        if (db && !db.ended) {
+          await db.end();
+        }
         return res.status(500).json({
           success: false,
-          message: 'Failed to reset password'
+          message: `Failed to reset password: ${dbError.message || 'Database error'}`
         });
       }
     }
@@ -192,10 +231,18 @@ module.exports = async (req, res) => {
       message: 'Invalid action. Use action="verify" or action="reset"'
     });
   } catch (error) {
-    console.error('Error in password reset:', error);
+    console.error('Error in password-reset endpoint:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more specific error message
+    let errorMessage = 'Failed to process request';
+    if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return res.status(500).json({
       success: false,
-      message: 'Failed to process request'
+      message: errorMessage
     });
   }
 };
