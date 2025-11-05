@@ -130,6 +130,7 @@ module.exports = async (req, res) => {
       }
 
       const emailLower = email.toLowerCase();
+      const usernameLower = req.body.username ? req.body.username.toLowerCase() : null;
 
       // Check if email already exists in the system
       const emailExists = await checkEmailExists(emailLower);
@@ -138,6 +139,29 @@ module.exports = async (req, res) => {
           success: false, 
           message: 'An account with this email already exists. Please sign in instead.' 
         });
+      }
+
+      // Check if username already exists (if provided)
+      if (usernameLower) {
+        const db = await getDbConnection();
+        if (db) {
+          try {
+            const [users] = await db.execute(
+              'SELECT id FROM users WHERE username = ? LIMIT 1',
+              [usernameLower]
+            );
+            await db.end();
+            if (users.length > 0) {
+              return res.status(409).json({ 
+                success: false, 
+                message: 'This username is already taken. Please choose a different username.' 
+              });
+            }
+          } catch (error) {
+            console.error('Error checking username:', error);
+            await db.end();
+          }
+        }
       }
 
       // Generate verification code

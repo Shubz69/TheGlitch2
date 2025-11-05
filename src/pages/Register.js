@@ -76,7 +76,8 @@ const Register = () => {
 
         try {
             // Send verification code to email - MUST succeed before proceeding
-            const result = await Api.sendSignupVerificationEmail(formData.email);
+            // Also checks username availability
+            const result = await Api.sendSignupVerificationEmail(formData.email, formData.username);
             
             if (result === true || result === undefined) {
                 setSuccess("Verification code sent! Please check your email for the 6-digit code.");
@@ -92,6 +93,8 @@ const Register = () => {
             
             if (error.message && error.message.includes("already exists")) {
                 errorMsg = "An account with this email already exists. Please sign in instead.";
+            } else if (error.message && error.message.includes("already taken")) {
+                errorMsg = "This username is already taken. Please choose a different username.";
             } else if (error.message && error.message.includes("invalid")) {
                 errorMsg = "Invalid email address. Please enter a valid email.";
             } else if (error.message && error.message.includes("not configured")) {
@@ -144,11 +147,13 @@ const Register = () => {
     const handleCompleteRegistration = async () => {
         if (!emailVerified) {
             setError("Email must be verified before registration can complete.");
+            setStep(2); // Go back to verification step
             return;
         }
 
         setIsLoading(true);
         setError('');
+        setSuccess('');
 
         try {
             const submitData = {
@@ -180,8 +185,17 @@ const Register = () => {
             }, 1500);
         } catch (err) {
             console.error('Registration error:', err);
-            setError(err.message || 'Registration failed. Please try again.');
-        } finally {
+            let errorMsg = err.message || 'Registration failed. Please try again.';
+            
+            // If username or email conflict, go back to step 1 so user can fix it
+            if (err.message && (err.message.includes('already exists') || err.message.includes('already taken'))) {
+                setStep(1);
+                setEmailVerified(false); // Reset verification since we need to start over
+                setVerificationCode('');
+                errorMsg = err.message;
+            }
+            
+            setError(errorMsg);
             setIsLoading(false);
         }
     };

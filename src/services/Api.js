@@ -740,9 +740,13 @@ const Api = {
     },
 
     // Signup email verification methods
-    sendSignupVerificationEmail: async (email) => {
+    sendSignupVerificationEmail: async (email, username = null) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/signup-verification`, { action: 'send', email });
+            const payload = { action: 'send', email };
+            if (username) {
+                payload.username = username;
+            }
+            const response = await axios.post(`${API_BASE_URL}/api/auth/signup-verification`, payload);
             return response.data.success;
         } catch (error) {
             console.error('Error sending signup verification email:', error);
