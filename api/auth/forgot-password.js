@@ -43,17 +43,30 @@ const generateResetCode = () => {
 // Get MySQL connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    console.error('Missing MySQL environment variables for forgot-password');
     return null;
   }
 
   try {
-    const connection = await mysql.createConnection({
+    const connectionConfig = {
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? {} : false
-    });
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 10000
+    };
+
+    if (process.env.MYSQL_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    } else {
+      connectionConfig.ssl = false;
+    }
+
+    const connection = await mysql.createConnection(connectionConfig);
+    
+    // Test the connection
+    await connection.ping();
     
     // Create reset_codes table if it doesn't exist
     await connection.execute(`
@@ -68,9 +81,15 @@ const getDbConnection = async () => {
       )
     `);
     
+    console.log('Database connection successful for forgot-password');
     return connection;
   } catch (error) {
-    console.error('Database connection error:', error.message);
+    console.error('Database connection error in forgot-password:', error.message);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno
+    });
     return null;
   }
 };
@@ -148,23 +167,20 @@ module.exports = async (req, res) => {
     const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
 
     // Store code in MySQL database
+    const db = await getDbConnection();
     if (db) {
       try {
-        // Reconnect if connection was closed
-        const dbConnection = db.ended ? await getDbConnection() : db;
-        if (dbConnection) {
-          // Delete any existing codes for this email
-          await dbConnection.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
-          
-          // Insert new code
-          await dbConnection.execute(
-            'INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)',
-            [emailLower, resetCode, expiresAt]
-          );
-          
-          await dbConnection.end();
-          console.log(`Reset code stored in database for ${emailLower}`);
-        }
+        // Delete any existing codes for this email
+        await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+        
+        // Insert new code
+        await db.execute(
+          'INSERT INTO reset_codes (email, code, expires_at) VALUES (?, ?, ?)',
+          [emailLower, resetCode, expiresAt]
+        );
+        
+        await db.end();
+        console.log(`Reset code stored in database for ${emailLower}`);
       } catch (dbError) {
         console.error('Database error storing reset code:', dbError.message);
         if (!db.ended) await db.end();
@@ -236,11 +252,19 @@ module.exports = async (req, res) => {
 
     try {
       await transporter.sendMail(mailOptions);
+      console.log(`Password reset email sent successfully to ${email}`);
     } catch (emailError) {
       console.error('Error sending email:', emailError);
+      console.error('Email error details:', {
+        message: emailError.message,
+        code: emailError.code,
+        response: emailError.response,
+        responseCode: emailError.responseCode,
+        command: emailError.command
+      });
       return res.status(500).json({
         success: false,
-        message: 'Failed to send email. Please check email configuration.'
+        message: `Failed to send email: ${emailError.message || 'Email service error'}. Please check email configuration.`
       });
     }
 
@@ -251,10 +275,18 @@ module.exports = async (req, res) => {
       message: 'Reset code sent to your email'
     });
   } catch (error) {
-    console.error('Error sending reset email:', error);
+    console.error('Error in forgot-password endpoint:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more specific error message
+    let errorMessage = 'Failed to send reset email';
+    if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return res.status(500).json({
       success: false,
-      message: 'Failed to send reset email'
+      message: errorMessage
     });
   }
 };
