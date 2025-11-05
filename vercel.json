@@ -43,16 +43,24 @@
       "destination": "/api/auth/signup-verification.js"
     },
     {
+      "source": "/api/auth/send-mfa",
+      "destination": "/api/auth/mfa.js"
+    },
+    {
+      "source": "/api/auth/verify-mfa",
+      "destination": "/api/auth/mfa.js"
+    },
+    {
       "source": "/api/community/users",
-      "destination": "/api/community/users.js"
+      "destination": "/api/community/index.js"
     },
     {
       "source": "/api/admin/user-status",
-      "destination": "/api/admin/user-status.js"
+      "destination": "/api/admin/index.js"
     },
     {
       "source": "/api/contact",
-      "destination": "/api/contact.js"
+      "destination": "/api/admin/index.js"
     }
   ]
 }

@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 // Get database connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
-    console.error('Missing MySQL environment variables for admin/user-status');
+    console.error('Missing MySQL environment variables for community');
     return null;
   }
 
@@ -28,7 +28,7 @@ const getDbConnection = async () => {
     await connection.ping();
     return connection;
   } catch (error) {
-    console.error('Database connection error in admin/user-status:', error.message);
+    console.error('Database connection error in community:', error.message);
     return null;
   }
 };
@@ -46,7 +46,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET') {
+  // Extract the path to determine which endpoint to handle
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const path = url.pathname;
+
+  // Handle /api/community/users
+  if (path.includes('/users') && req.method === 'GET') {
     try {
       const db = await getDbConnection();
       if (!db) {
@@ -57,51 +62,40 @@ module.exports = async (req, res) => {
       }
 
       try {
-        // Consider users online if they were active in the last 5 minutes
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        
         const [rows] = await db.execute(
-          `SELECT id, username, email, name, avatar, role, last_seen 
-           FROM users 
-           WHERE last_seen >= ? OR last_seen IS NULL
-           ORDER BY last_seen DESC`,
-          [fiveMinutesAgo]
+          'SELECT id, username, email, name, avatar, role, created_at, last_seen FROM users ORDER BY created_at DESC'
         );
-        
-        const [allUsers] = await db.execute('SELECT COUNT(*) as total FROM users');
         await db.end();
 
-        const onlineUsers = rows.map(row => ({
+        const users = rows.map(row => ({
           id: row.id,
           username: row.username,
           email: row.email,
           name: row.name,
           avatar: row.avatar || '/avatars/avatar_ai.png',
           role: row.role,
+          createdAt: row.created_at,
           lastSeen: row.last_seen
         }));
 
-        return res.status(200).json({
-          onlineUsers: onlineUsers,
-          totalUsers: allUsers[0]?.total || 0
-        });
+        return res.status(200).json(users);
       } catch (dbError) {
-        console.error('Database error fetching user status:', dbError.message);
+        console.error('Database error fetching users:', dbError.message);
         if (db && !db.ended) await db.end();
         return res.status(500).json({
           success: false,
-          message: 'Failed to fetch user status'
+          message: 'Failed to fetch users'
         });
       }
     } catch (error) {
-      console.error('Error in admin/user-status:', error);
+      console.error('Error in community/users:', error);
       return res.status(500).json({
         success: false,
-        message: 'Failed to fetch user status'
+        message: 'Failed to fetch users'
       });
     }
   }
 
-  return res.status(405).json({ success: false, message: 'Method not allowed' });
+  return res.status(404).json({ success: false, message: 'Endpoint not found' });
 };
 
