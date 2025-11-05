@@ -78,14 +78,98 @@ module.exports = async (req, res) => {
             )
           `);
 
-          const [rows] = await db.execute('SELECT * FROM channels ORDER BY category, name');
+          // Check if channels table has the category column, if not add it
+          try {
+            // MySQL doesn't support IF NOT EXISTS for ALTER TABLE, so we check first
+            const [columns] = await db.execute(`
+              SELECT COLUMN_NAME 
+              FROM INFORMATION_SCHEMA.COLUMNS 
+              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'category'
+            `, [process.env.MYSQL_DATABASE]);
+            
+            if (columns.length === 0) {
+              await db.execute('ALTER TABLE channels ADD COLUMN category VARCHAR(100) DEFAULT NULL');
+              console.log('Added category column to channels table');
+            }
+          } catch (alterError) {
+            // Column might already exist or other error, log and continue
+            console.log('Note: category column check:', alterError.message);
+          }
+
+          // Fetch channels from database, handle NULL categories safely
+          let [rows] = [];
+          try {
+            [rows] = await db.execute('SELECT * FROM channels ORDER BY COALESCE(category, \'general\'), name');
+          } catch (orderError) {
+            // If ordering fails, try without category
+            try {
+              [rows] = await db.execute('SELECT * FROM channels ORDER BY name');
+            } catch (fallbackError) {
+              [rows] = await db.execute('SELECT * FROM channels');
+            }
+          }
+          
+          // If no channels in DB, create channels from courses
+          if (rows.length === 0) {
+            // Fetch courses to create channels
+            try {
+              const [courses] = await db.execute('SELECT * FROM courses');
+              
+              // Insert default channels
+              const defaultChannels = [
+                { id: 'welcome', name: 'welcome', category: 'announcements', description: 'Welcome to THE GLITCH community!' },
+                { id: 'announcements', name: 'announcements', category: 'announcements', description: 'Important announcements' },
+                { id: 'general', name: 'general', category: 'general', description: 'General discussion' }
+              ];
+              
+              for (const channel of defaultChannels) {
+                await db.execute(
+                  'INSERT IGNORE INTO channels (id, name, category, description) VALUES (?, ?, ?, ?)',
+                  [channel.id, channel.name, channel.category, channel.description]
+                );
+              }
+              
+              // Create channels from courses
+              if (courses && courses.length > 0) {
+                for (const course of courses) {
+                  const courseId = course.id || course.name?.toLowerCase().replace(/\s+/g, '-') || `course-${course.id}`;
+                  const courseName = course.name || course.title || 'Unnamed Course';
+                  await db.execute(
+                    'INSERT IGNORE INTO channels (id, name, category, description) VALUES (?, ?, ?, ?)',
+                    [courseId, courseName, 'courses', course.description || `Discussion for ${courseName}`]
+                  );
+                }
+              }
+              
+              // Also add trading channels
+              const tradingChannels = [
+                { id: 'forex', name: 'forex', category: 'trading', description: 'Forex trading discussions' },
+                { id: 'crypto', name: 'crypto', category: 'trading', description: 'Cryptocurrency trading discussions' },
+                { id: 'stocks', name: 'stocks', category: 'trading', description: 'Stock market discussions' },
+                { id: 'indices', name: 'indices', category: 'trading', description: 'Indices trading discussions' }
+              ];
+              
+              for (const channel of tradingChannels) {
+                await db.execute(
+                  'INSERT IGNORE INTO channels (id, name, category, description) VALUES (?, ?, ?, ?)',
+                  [channel.id, channel.name, channel.category, channel.description]
+                );
+              }
+              
+              // Re-fetch channels after inserting
+              [rows] = await db.execute('SELECT * FROM channels ORDER BY COALESCE(category, \'general\'), name');
+            } catch (insertError) {
+              console.error('Error creating channels from courses:', insertError.message);
+            }
+          }
+          
           await db.end();
 
           if (rows && rows.length > 0) {
             const channels = rows.map(row => ({
               id: row.id,
               name: row.name,
-              category: row.category,
+              category: row.category || 'general',
               description: row.description
             }));
             return res.status(200).json(channels);

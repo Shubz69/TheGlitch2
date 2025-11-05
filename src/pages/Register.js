@@ -219,10 +219,15 @@ const Register = () => {
                 draggable: true,
             });
             
-            // Redirect immediately without waiting for toast
+            // Clear any previous errors/success messages
+            setError('');
+            setSuccess('');
+            
+            // Redirect immediately to community page
+            // Use window.location for a hard redirect to ensure it works
             setTimeout(() => {
-                navigate('/community', { replace: true });
-            }, 500);
+                window.location.href = '/community';
+            }, 800);
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';
