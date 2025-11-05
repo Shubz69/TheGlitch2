@@ -59,9 +59,9 @@ module.exports = async (req, res) => {
     try {
       // Default channels (fallback)
       const defaultChannels = [
-        { id: 'welcome', name: 'welcome', category: 'announcements', description: 'Welcome to THE GLITCH community!' },
-        { id: 'announcements', name: 'announcements', category: 'announcements', description: 'Important announcements' },
-        { id: 'general', name: 'general', category: 'general', description: 'General discussion' }
+        { id: 'welcome', name: 'welcome', displayName: 'Welcome', category: 'announcements', description: 'Welcome to THE GLITCH community!' },
+        { id: 'announcements', name: 'announcements', displayName: 'Announcements', category: 'announcements', description: 'Important announcements' },
+        { id: 'general', name: 'general', displayName: 'General', category: 'general', description: 'General discussion' }
       ];
 
       const db = await getDbConnection();
@@ -189,14 +189,23 @@ module.exports = async (req, res) => {
           await db.end();
 
           if (rows && rows.length > 0) {
-            const channels = rows.map(row => ({
-              id: row.id,
-              name: row.name,
-              category: row.category || 'general',
-              description: row.description,
-              accessLevel: row.access_level || 'open',
-              locked: row.access_level === 'admin-only'
-            }));
+            const channels = rows.map(row => {
+              // Create a proper displayName from the name
+              const displayName = row.name
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+              
+              return {
+                id: row.id,
+                name: row.name,
+                displayName: displayName,
+                category: row.category || 'general',
+                description: row.description,
+                accessLevel: row.access_level || 'open',
+                locked: row.access_level === 'admin-only'
+              };
+            });
             return res.status(200).json(channels);
           }
         } catch (dbError) {

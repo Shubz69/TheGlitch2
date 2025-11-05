@@ -644,13 +644,25 @@ const Community = () => {
                 // Use real API to fetch channels
                 const response = await Api.getChannels();
                 if (response && response.data && Array.isArray(response.data)) {
-                    let apiChannels = response.data.map(channel => ({
-                        ...channel,
-                        memberCount: channel.memberCount || 0,
-                        lastActivity: channel.lastActivity || null,
-                        unread: false,
-                        locked: channel.accessLevel === 'admin-only'
-                    }));
+                    let apiChannels = response.data.map(channel => {
+                        // Ensure displayName is set - format from name if missing
+                        let displayName = channel.displayName;
+                        if (!displayName && channel.name) {
+                            displayName = channel.name
+                                .split('-')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                        }
+                        
+                        return {
+                            ...channel,
+                            displayName: displayName || channel.name,
+                            memberCount: channel.memberCount || 0,
+                            lastActivity: channel.lastActivity || null,
+                            unread: false,
+                            locked: channel.accessLevel === 'admin-only'
+                        };
+                    });
                     
                     // Update course channel names with actual course titles
                     if (courses.length > 0) {
@@ -842,26 +854,33 @@ const Community = () => {
         const updateConnectionStatus = async () => {
             const apiWorking = await checkApiConnectivity();
             
+            // If WebSocket is connected and API works, we're fully connected
             if (isConnected && apiWorking) {
                 setConnectionStatus('connected');
-            } else if (!apiWorking && !navigator.onLine) {
-                // Offline or network error = WiFi issue
+            } 
+            // If browser is offline, it's a WiFi issue
+            else if (!navigator.onLine) {
                 setConnectionStatus('wifi-issue');
-            } else if (!apiWorking && navigator.onLine) {
-                // Online but API not responding = server issue
+            } 
+            // If API not working but browser is online, it's a server issue
+            else if (!apiWorking && navigator.onLine) {
                 setConnectionStatus('server-issue');
-            } else if (!isConnected && apiWorking) {
-                // API works but WebSocket connecting = WiFi/connection issue
+            } 
+            // If API works but WebSocket not connected yet, still connecting
+            else if (!isConnected && apiWorking) {
                 setConnectionStatus('connecting');
-            } else {
+            } 
+            // Default to connecting
+            else {
                 setConnectionStatus('connecting');
             }
         };
 
+        // Update immediately
         updateConnectionStatus();
         
-        // Update status every 5 seconds
-        const statusCheckInterval = setInterval(updateConnectionStatus, 5000);
+        // Update status every 3 seconds for real-time updates
+        const statusCheckInterval = setInterval(updateConnectionStatus, 3000);
         
         return () => clearInterval(statusCheckInterval);
     }, [isAuthenticated, isConnected, connectionError, checkApiConnectivity]);
