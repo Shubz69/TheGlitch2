@@ -31,7 +31,9 @@ const AdminMessages = () => {
                     
                     // Fallback to direct fetch
                     const token = localStorage.getItem("token");
-                    const res = await fetch("https://theglitch.world/api/contact", {
+                    // Use current origin to avoid CORS redirect issues
+                    const apiBaseUrl = window.location.origin;
+                    const res = await fetch(`${apiBaseUrl}/api/contact`, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },

@@ -3,29 +3,52 @@ const mysql = require('mysql2/promise');
 // Get database connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
+    console.error('Missing MySQL environment variables for channels');
     return null;
   }
 
   try {
-    const connection = await mysql.createConnection({
+    const connectionConfig = {
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
-    });
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 10000,
+      acquireTimeout: 10000
+    };
+
+    if (process.env.MYSQL_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    } else {
+      connectionConfig.ssl = false;
+    }
+
+    const connection = await mysql.createConnection(connectionConfig);
+    
+    // Test the connection
+    await connection.ping();
+    
+    console.log('Database connection successful for channels');
     return connection;
   } catch (error) {
-    console.error('Database connection error:', error);
+    console.error('Database connection error in channels:', error.message);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno
+    });
     return null;
   }
 };
 
 module.exports = async (req, res) => {
-  // Handle CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // Handle CORS - allow both www and non-www origins
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();

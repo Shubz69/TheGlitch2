@@ -42,7 +42,9 @@ const AdminPanel = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch('https://theglitch.world/api/community/users', {
+            // Use current origin to avoid CORS redirect issues
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/community/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -66,7 +68,9 @@ const AdminPanel = () => {
     const fetchOnlineStatus = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('https://theglitch.world/api/admin/user-status', {
+            // Use current origin to avoid CORS redirect issues
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/admin/user-status`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

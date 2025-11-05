@@ -41,6 +41,18 @@
     {
       "source": "/api/auth/signup-verification",
       "destination": "/api/auth/signup-verification.js"
+    },
+    {
+      "source": "/api/community/users",
+      "destination": "/api/community/users.js"
+    },
+    {
+      "source": "/api/admin/user-status",
+      "destination": "/api/admin/user-status.js"
+    },
+    {
+      "source": "/api/contact",
+      "destination": "/api/contact.js"
     }
   ]
 }

@@ -963,8 +963,9 @@ Let's build generational wealth together! 💰🚀`,
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
         
-        // If channels are hidden, only show announcements and welcome
-        if (!showAllChannels && category !== 'announcements') {
+        // Admins always see all channels, regardless of showAllChannels flag
+        // If channels are hidden for non-admins, only show announcements and welcome
+        if (!isAdmin && !showAllChannels && category !== 'announcements') {
             return acc;
         }
         
