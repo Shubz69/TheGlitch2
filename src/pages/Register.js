@@ -222,8 +222,6 @@ const Register = () => {
             // Redirect immediately without waiting for toast
             setTimeout(() => {
                 navigate('/community', { replace: true });
-                // Force page reload to ensure auth state is updated
-                window.location.href = '/community';
             }, 500);
         } catch (err) {
             console.error('Registration error:', err);

@@ -993,7 +993,7 @@ Let's build generational wealth together! 💰🚀`,
 
     // Render
     return (
-        <div className="community-container">
+        <div className="community-container" style={{ position: 'relative' }}>
             <BinaryBackground />
             
             {/* SUBSCRIBE BANNER - Show if no active subscription */}
@@ -1049,8 +1049,106 @@ Let's build generational wealth together! 💰🚀`,
                 </div>
             )}
             
+            {/* BLUR OVERLAY - Blur content when no subscription */}
+            {showSubscribeBanner && (
+                <>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 999,
+                        pointerEvents: 'none'
+                    }} />
+                    
+                    {/* SUBSCRIPTION MODAL OVERLAY */}
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1001,
+                        background: 'rgba(0, 0, 0, 0.7)'
+                    }}>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #1E1F22 0%, #2B2D31 100%)',
+                            borderRadius: '16px',
+                            padding: '40px',
+                            maxWidth: '500px',
+                            width: '90%',
+                            textAlign: 'center',
+                            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+                            border: '2px solid #8B5CF6'
+                        }}>
+                            <div style={{
+                                fontSize: '48px',
+                                marginBottom: '20px'
+                            }}>
+                                🔒
+                            </div>
+                            <h2 style={{
+                                color: 'white',
+                                fontSize: '28px',
+                                fontWeight: 'bold',
+                                marginBottom: '16px',
+                                marginTop: 0
+                            }}>
+                                Subscribe to Access Community
+                            </h2>
+                            <p style={{
+                                color: '#B5BAC1',
+                                fontSize: '16px',
+                                lineHeight: '1.6',
+                                marginBottom: '32px'
+                            }}>
+                                To access the community, you need to subscribe. <strong style={{ color: '#A78BFA' }}>Click here</strong> to subscribe and get 3 months free, then just £99/month.
+                            </p>
+                            <button
+                                onClick={handleSubscribe}
+                                style={{
+                                    background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '16px 48px',
+                                    borderRadius: '10px',
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)',
+                                    width: '100%',
+                                    maxWidth: '300px'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.transform = 'scale(1.05)';
+                                    e.target.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.6)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.transform = 'scale(1)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+                                }}
+                            >
+                                Subscribe Now
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+            
             {/* LEFT SIDEBAR - CHANNELS */}
-            <div className="community-sidebar">
+            <div className="community-sidebar" style={{
+                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
+                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
+                userSelect: showSubscribeBanner ? 'none' : 'auto'
+            }}>
                 <div className="sidebar-header">
                     <h2>Channels</h2>
                 </div>
@@ -1149,7 +1247,11 @@ Let's build generational wealth together! 💰🚀`,
             </div>
             
             {/* MAIN CHAT AREA */}
-            <div className="chat-main">
+            <div className="chat-main" style={{
+                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
+                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
+                userSelect: showSubscribeBanner ? 'none' : 'auto'
+            }}>
                 {selectedChannel ? (
                     <>
                         {/* Chat Header */}
@@ -1398,7 +1500,11 @@ Let's build generational wealth together! 💰🚀`,
             </div>
             
             {/* RIGHT SIDEBAR - ONLINE USERS */}
-            <div className="online-sidebar">
+            <div className="online-sidebar" style={{
+                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
+                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
+                userSelect: showSubscribeBanner ? 'none' : 'auto'
+            }}>
                 <div className="online-section">
                     <div className="online-header">
                         <h3>Online Users</h3>
