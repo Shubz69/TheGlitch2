@@ -368,25 +368,26 @@ const Community = () => {
     const canUserPostInChannel = (channel) => {
         const userRole = getCurrentUserRole();
         const channelName = (channel.name || '').toLowerCase();
+        const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked || channelName === 'admin';
         const isWelcomeChannel = channelName === 'welcome';
         const isAnnouncementsChannel = channelName === 'announcements';
         
         // Admin-only channels: only admins can post
-        if (channel.accessLevel === 'admin-only' || channel.locked) {
+        if (isAdminChannel) {
             return userRole === 'admin' || isAdmin;
         }
         
-        // Welcome and announcements channels: read-only for everyone (except admins)
+        // Welcome and announcements channels: read-only for everyone except admins
         if ((isWelcomeChannel || isAnnouncementsChannel) && !isAdmin) {
-            return false; // Read-only for non-admins
+            return false; // Read-only for non-admins, admins can post
         }
         
-        // Subscribed users can post in all other channels
-        if (hasActiveSubscription) {
+        // All other channels: everyone with subscription can post
+        if (hasActiveSubscription || isAdmin) {
             return true;
         }
         
-        // Non-subscribed users can only post in announcements/welcome (but we already blocked those)
+        // Non-subscribed users cannot post
         return false;
     };
 
@@ -976,23 +977,22 @@ Let's build generational wealth together! 💰🚀`,
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
         const channelName = (channel.name || '').toLowerCase();
-        const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked;
+        const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked || channelName === 'admin';
         const isWelcomeChannel = channelName === 'welcome';
         const isAnnouncementsChannel = channelName === 'announcements';
         
-        // Admins always see all channels
-        if (isAdmin) {
-            // Admins see everything - no filtering
-        } else if (hasActiveSubscription) {
-            // Subscribed users: Show ALL channels EXCEPT welcome, announcements, and admin-only channels
-            if (isWelcomeChannel || isAnnouncementsChannel || isAdminChannel) {
-                return acc; // Skip these channels for subscribed users
-            }
-        } else {
-            // Non-subscribed users: Only show announcements and welcome (until they subscribe)
-            if (category !== 'announcements' || isAdminChannel) {
-                return acc;
-            }
+        // Admin channel: Only admins can see it
+        if (isAdminChannel && !isAdmin) {
+            return acc; // Skip admin channel for non-admins
+        }
+        
+        // Everyone can see welcome and announcements (they're read-only for non-admins)
+        // Everyone can see all other channels (courses, trading, etc.)
+        // No filtering needed for subscribed users - they see everything except admin channel
+        
+        // Only filter admin channel for non-admins
+        if (isAdminChannel && !isAdmin) {
+            return acc;
         }
         
         if (!acc[category]) {
