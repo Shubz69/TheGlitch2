@@ -122,7 +122,7 @@ const Register = () => {
 
         // Prevent multiple verification attempts
         if (emailVerified) {
-            setError("Email already verified. Please wait while we complete your registration...");
+            // Already verified - don't show error, just proceed
             setIsLoading(false);
             return;
         }
@@ -131,9 +131,10 @@ const Register = () => {
             const result = await Api.verifySignupCode(formData.email, verificationCode);
             
             if (result && result.verified) {
-                setEmailVerified(true);
+                // Clear ALL previous messages
+                setError("");
                 setSuccess("Email verified successfully! Completing registration...");
-                setError(""); // Clear any previous errors
+                setEmailVerified(true);
                 setStep(3);
                 setIsLoading(true); // Keep loading state for registration
                 
@@ -141,11 +142,13 @@ const Register = () => {
                 handleCompleteRegistration();
             } else {
                 setError("Invalid verification code. Please check your email and try again.");
+                setSuccess(""); // Clear success message
                 setIsLoading(false);
             }
         } catch (err) {
             console.error("Code verification error:", err);
             setError(err.message || "Invalid verification code. Please try again.");
+            setSuccess(""); // Clear success message
             setIsLoading(false);
         }
     };
@@ -154,6 +157,7 @@ const Register = () => {
     const handleCompleteRegistration = async () => {
         if (!emailVerified) {
             setError("Email must be verified before registration can complete.");
+            setSuccess(""); // Clear success message when showing error
             setStep(2); // Go back to verification step
             setIsLoading(false);
             return;
@@ -166,7 +170,7 @@ const Register = () => {
         }
 
         setIsLoading(true);
-        setError('');
+        setError(''); // Clear any errors
         setSuccess('Completing registration...');
 
         try {
@@ -246,8 +250,12 @@ const Register = () => {
                 <p className="register-subtitle">Create your new account</p>
             </div>
             
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
+            {/* Only show one message at a time - error takes priority */}
+            {error ? (
+                <div className="error-message">{error}</div>
+            ) : success ? (
+                <div className="success-message">{success}</div>
+            ) : null}
             
             <form onSubmit={handleSendVerificationEmail}>
                 <div className="form-row">
@@ -365,8 +373,12 @@ const Register = () => {
                 <p style={{ color: '#a78bfa', fontSize: '14px', marginTop: '10px' }}>Code sent to: {formData.email}</p>
             </div>
             
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
+            {/* Only show one message at a time - error takes priority */}
+            {error ? (
+                <div className="error-message">{error}</div>
+            ) : success ? (
+                <div className="success-message">{success}</div>
+            ) : null}
             
             <form onSubmit={handleVerifyEmailCode}>
                 <div className="form-group" style={{ maxWidth: '300px', margin: '0 auto' }}>
@@ -410,8 +422,12 @@ const Register = () => {
                 <p className="register-subtitle">Please wait while we create your account...</p>
             </div>
             
-            {error && <div className="error-message">{error}</div>}
-            {success && <div className="success-message">{success}</div>}
+            {/* Only show one message at a time - error takes priority */}
+            {error ? (
+                <div className="error-message">{error}</div>
+            ) : success ? (
+                <div className="success-message">{success}</div>
+            ) : null}
             
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
