@@ -68,7 +68,7 @@
     },
     {
       "source": "/api/community/update-presence",
-      "destination": "/api/community/update-presence.js"
+      "destination": "/api/community/index.js"
     }
   ]
 }

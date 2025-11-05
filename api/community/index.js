@@ -96,6 +96,55 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Handle /api/community/update-presence
+  if (path.includes('/update-presence') && req.method === 'POST') {
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error'
+        });
+      }
+
+      try {
+        // Update user's last_seen timestamp
+        await db.execute(
+          'UPDATE users SET last_seen = NOW() WHERE id = ?',
+          [userId]
+        );
+        await db.end();
+
+        return res.status(200).json({
+          success: true,
+          message: 'Presence updated'
+        });
+      } catch (dbError) {
+        console.error('Database error updating presence:', dbError.message);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to update presence'
+        });
+      }
+    } catch (error) {
+      console.error('Error in update-presence:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'An error occurred'
+      });
+    }
+  }
+
   return res.status(404).json({ success: false, message: 'Endpoint not found' });
 };
 
