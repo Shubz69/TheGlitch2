@@ -13,8 +13,7 @@ const getDbConnection = async () => {
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
       port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
-      connectTimeout: 5000, // 5 second timeout
-      acquireTimeout: 5000
+      connectTimeout: 5000 // 5 second timeout
     };
 
     if (process.env.MYSQL_SSL === 'true') {
