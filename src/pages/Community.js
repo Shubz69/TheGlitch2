@@ -1170,23 +1170,10 @@ Let's build generational wealth together! 💰🚀`,
                                     <p>{selectedChannel.description || 'No messages yet. Be the first to start the conversation!'}</p>
                                 </div>
                             ) : (
-                                messages.map((message, index) => {
-                                    // Add extra spacing for messages sent quickly
-                                    const prevMessage = index > 0 ? messages[index - 1] : null;
-                                    const timeDiff = prevMessage && message.timestamp && prevMessage.timestamp 
-                                        ? new Date(message.timestamp) - new Date(prevMessage.timestamp)
-                                        : Infinity;
-                                    const sameAuthor = prevMessage && message.sender?.username === prevMessage.sender?.username;
-                                    const isRapidMessage = timeDiff < 30000 && sameAuthor; // Less than 30 seconds from same user
-                                    
-                                    return (
+                                messages.map((message, index) => (
                                     <div 
                                         key={message.id || index} 
                                         className="message-item"
-                                        style={{
-                                            marginBottom: isRapidMessage ? '12px' : '20px',
-                                            paddingTop: isRapidMessage ? '8px' : '12px'
-                                        }}
                                     >
                                         <div className="message-avatar-text">
                                             {(message.sender?.username || 'U').substring(0, 2).toUpperCase()}
@@ -1277,8 +1264,7 @@ Let's build generational wealth together! 💰🚀`,
                                             )}
                                         </div>
                                     </div>
-                                    );
-                                })
+                                ))
                             )}
                             <div ref={messagesEndRef} />
                         </div>
