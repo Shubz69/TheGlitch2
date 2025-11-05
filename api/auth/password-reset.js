@@ -1,6 +1,29 @@
-// Combined password reset endpoint - handles both verify code and reset password
+// Combined password reset endpoint - handles forgot-password, verify code, and reset password
+const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2/promise');
+
+// Function to create email transporter
+const createEmailTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Missing EMAIL_USER or EMAIL_PASS environment variables');
+    return null;
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER.trim(),
+        pass: process.env.EMAIL_PASS.trim()
+      }
+    });
+    return transporter;
+  } catch (error) {
+    console.error('Failed to create email transporter:', error);
+    return null;
+  }
+};
 
 // Get MySQL connection
 const getDbConnection = async () => {
@@ -69,6 +92,112 @@ module.exports = async (req, res) => {
 
   try {
     const { action, email, code, token, newPassword } = req.body;
+
+    // Handle forgot-password (send reset code) - action='forgot' or no action/code provided
+    if (action === 'forgot' || (!action && !code && !token && email && !newPassword)) {
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is required'
+        });
+      }
+
+      const emailLower = email.toLowerCase();
+
+      // Check if user exists
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error. Please try again later.'
+        });
+      }
+
+      try {
+        const [userRows] = await db.execute('SELECT id, email, username FROM users WHERE email = ?', [emailLower]);
+        
+        if (!userRows || userRows.length === 0) {
+          await db.end();
+          // Don't reveal if email exists or not for security
+          return res.status(200).json({
+            success: true,
+            message: 'If an account with that email exists, a password reset code has been sent.'
+          });
+        }
+
+        // Generate 6-digit reset code
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
+
+        // Create reset_codes table if it doesn't exist
+        await db.execute(`
+          CREATE TABLE IF NOT EXISTS reset_codes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            code VARCHAR(10) NOT NULL,
+            expires_at BIGINT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            used BOOLEAN DEFAULT FALSE,
+            INDEX idx_user_id (user_id),
+            INDEX idx_email (email),
+            INDEX idx_code (code),
+            INDEX idx_expires (expires_at)
+          )
+        `);
+
+        // Delete any existing codes for this user
+        await db.execute('DELETE FROM reset_codes WHERE email = ?', [emailLower]);
+        
+        // Insert new code
+        await db.execute(
+          'INSERT INTO reset_codes (user_id, email, code, expires_at) VALUES (?, ?, ?, ?)',
+          [userRows[0].id, emailLower, resetCode, expiresAt]
+        );
+        await db.end();
+
+        // Send email with reset code
+        const transporter = createEmailTransporter();
+        if (!transporter) {
+          return res.status(500).json({
+            success: false,
+            message: 'Email service is not configured. Please contact support.'
+          });
+        }
+
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: emailLower,
+          subject: 'THE GLITCH - Password Reset Code',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #8B5CF6;">THE GLITCH - Password Reset</h2>
+              <p>You requested to reset your password. Your reset code is:</p>
+              <div style="background: #1a0f2e; color: #8B5CF6; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 8px;">
+                ${resetCode}
+              </div>
+              <p>This code will expire in 10 minutes.</p>
+              <p>If you didn't request this code, please ignore this email.</p>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Password reset code sent to ${emailLower}`);
+
+        return res.status(200).json({
+          success: true,
+          message: 'If an account with that email exists, a password reset code has been sent.'
+        });
+      } catch (dbError) {
+        console.error('Database error in forgot-password:', dbError.message);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send reset email. Please try again later.'
+        });
+      }
+    }
 
     // Handle verify code action
     if (action === 'verify' || (code && !token)) {
