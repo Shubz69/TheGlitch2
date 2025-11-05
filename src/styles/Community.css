@@ -344,11 +344,12 @@
 
 /* Message Items */
 .message-item {
-    padding: 8px 24px 8px 80px;
-    margin-bottom: 8px;
+    padding: 12px 24px 16px 80px;
+    margin-bottom: 20px;
     position: relative;
     transition: background 0.06s ease;
     min-height: 44px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
 }
 
 .message-item:hover {

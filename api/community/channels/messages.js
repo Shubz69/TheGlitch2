@@ -74,7 +74,14 @@ module.exports = async (req, res) => {
           userId: row.user_id,
           username: row.username,
           content: row.content,
-          createdAt: row.created_at
+          createdAt: row.created_at,
+          timestamp: row.created_at, // Add timestamp for frontend compatibility
+          sender: {
+            id: row.user_id,
+            username: row.username,
+            avatar: '/avatars/avatar_ai.png',
+            role: 'USER'
+          }
         }));
 
         return res.status(200).json(messages);
@@ -123,7 +130,14 @@ module.exports = async (req, res) => {
           userId: newMessage[0].user_id,
           username: newMessage[0].username,
           content: newMessage[0].content,
-          createdAt: newMessage[0].created_at
+          createdAt: newMessage[0].created_at,
+          timestamp: newMessage[0].created_at, // Add timestamp for frontend compatibility
+          sender: {
+            id: newMessage[0].user_id,
+            username: newMessage[0].username,
+            avatar: '/avatars/avatar_ai.png',
+            role: 'USER'
+          }
         };
 
         return res.status(201).json(message);
