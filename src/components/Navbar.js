@@ -50,7 +50,7 @@ const Navbar = () => {
                 {!user ? (
                     <>
                         <button className="sign-in" onClick={() => window.location.href='/login'}>Sign In</button>
-                        <button className="start-trading" onClick={() => window.location.href='/register'}>Start Trading</button>
+                        <button className="start-trading" onClick={() => window.location.href='/register'}>Sign Up</button>
                     </>
                 ) : (
                     <div className="user-profile">
@@ -111,7 +111,7 @@ const Navbar = () => {
                     {!user ? (
                         <>
                             <button className="mobile-sign-in" onClick={() => window.location.href='/login'}>Sign In</button>
-                            <button className="mobile-start-trading" onClick={() => window.location.href='/register'}>Start Trading</button>
+                            <button className="mobile-start-trading" onClick={() => window.location.href='/register'}>Sign Up</button>
                         </>
                     ) : (
                         <button onClick={logout} className="mobile-sign-in">
