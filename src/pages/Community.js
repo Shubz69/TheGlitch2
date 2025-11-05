@@ -537,16 +537,8 @@ const Community = () => {
             return;
         }
         
-        // Check if user has active subscription
-        const hasActiveSubscription = checkSubscription();
-        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
-        
-        if (!hasActiveSubscription && !pendingSubscription) {
-            // No subscription - redirect to subscription page
-            console.log("No active subscription - redirecting to subscription page");
-            navigate('/subscription');
-            return;
-        }
+        // Don't redirect - allow user to see community page with subscribe button
+        // Subscription check is done in the render to show subscribe banner
     }, [isAuthenticated, navigate]);
 
     // Initialize component
@@ -571,16 +563,8 @@ const Community = () => {
             return;
         }
         
-        // Check subscription (admins bypass) - using storedUserData from line 558
-        const isAdmin = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin';
-        const hasActiveSubscription = checkSubscription();
-        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
-        
-        if (!isAdmin && !hasActiveSubscription && !pendingSubscription) {
-            console.log("No active subscription, redirecting to subscription page");
-            navigate('/subscription');
-            return;
-        }
+        // Don't redirect - allow user to see community page with subscribe button
+        // Subscription check is done in the render to show subscribe banner
 
         if (tokenIsValid) {
             // Ensure user has a displayable name
@@ -994,10 +978,103 @@ Let's build generational wealth together! 💰🚀`,
     // Category order
     const categoryOrder = ['announcements', 'staff', 'courses', 'trading', 'general', 'support', 'premium'];
 
+    // Check subscription status for banner
+    const hasActiveSubscription = checkSubscription();
+    const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
+    const storedUserDataForBanner = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin';
+    const showSubscribeBanner = !isAdminForBanner && !hasActiveSubscription;
+
+    // Handle subscribe button click
+    const handleSubscribe = async () => {
+        try {
+            const response = await fetch('https://www.theglitch.world/api/stripe/create-subscription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    trialPeriodDays: 90 // 3 months free
+                })
+            });
+
+            if (response.ok) {
+                const { checkoutUrl } = await response.json();
+                if (checkoutUrl) {
+                    window.location.href = checkoutUrl;
+                } else {
+                    // Fallback: redirect to subscription page
+                    navigate('/subscription');
+                }
+            } else {
+                // Fallback: redirect to subscription page
+                navigate('/subscription');
+            }
+        } catch (error) {
+            console.error('Error creating subscription:', error);
+            // Fallback: redirect to subscription page
+            navigate('/subscription');
+        }
+    };
+
     // Render
     return (
         <div className="community-container">
             <BinaryBackground />
+            
+            {/* SUBSCRIBE BANNER - Show if no active subscription */}
+            {showSubscribeBanner && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+                    color: 'white',
+                    padding: '16px 24px',
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    borderBottom: '2px solid #6D28D9'
+                }}>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>
+                            Subscribe to Access Full Community
+                        </h3>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.9 }}>
+                            Get 3 months free, then just £99/month
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleSubscribe}
+                        style={{
+                            background: 'white',
+                            color: '#8B5CF6',
+                            border: 'none',
+                            padding: '12px 32px',
+                            borderRadius: '8px',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                            e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                            e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+                        }}
+                    >
+                        SUBSCRIBE NOW
+                    </button>
+                </div>
+            )}
             
             {/* LEFT SIDEBAR - CHANNELS */}
             <div className="community-sidebar">

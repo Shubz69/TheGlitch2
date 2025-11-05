@@ -42,8 +42,11 @@ module.exports = async (req, res) => {
         quantity: 1,
       }],
       mode: 'subscription',
+      subscription_data: {
+        trial_period_days: 90, // 3 months free trial
+      },
       success_url: `${process.env.FRONTEND_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/subscription`,
+      cancel_url: `${process.env.FRONTEND_URL}/community`,
     });
     
     return res.status(200).json({

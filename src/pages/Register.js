@@ -166,7 +166,7 @@ const Register = () => {
 
             await Api.register(submitData);
 
-            // Registration successful
+            // Registration successful - redirect to community page with subscribe button
             localStorage.setItem('pendingSubscription', 'true');
             localStorage.setItem('newSignup', 'true');
             
@@ -179,9 +179,9 @@ const Register = () => {
                 draggable: true,
             });
             
-            // Redirect to subscription page
+            // Redirect to community page (will show subscribe button)
             setTimeout(() => {
-                navigate('/subscription');
+                navigate('/community');
             }, 1500);
         } catch (err) {
             console.error('Registration error:', err);

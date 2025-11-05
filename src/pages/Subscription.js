@@ -34,22 +34,8 @@ const Subscription = () => {
         const isNewSignup = localStorage.getItem('newSignup') === 'true';
         const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
         
-        if (isNewSignup || pendingSubscription) {
-            // Set first month free subscription
-            const freeTrialExpiry = new Date();
-            freeTrialExpiry.setMonth(freeTrialExpiry.getMonth() + 1);
-            localStorage.setItem('hasActiveSubscription', 'true');
-            localStorage.setItem('subscriptionExpiry', freeTrialExpiry.toISOString());
-            localStorage.setItem('subscriptionType', 'free_trial');
-            localStorage.setItem('newSignup', 'false');
-            localStorage.setItem('pendingSubscription', 'false');
-            
-            // Redirect to community after setting free trial
-            setTimeout(() => {
-                navigate('/community');
-            }, 500);
-            return;
-        }
+        // Don't auto-grant free trial - user must subscribe via banner
+        // Remove this auto-grant feature
     }, [isAuthenticated, navigate]);
 
     const handleSubscribe = async () => {
@@ -69,7 +55,7 @@ const Subscription = () => {
                     },
                     body: JSON.stringify({
                         priceId: 'price_monthly_subscription',
-                        trialPeriodDays: 30 // First month free
+                        trialPeriodDays: 90 // 3 months free
                     })
                 });
 
