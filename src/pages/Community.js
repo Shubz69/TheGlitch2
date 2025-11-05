@@ -736,6 +736,149 @@ const Community = () => {
         loadChannels();
     }, [isAuthenticated, channelIdParam, selectedChannel, courses]);
 
+    // Check API connectivity
+    const checkApiConnectivity = useCallback(async () => {
+        try {
+            const apiBaseUrl = window.location.origin;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
+            const response = await fetch(`${apiBaseUrl}/api/community/channels`, {
+                method: 'HEAD',
+                signal: controller.signal,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            setApiConnected(response.ok || response.status < 500);
+            return response.ok || response.status < 500;
+        } catch (error) {
+            // Network error (timeout, abort, etc.) = likely WiFi issue
+            if (error.name === 'AbortError' || error.name === 'NetworkError' || !navigator.onLine) {
+                setApiConnected(false);
+                return false;
+            }
+            // Server error (500, etc.) = server issue
+            setApiConnected(false);
+            return false;
+        }
+    }, []);
+
+    // Fetch online users status periodically
+    const fetchOnlineStatus = useCallback(async () => {
+        if (!isAuthenticated) return;
+
+        try {
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/admin/user-status`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const online = data.onlineUsers || [];
+                const total = data.totalUsers || 0;
+                
+                setOnlineUsers(online);
+                setOnlineCount(online.length);
+                setTotalUsers(total);
+                setApiConnected(true); // API is working
+            } else {
+                // Server returned error (500, 503, etc.)
+                setApiConnected(false);
+            }
+        } catch (error) {
+            console.error('Failed to fetch online status:', error);
+            // Network error = WiFi issue
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                setApiConnected(false);
+            }
+        }
+    }, [isAuthenticated]);
+
+    // Update user presence (heartbeat) - runs periodically
+    useEffect(() => {
+        if (!isAuthenticated || !userId) return;
+
+        // Update presence immediately
+        const updatePresence = async () => {
+            try {
+                const apiBaseUrl = window.location.origin;
+                await fetch(`${apiBaseUrl}/api/community/update-presence`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ userId })
+                });
+            } catch (error) {
+                console.error('Failed to update presence:', error);
+            }
+        };
+
+        // Update immediately
+        updatePresence();
+
+        // Update every 30 seconds (heartbeat)
+        const presenceInterval = setInterval(updatePresence, 30000);
+
+        return () => clearInterval(presenceInterval);
+    }, [isAuthenticated, userId]);
+
+    // Determine connection status based on API and WebSocket
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setConnectionStatus('connecting');
+            return;
+        }
+
+        // Check connectivity
+        const updateConnectionStatus = async () => {
+            const apiWorking = await checkApiConnectivity();
+            
+            if (isConnected && apiWorking) {
+                setConnectionStatus('connected');
+            } else if (!apiWorking && !navigator.onLine) {
+                // Offline or network error = WiFi issue
+                setConnectionStatus('wifi-issue');
+            } else if (!apiWorking && navigator.onLine) {
+                // Online but API not responding = server issue
+                setConnectionStatus('server-issue');
+            } else if (!isConnected && apiWorking) {
+                // API works but WebSocket connecting = WiFi/connection issue
+                setConnectionStatus('connecting');
+            } else {
+                setConnectionStatus('connecting');
+            }
+        };
+
+        updateConnectionStatus();
+        
+        // Update status every 5 seconds
+        const statusCheckInterval = setInterval(updateConnectionStatus, 5000);
+        
+        return () => clearInterval(statusCheckInterval);
+    }, [isAuthenticated, isConnected, connectionError, checkApiConnectivity]);
+
+    // Fetch online status periodically
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        // Fetch immediately
+        fetchOnlineStatus();
+
+        // Then fetch every 10 seconds for live updates
+        const statusInterval = setInterval(fetchOnlineStatus, 10000);
+
+        return () => clearInterval(statusInterval);
+    }, [isAuthenticated, fetchOnlineStatus]);
+
     // Load messages when channel changes
     useEffect(() => {
         if (selectedChannel) {
@@ -1405,8 +1548,17 @@ Let's build generational wealth together! 💰🚀`,
                         {/* Chat Input */}
                         <div className="chat-input-container">
                             <div className="connection-status">
-                                <span className="status-dot"></span>
-                                <span>{isConnected ? 'Connected' : 'Connecting...'}</span>
+                                <span className={`status-dot ${
+                                    connectionStatus === 'connected' ? 'connected' : 
+                                    connectionStatus === 'server-issue' || connectionStatus === 'wifi-issue' ? 'error' : 
+                                    'connecting'
+                                }`}></span>
+                                <span>
+                                    {connectionStatus === 'connected' ? 'Connected' : 
+                                     connectionStatus === 'server-issue' ? 'Connection Issues' :
+                                     connectionStatus === 'wifi-issue' ? 'Cannot Connect' :
+                                     'Connecting...'}
+                                </span>
                             </div>
                             
                             {/* File Preview */}

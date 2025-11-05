@@ -434,6 +434,19 @@
     font-weight: 600;
 }
 
+.status-dot.connected {
+    background: var(--accent-green);
+}
+
+.status-dot.connecting {
+    background: #F59E0B;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.error {
+    background: #EF4444;
+}
+
 .status-dot {
     width: 8px;
     height: 8px;
