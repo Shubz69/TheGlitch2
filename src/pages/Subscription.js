@@ -100,7 +100,7 @@ const Subscription = () => {
 
                     <div className="subscription-pricing">
                         <div className="pricing-highlight">
-                            <span className="pricing-label">First Month</span>
+                            <span className="pricing-label">First 3 Months</span>
                             <span className="pricing-amount">FREE</span>
                         </div>
                         <div className="pricing-regular">
