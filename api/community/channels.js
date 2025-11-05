@@ -163,6 +163,27 @@ module.exports = async (req, res) => {
               }
             }
             
+            // Ensure all courses from defaultCourses are also in the database
+            const defaultCourses = [
+              { id: 1, title: "E-Commerce" },
+              { id: 2, title: "Health & Fitness" },
+              { id: 3, title: "Trading" },
+              { id: 4, title: "Real Estate" },
+              { id: 5, title: "Social Media" },
+              { id: 6, title: "Psychology and Mindset" },
+              { id: 7, title: "Algorithmic AI" },
+              { id: 8, title: "Crypto" }
+            ];
+            
+            for (const course of defaultCourses) {
+              const courseId = `course-${course.id}`;
+              const courseName = course.title.toLowerCase().replace(/\s+/g, '-');
+              await db.execute(
+                'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
+                [courseId, courseName, 'courses', `Discussion for ${course.title}`, 'open', courseName, 'courses', `Discussion for ${course.title}`, 'open']
+              );
+            }
+            
             // Add trading channels (everyone can see and post)
             const tradingChannels = [
               { id: 'forex', name: 'forex', category: 'trading', description: 'Forex trading discussions' },

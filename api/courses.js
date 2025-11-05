@@ -7,13 +7,24 @@ const getDbConnection = async () => {
   }
 
   try {
-    const connection = await mysql.createConnection({
+    const connectionConfig = {
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
-    });
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 5000, // 5 second timeout
+      acquireTimeout: 5000
+    };
+
+    if (process.env.MYSQL_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    } else {
+      connectionConfig.ssl = false;
+    }
+
+    const connection = await mysql.createConnection(connectionConfig);
+    await connection.ping(); // Test connection
     return connection;
   } catch (error) {
     console.error('Database connection error:', error);
@@ -43,7 +54,10 @@ module.exports = async (req, res) => {
       { id: 2, title: "Health & Fitness", description: "Build profitable fitness brands, coaching businesses, and supplement companies", level: "All Levels", duration: 5, price: 79.99, imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" },
       { id: 3, title: "Trading", description: "Master forex, stocks, and crypto trading strategies", level: "Intermediate", duration: 8, price: 149.99, imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" },
       { id: 4, title: "Real Estate", description: "Master strategic property investment, REIT analysis, and PropTech opportunities", level: "Intermediate", duration: 7, price: 119.99, imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2073&q=80" },
-      { id: 5, title: "Social Media", description: "Build massive personal brands and monetize digital influence", level: "All Levels", duration: 4, price: 59.99, imageUrl: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2339&q=80" }
+      { id: 5, title: "Social Media", description: "Build massive personal brands and monetize digital influence", level: "All Levels", duration: 4, price: 59.99, imageUrl: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2339&q=80" },
+      { id: 6, title: "Psychology and Mindset", description: "Master the psychological aspects of trading and develop the winning mindset for consistent success", level: "All Levels", duration: 6, price: 129.99, imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d4c09?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" },
+      { id: 7, title: "Algorithmic AI", description: "Learn to build and deploy algorithmic trading systems powered by artificial intelligence", level: "Advanced", duration: 10, price: 199.99, imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" },
+      { id: 8, title: "Crypto", description: "Master cryptocurrency trading, blockchain technology, and DeFi strategies", level: "Intermediate", duration: 7, price: 149.99, imageUrl: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" }
     ];
 
     // Try to fetch from database
@@ -67,9 +81,37 @@ module.exports = async (req, res) => {
 
         // Check if courses exist
         const [rows] = await db.execute('SELECT * FROM courses ORDER BY id ASC');
-        await db.end();
-
-        if (rows && rows.length > 0) {
+        
+        // Ensure all default courses exist in database
+        if (rows.length < defaultCourses.length) {
+          // Insert missing courses
+          for (const course of defaultCourses) {
+            const [existing] = await db.execute('SELECT id FROM courses WHERE id = ?', [course.id]);
+            if (existing.length === 0) {
+              await db.execute(
+                'INSERT INTO courses (id, title, description, level, duration, price, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [course.id, course.title, course.description, course.level, course.duration, course.price, course.imageUrl]
+              );
+            }
+          }
+          // Re-fetch after inserting
+          const [updatedRows] = await db.execute('SELECT * FROM courses ORDER BY id ASC');
+          await db.end();
+          
+          if (updatedRows && updatedRows.length > 0) {
+            const courses = updatedRows.map(row => ({
+              id: row.id,
+              title: row.title,
+              description: row.description,
+              level: row.level,
+              duration: row.duration,
+              price: parseFloat(row.price),
+              imageUrl: row.image_url
+            }));
+            return res.status(200).json(courses);
+          }
+        } else if (rows && rows.length > 0) {
+          await db.end();
           // Map database rows to API format
           const courses = rows.map(row => ({
             id: row.id,
@@ -81,6 +123,8 @@ module.exports = async (req, res) => {
             imageUrl: row.image_url
           }));
           return res.status(200).json(courses);
+        } else {
+          await db.end();
         }
       } catch (dbError) {
         console.error('Database error fetching courses:', dbError);
