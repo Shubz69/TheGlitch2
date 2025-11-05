@@ -26,10 +26,18 @@ const Courses = () => {
                 console.log('Fetching courses from:', `${API_BASE_URL}/api/courses`);
                 const response = await Api.getCourses();
                 
-                // Ensure response.data is an array and filter out invalid courses
-                const coursesData = Array.isArray(response.data) 
-                    ? response.data.filter(course => course && course.id && course.title)
-                    : [];
+                // Handle both array response and object with courses property
+                let coursesData = [];
+                if (Array.isArray(response.data)) {
+                    coursesData = response.data;
+                } else if (response.data && Array.isArray(response.data.courses)) {
+                    coursesData = response.data.courses;
+                } else if (response.data && response.data.success === false && Array.isArray(response.data.courses)) {
+                    coursesData = response.data.courses;
+                }
+                
+                // Filter out invalid courses
+                coursesData = coursesData.filter(course => course && course.id && course.title);
                 setCourses(coursesData);
                 
                 // Check if we're using mock data by examining the course IDs

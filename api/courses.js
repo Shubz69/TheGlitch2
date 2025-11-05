@@ -140,13 +140,9 @@ module.exports = async (req, res) => {
     return res.status(200).json(defaultCourses);
   } catch (error) {
     console.error('Error fetching courses:', error);
-    // Always return JSON, even on errors
+    // Always return courses array, even on errors
     try {
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch courses. Please try again later.',
-        courses: defaultCourses // Return default courses as fallback
-      });
+      return res.status(200).json(defaultCourses);
     } catch (jsonError) {
       // If JSON response fails, send plain text
       res.status(500).end('Internal Server Error');
