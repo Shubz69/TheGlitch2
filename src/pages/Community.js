@@ -115,6 +115,8 @@ const Community = () => {
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [totalUsers, setTotalUsers] = useState(0);
     const [onlineCount, setOnlineCount] = useState(0);
+    const [apiConnected, setApiConnected] = useState(true);
+    const [connectionStatus, setConnectionStatus] = useState('connecting'); // 'connected', 'connecting', 'server-issue', 'wifi-issue'
     const messagesEndRef = useRef(null);
     const messageInputRef = useRef(null);
     
