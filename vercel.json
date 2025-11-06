@@ -69,6 +69,22 @@
     {
       "source": "/api/community/update-presence",
       "destination": "/api/community/index.js"
+    },
+    {
+      "source": "/api/subscription/check",
+      "destination": "/api/subscription/check.js"
+    },
+    {
+      "source": "/api/stripe/subscription-success",
+      "destination": "/api/stripe/subscription-success.js"
+    },
+    {
+      "source": "/api/stripe/webhook",
+      "destination": "/api/stripe/webhook.js"
+    },
+    {
+      "source": "/api/admin",
+      "destination": "/api/admin/index.js"
     }
   ]
 }

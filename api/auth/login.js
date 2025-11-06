@@ -101,6 +101,37 @@ module.exports = async (req, res) => {
         [user.id]
       );
 
+      // Check subscription status (add columns if they don't exist)
+      let subscriptionStatus = 'inactive';
+      let subscriptionExpiry = null;
+      try {
+        // Try to get subscription columns
+        const [subscriptionData] = await db.execute(
+          'SELECT subscription_status, subscription_expiry FROM users WHERE id = ?',
+          [user.id]
+        );
+        if (subscriptionData && subscriptionData.length > 0) {
+          subscriptionStatus = subscriptionData[0].subscription_status || 'inactive';
+          subscriptionExpiry = subscriptionData[0].subscription_expiry;
+          
+          // Check if subscription is still valid
+          if (subscriptionStatus === 'active' && subscriptionExpiry) {
+            const expiryDate = new Date(subscriptionExpiry);
+            if (expiryDate < new Date()) {
+              // Subscription expired
+              subscriptionStatus = 'expired';
+              await db.execute(
+                'UPDATE users SET subscription_status = ? WHERE id = ?',
+                ['expired', user.id]
+              );
+            }
+          }
+        }
+      } catch (err) {
+        // Columns don't exist yet, they'll be created when subscription is activated
+        console.log('Subscription columns not found, will be created on first subscription');
+      }
+
       // Generate JWT token (3-part format: header.payload.signature)
       // Convert to base64url (replace + with -, / with _, remove = padding)
       const toBase64Url = (str) => {
@@ -134,7 +165,11 @@ module.exports = async (req, res) => {
         avatar: user.avatar || '/avatars/avatar_ai.png',
         role: user.role || 'USER',
         token: token,
-        status: 'SUCCESS'
+        status: 'SUCCESS',
+        subscription: {
+          status: subscriptionStatus,
+          expiry: subscriptionExpiry
+        }
       });
     } catch (dbError) {
       console.error('Database error during login:', dbError);

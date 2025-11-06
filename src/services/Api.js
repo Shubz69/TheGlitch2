@@ -619,6 +619,24 @@ const Api = {
         return axios.post(`${API_BASE_URL}/api/contact`, contactData);
     },
     
+    // Subscription
+    checkSubscription: async (userId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${API_BASE_URL}/api/subscription/check`, {
+                params: { userId },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error checking subscription:', error);
+            throw error;
+        }
+    },
+    
 
     
     // Password reset methods

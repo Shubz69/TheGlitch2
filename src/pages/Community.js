@@ -130,6 +130,8 @@ const Community = () => {
     const [hasReadWelcome, setHasReadWelcome] = useState(false);
     const [showAllChannels, setShowAllChannels] = useState(false);
     const [courses, setCourses] = useState([]);
+    const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+    const [paymentFailed, setPaymentFailed] = useState(false);
     
     // Initialize WebSocket connection for real-time messaging
     const { 
@@ -524,8 +526,39 @@ const Community = () => {
         }
     }, [isAuthenticated]);
 
-    // Check subscription status
-    const checkSubscription = () => {
+    // Check subscription status from database
+    const checkSubscriptionFromDB = async () => {
+        if (!userId) return false;
+        
+        try {
+            const result = await Api.checkSubscription(userId);
+            if (result.success) {
+                setSubscriptionStatus(result);
+                setPaymentFailed(result.paymentFailed || false);
+                
+                // Update localStorage to match database
+                if (result.hasActiveSubscription && !result.paymentFailed) {
+                    localStorage.setItem('hasActiveSubscription', 'true');
+                    if (result.expiry) {
+                        localStorage.setItem('subscriptionExpiry', result.expiry);
+                    }
+                } else {
+                    localStorage.removeItem('hasActiveSubscription');
+                    localStorage.removeItem('subscriptionExpiry');
+                }
+                
+                return result.hasActiveSubscription && !result.paymentFailed;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking subscription from database:', error);
+            // Fallback to localStorage check
+            return checkSubscriptionLocal();
+        }
+    };
+    
+    // Check subscription status from localStorage (fallback)
+    const checkSubscriptionLocal = () => {
         const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
         const subscriptionExpiry = localStorage.getItem('subscriptionExpiry');
         
@@ -542,6 +575,30 @@ const Community = () => {
         }
         return false;
     };
+    
+    // Combined subscription check
+    const checkSubscription = () => {
+        // Use database status if available, otherwise fallback to localStorage
+        if (subscriptionStatus) {
+            return subscriptionStatus.hasActiveSubscription && !subscriptionStatus.paymentFailed;
+        }
+        return checkSubscriptionLocal();
+    };
+    
+    // Periodically check subscription status from database
+    useEffect(() => {
+        if (!userId || !isAuthenticated) return;
+        
+        // Check immediately
+        checkSubscriptionFromDB();
+        
+        // Check every 30 seconds
+        const interval = setInterval(() => {
+            checkSubscriptionFromDB();
+        }, 30000);
+        
+        return () => clearInterval(interval);
+    }, [userId, isAuthenticated]);
 
     // Check subscription before allowing access to community
     useEffect(() => {
@@ -1177,6 +1234,7 @@ Let's build generational wealth together! 💰🚀`,
     const storedUserDataForBanner = JSON.parse(localStorage.getItem('user') || '{}');
     const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin';
     const showSubscribeBanner = !isAdminForBanner && !hasActiveSubscription;
+    const showPaymentFailedBanner = !isAdminForBanner && paymentFailed;
 
     // Handle subscribe button click - redirect to Stripe payment link
     const handleSubscribe = () => {
@@ -1189,8 +1247,84 @@ Let's build generational wealth together! 💰🚀`,
         <div className="community-container" style={{ position: 'relative' }}>
             <BinaryBackground />
             
+            {/* PAYMENT FAILED BANNER - Show if payment failed */}
+            {showPaymentFailedBanner && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                    color: 'white',
+                    padding: '16px 24px',
+                    zIndex: 1001,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    borderBottom: '2px solid #DC2626'
+                }}>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>
+                            ⚠️ Payment Failed - Access Restricted
+                        </h3>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.9 }}>
+                            {subscriptionStatus?.message || 'Your payment has failed. Please update your payment method to continue using the community.'}
+                        </p>
+                    </div>
+                    <button
+                        onClick={handleSubscribe}
+                        style={{
+                            background: 'white',
+                            color: '#EF4444',
+                            border: 'none',
+                            padding: '12px 32px',
+                            borderRadius: '8px',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                            marginRight: '12px'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                            e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                            e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+                        }}
+                    >
+                        UPDATE PAYMENT
+                    </button>
+                    <button
+                        onClick={() => navigate('/subscription')}
+                        style={{
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            color: 'white',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            padding: '12px 24px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                        }}
+                    >
+                        CONTACT SUPPORT
+                    </button>
+                </div>
+            )}
+            
             {/* SUBSCRIBE BANNER - Show if no active subscription */}
-            {showSubscribeBanner && (
+            {showSubscribeBanner && !showPaymentFailedBanner && (
                 <div style={{
                     position: 'fixed',
                     top: 0,
@@ -1242,8 +1376,8 @@ Let's build generational wealth together! 💰🚀`,
                 </div>
             )}
             
-            {/* BLUR OVERLAY - Blur content when no subscription */}
-            {showSubscribeBanner && (
+            {/* BLUR OVERLAY - Blur content when no subscription or payment failed */}
+            {(showSubscribeBanner || showPaymentFailedBanner) && (
                 <>
                     <div style={{
                         position: 'absolute',
@@ -1338,9 +1472,9 @@ Let's build generational wealth together! 💰🚀`,
             
             {/* LEFT SIDEBAR - CHANNELS */}
             <div className="community-sidebar" style={{
-                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
-                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
-                userSelect: showSubscribeBanner ? 'none' : 'auto'
+                filter: (showSubscribeBanner || showPaymentFailedBanner) ? 'blur(8px)' : 'none',
+                pointerEvents: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto',
+                userSelect: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto'
             }}>
                 <div className="sidebar-header">
                     <h2>Channels</h2>
@@ -1441,9 +1575,9 @@ Let's build generational wealth together! 💰🚀`,
             
             {/* MAIN CHAT AREA */}
             <div className="chat-main" style={{
-                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
-                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
-                userSelect: showSubscribeBanner ? 'none' : 'auto'
+                filter: (showSubscribeBanner || showPaymentFailedBanner) ? 'blur(8px)' : 'none',
+                pointerEvents: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto',
+                userSelect: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto'
             }}>
                 {selectedChannel ? (
                     <>
@@ -1703,9 +1837,9 @@ Let's build generational wealth together! 💰🚀`,
             
             {/* RIGHT SIDEBAR - ONLINE USERS */}
             <div className="online-sidebar" style={{
-                filter: showSubscribeBanner ? 'blur(8px)' : 'none',
-                pointerEvents: showSubscribeBanner ? 'none' : 'auto',
-                userSelect: showSubscribeBanner ? 'none' : 'auto'
+                filter: (showSubscribeBanner || showPaymentFailedBanner) ? 'blur(8px)' : 'none',
+                pointerEvents: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto',
+                userSelect: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto'
             }}>
                 <div className="online-section">
                     <div className="online-header">
