@@ -69,24 +69,45 @@
 }
 
 /* EYES */
+.ai-eyes {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
 .eye {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: var(--primary);
+    background: radial-gradient(circle, rgba(0, 245, 255, 0.9) 0%, rgba(0, 245, 255, 0.6) 70%);
     position: absolute;
-    box-shadow: 0 0 8px var(--primary);
+    box-shadow: 0 0 8px rgba(0, 245, 255, 0.8);
     animation: eyeGlow 2s ease-in-out infinite alternate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .left-eye {
-    left: 16px;
+    left: 14px;
     top: 18px;
 }
 
 .right-eye {
-    right: 16px;
+    right: 14px;
     top: 18px;
+}
+
+.eye-pupil {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.1s ease-out;
+    pointer-events: none;
 }
 
 @keyframes eyeGlow {

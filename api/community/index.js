@@ -45,9 +45,20 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Handle HEAD requests
+  if (req.method === 'HEAD') {
+    res.status(200).end();
+    return;
+  }
+
   // Extract the path to determine which endpoint to handle
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const path = url.pathname;
+  let path = '';
+  try {
+    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    path = url.pathname;
+  } catch (e) {
+    path = req.url || '';
+  }
 
   // Handle /api/community/users
   if (path.includes('/users') && req.method === 'GET') {
@@ -61,6 +72,13 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // Check if columns exist
+        try {
+          await db.execute('SELECT last_seen FROM users LIMIT 1');
+        } catch (e) {
+          await db.execute('ALTER TABLE users ADD COLUMN last_seen DATETIME DEFAULT NULL');
+        }
+
         const [rows] = await db.execute(
           'SELECT id, username, email, name, avatar, role, created_at, last_seen FROM users ORDER BY created_at DESC'
         );

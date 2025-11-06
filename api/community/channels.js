@@ -54,6 +54,12 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Handle HEAD requests (for connection checks)
+  if (req.method === 'HEAD') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method === 'GET') {
     try {
       // Default channels (fallback)

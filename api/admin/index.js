@@ -45,6 +45,12 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Handle HEAD requests
+  if (req.method === 'HEAD') {
+    res.status(200).end();
+    return;
+  }
+
   // Extract the path to determine which endpoint to handle
   // Vercel passes the path in req.url or we can construct it
   let pathname = '';
@@ -183,11 +189,19 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // Check if last_seen column exists
+        try {
+          await db.execute('SELECT last_seen FROM users LIMIT 1');
+        } catch (e) {
+          // Column doesn't exist, add it
+          await db.execute('ALTER TABLE users ADD COLUMN last_seen DATETIME DEFAULT NULL');
+        }
+
         // Consider users online if they were active in the last 5 minutes
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
         
         const [rows] = await db.execute(
-          `SELECT id, username, email, name, avatar, role, last_seen 
+          `SELECT id, username, email, name, avatar, role, last_seen, created_at
            FROM users 
            WHERE last_seen >= ? OR (last_seen IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE))
            ORDER BY last_seen DESC`,

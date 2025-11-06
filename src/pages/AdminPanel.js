@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../utils/useWebSocket';
 import '../styles/AdminPanel.css';
-import BinaryBackground from '../components/BinaryBackground';
 
 const AdminPanel = () => {
     const { user, isAuthenticated } = useAuth();
@@ -129,12 +128,11 @@ const AdminPanel = () => {
 
     return (
         <div className="admin-panel-container">
-            <BinaryBackground />
             <div className="admin-panel">
                 <div className="admin-header">
                     <h1 className="admin-title">REGISTERED USERS</h1>
                     <div className="user-summary">
-                        Total: {users.length} | Online: {onlineUsersCount} | Offline: {offlineUsersCount}
+                        <span>Total: {users.length} | Online: {onlineUsersCount} | Offline: {offlineUsersCount}</span>
                         {!isConnected && <span className="connection-status offline"> (Offline)</span>}
                         {isConnected && <span className="connection-status online"> (Live)</span>}
                     </div>

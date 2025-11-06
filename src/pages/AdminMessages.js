@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AdminMessages.css';
 import AdminApi from '../services/AdminApi';
-import BinaryBackground from '../components/BinaryBackground';
 
 const AdminMessages = () => {
     const { user } = useAuth();
@@ -62,7 +61,6 @@ const AdminMessages = () => {
     if (!user || user.role !== 'ADMIN') {
         return (
             <div className="admin-messages-container">
-                <BinaryBackground />
                 <div className="access-denied">
                     <h1 className="glitch-title">ACCESS DENIED</h1>
                     <p>You must be an admin to view this page.</p>
@@ -73,7 +71,6 @@ const AdminMessages = () => {
 
     return (
         <div className="admin-messages-container">
-            <BinaryBackground />
             
             <div className="admin-messages-content">
                 <div className="admin-header">

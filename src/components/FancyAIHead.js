@@ -4,10 +4,12 @@ import '../styles/FancyAIHead.css';
 const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
     const canvasRef = useRef(null);
     const neuralRef = useRef(null);
+    const containerRef = useRef(null);
     const [hoveredElement, setHoveredElement] = useState(null);
     const [isInteracting, setIsInteracting] = useState(false);
     const [eyeDirection, setEyeDirection] = useState({ x: 0, y: 0 });
     const [pulseIntensity, setPulseIntensity] = useState(1);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -79,29 +81,46 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
         }
 
         // Mouse tracking for eye movement
-        const updateEyeDirection = () => {
-            if (mousePosition && neuralCanvas) {
-                const rect = neuralCanvas.getBoundingClientRect();
+        const updateEyeDirection = (mouseX, mouseY) => {
+            const container = containerRef.current || neuralCanvas;
+            if (container) {
+                const rect = container.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
                 
-                const deltaX = (mousePosition.x - centerX) / (rect.width / 2);
-                const deltaY = (mousePosition.y - centerY) / (rect.height / 2);
+                // Use provided mousePosition or current mousePos state
+                const currentX = mouseX !== undefined ? mouseX : mousePos.x;
+                const currentY = mouseY !== undefined ? mouseY : mousePos.y;
                 
-                setEyeDirection({
-                    x: Math.max(-1, Math.min(1, deltaX)),
-                    y: Math.max(-1, Math.min(1, deltaY))
-                });
+                const deltaX = (currentX - centerX) / (rect.width / 2);
+                const deltaY = (currentY - centerY) / (rect.height / 2);
+                
+                // Clamp values and apply smoothing
+                const newX = Math.max(-1, Math.min(1, deltaX * 0.6));
+                const newY = Math.max(-1, Math.min(1, deltaY * 0.6));
+                
+                setEyeDirection(prev => ({
+                    x: prev.x + (newX - prev.x) * 0.3, // Smooth interpolation
+                    y: prev.y + (newY - prev.y) * 0.3
+                }));
             }
         };
 
-        // Update eye direction when mouse moves
-        updateEyeDirection();
+        // Mouse move event handler
+        const handleMouseMove = (e) => {
+            setMousePos({ x: e.clientX, y: e.clientY });
+            updateEyeDirection(e.clientX, e.clientY);
+        };
+
+        // Add mouse move listener
+        window.addEventListener('mousemove', handleMouseMove);
 
         // Animation loop
         const animate = () => {
             // Update eye direction in animation loop for smooth tracking
-            updateEyeDirection();
+            if (mousePos.x !== 0 || mousePos.y !== 0) {
+                updateEyeDirection();
+            }
             
             neuralCtx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
 
@@ -263,6 +282,7 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
         // Cleanup
         return () => {
             window.removeEventListener('resize', resizeCanvas);
+            window.removeEventListener('mousemove', handleMouseMove);
         };
     }, [state, mousePosition]);
 
@@ -277,7 +297,10 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
     };
 
     return (
-        <div className={`fancy-ai-head ${state} ${isInteracting ? 'interacting' : ''}`}>
+        <div 
+            ref={containerRef}
+            className={`fancy-ai-head ${state} ${isInteracting ? 'interacting' : ''}`}
+        >
             <div className="ai-head-container">
                 {/* Enhanced Neural Network Background */}
                 <canvas 
@@ -305,7 +328,8 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                              onMouseLeave={handleElementLeave}>
                             <div className="eye-outer-ring"></div>
                             <div className="eye-iris" style={{
-                                transform: `translate(${eyeDirection.x * 8}px, ${eyeDirection.y * 8}px)`
+                                transform: `translate(${eyeDirection.x * 10}px, ${eyeDirection.y * 10}px)`,
+                                transition: 'transform 0.15s ease-out'
                             }}>
                                 <div className="eye-pupil"></div>
                                 <div className="eye-highlight"></div>
@@ -321,7 +345,8 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                              onMouseLeave={handleElementLeave}>
                             <div className="eye-outer-ring"></div>
                             <div className="eye-iris" style={{
-                                transform: `translate(${eyeDirection.x * 8}px, ${eyeDirection.y * 8}px)`
+                                transform: `translate(${eyeDirection.x * 10}px, ${eyeDirection.y * 10}px)`,
+                                transition: 'transform 0.15s ease-out'
                             }}>
                                 <div className="eye-pupil"></div>
                                 <div className="eye-highlight"></div>
