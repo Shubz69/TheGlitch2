@@ -60,6 +60,117 @@ module.exports = async (req, res) => {
     pathname = req.url || '';
   }
 
+  // Handle /api/subscription/check
+  if ((pathname.includes('/subscription/check') || pathname.endsWith('/subscription/check')) && (req.method === 'GET' || req.method === 'POST')) {
+    try {
+      const userId = req.method === 'GET' ? req.query.userId : req.body.userId;
+      
+      if (!userId) {
+        return res.status(400).json({ success: false, message: 'User ID is required' });
+      }
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database connection error' });
+      }
+
+      try {
+        // Check if subscription columns exist, add if not
+        try {
+          await db.execute('SELECT subscription_status FROM users LIMIT 1');
+        } catch (e) {
+          await db.execute('ALTER TABLE users ADD COLUMN subscription_status VARCHAR(50) DEFAULT NULL');
+        }
+        
+        try {
+          await db.execute('SELECT subscription_expiry FROM users LIMIT 1');
+        } catch (e) {
+          await db.execute('ALTER TABLE users ADD COLUMN subscription_expiry DATETIME DEFAULT NULL');
+        }
+        
+        try {
+          await db.execute('SELECT payment_failed FROM users LIMIT 1');
+        } catch (e) {
+          await db.execute('ALTER TABLE users ADD COLUMN payment_failed BOOLEAN DEFAULT FALSE');
+        }
+
+        const [rows] = await db.execute(
+          'SELECT subscription_status, subscription_expiry, payment_failed, role FROM users WHERE id = ?',
+          [userId]
+        );
+        await db.end();
+
+        if (rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const user = rows[0];
+        const isAdmin = user.role === 'ADMIN' || user.role === 'admin';
+        
+        if (isAdmin) {
+          return res.status(200).json({
+            success: true,
+            hasActiveSubscription: true,
+            isAdmin: true,
+            paymentFailed: false,
+            expiry: null
+          });
+        }
+
+        if (user.payment_failed === 1 || user.payment_failed === true) {
+          return res.status(200).json({
+            success: true,
+            hasActiveSubscription: false,
+            isAdmin: false,
+            paymentFailed: true,
+            expiry: user.subscription_expiry,
+            message: 'Your payment has failed. Please update your payment method to continue using the community.'
+          });
+        }
+
+        if (user.subscription_status === 'active' && user.subscription_expiry) {
+          const expiryDate = new Date(user.subscription_expiry);
+          const now = new Date();
+          
+          if (expiryDate > now) {
+            return res.status(200).json({
+              success: true,
+              hasActiveSubscription: true,
+              isAdmin: false,
+              paymentFailed: false,
+              expiry: user.subscription_expiry
+            });
+          } else {
+            return res.status(200).json({
+              success: true,
+              hasActiveSubscription: false,
+              isAdmin: false,
+              paymentFailed: false,
+              expiry: user.subscription_expiry,
+              message: 'Your subscription has expired. Please renew to continue using the community.'
+            });
+          }
+        }
+
+        return res.status(200).json({
+          success: true,
+          hasActiveSubscription: false,
+          isAdmin: false,
+          paymentFailed: false,
+          expiry: null,
+          message: 'You need an active subscription to access the community.'
+        });
+      } catch (dbError) {
+        console.error('Database error checking subscription:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({ success: false, message: 'Failed to check subscription status' });
+      }
+    } catch (error) {
+      console.error('Error in subscription check:', error);
+      return res.status(500).json({ success: false, message: 'An error occurred' });
+    }
+  }
+
   // Handle /api/admin/user-status
   if ((pathname.includes('/user-status') || pathname.endsWith('/admin/user-status')) && req.method === 'GET') {
     try {

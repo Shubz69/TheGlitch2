@@ -72,15 +72,23 @@
     },
     {
       "source": "/api/subscription/check",
-      "destination": "/api/subscription/check.js"
+      "destination": "/api/admin/index.js"
     },
     {
       "source": "/api/stripe/subscription-success",
-      "destination": "/api/stripe/subscription-success.js"
+      "destination": "/api/stripe/index.js"
     },
     {
       "source": "/api/stripe/webhook",
-      "destination": "/api/stripe/webhook.js"
+      "destination": "/api/stripe/index.js"
+    },
+    {
+      "source": "/api/stripe/create-subscription",
+      "destination": "/api/stripe/index.js"
+    },
+    {
+      "source": "/api/stripe/direct-checkout",
+      "destination": "/api/stripe/index.js"
     },
     {
       "source": "/api/admin",
