@@ -1,5 +1,25 @@
 const mysql = require('mysql2/promise');
 
+const slugify = (value) => {
+  if (!value) return '';
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 60);
+};
+
+const toDisplayName = (value) => {
+  if (!value) return '';
+  return value
+    .split('-')
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 // Get database connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
@@ -41,6 +61,21 @@ const getDbConnection = async () => {
   }
 };
 
+const ensureChannelsTable = async (db) => {
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS channels (
+      id VARCHAR(255) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      category VARCHAR(100),
+      description TEXT,
+      access_level VARCHAR(50) DEFAULT 'open',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+
+const PROTECTED_CHANNEL_IDS = new Set(['welcome', 'announcements', 'admin']);
+
 module.exports = async (req, res) => {
   // Handle CORS - allow both www and non-www origins
   const origin = req.headers.origin || '*';
@@ -73,16 +108,7 @@ module.exports = async (req, res) => {
       if (db) {
         try {
           // Create channels table if it doesn't exist
-          await db.execute(`
-            CREATE TABLE IF NOT EXISTS channels (
-              id VARCHAR(255) PRIMARY KEY,
-              name VARCHAR(255) NOT NULL,
-              category VARCHAR(100),
-              description TEXT,
-              access_level VARCHAR(50) DEFAULT 'open',
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-          `);
+          await ensureChannelsTable(db);
           
           // Add access_level column if it doesn't exist
           try {
@@ -196,7 +222,12 @@ module.exports = async (req, res) => {
               { id: 'stocks', name: 'stocks', category: 'trading', description: 'Stock market discussions' },
               { id: 'indices', name: 'indices', category: 'trading', description: 'Indices trading discussions' },
               { id: 'day-trading', name: 'day-trading', category: 'trading', description: 'Day trading strategies and discussions' },
-              { id: 'swing-trading', name: 'swing-trading', category: 'trading', description: 'Swing trading discussions' }
+              { id: 'swing-trading', name: 'swing-trading', category: 'trading', description: 'Swing trading discussions' },
+              { id: 'commodities', name: 'commodities', category: 'trading', description: 'Commodities and metals trading insights' },
+              { id: 'futures', name: 'futures', category: 'trading', description: 'Futures market strategies and setups' },
+              { id: 'options', name: 'options', category: 'trading', description: 'Options trading strategies and education' },
+              { id: 'prop-trading', name: 'prop-trading', category: 'trading', description: 'Prop firm challenges and funded account tips' },
+              { id: 'market-analysis', name: 'market-analysis', category: 'trading', description: 'Daily market analysis and trade ideas' }
             ];
             
             for (const channel of tradingChannels) {
@@ -246,6 +277,152 @@ module.exports = async (req, res) => {
       return res.status(500).json({ 
         success: false, 
         message: 'Failed to fetch channels.' 
+      });
+    }
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const { id, name, displayName, category, description, accessLevel } = req.body || {};
+      const sourceName = displayName || name;
+
+      if (!sourceName || !sourceName.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Channel name is required'
+        });
+      }
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error'
+        });
+      }
+
+      try {
+        await ensureChannelsTable(db);
+
+        const slugBase = slugify(name || sourceName) || `channel-${Date.now()}`;
+        let channelId = id && id.trim() ? slugify(id) : slugBase;
+        if (!channelId) {
+          channelId = `channel-${Date.now()}`;
+        }
+
+        // Ensure uniqueness of ID
+        let suffix = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const [existingRows] = await db.execute('SELECT id FROM channels WHERE id = ?', [channelId]);
+          if (!existingRows || existingRows.length === 0) break;
+          suffix += 1;
+          channelId = `${slugBase}-${suffix}`;
+        }
+
+        const channelName = slugify(name || sourceName) || channelId;
+        const channelCategory = (category || 'general').toLowerCase();
+        const channelDescription = description || '';
+        const channelAccess = (accessLevel || 'open').toLowerCase();
+        const locked = channelAccess === 'admin-only';
+
+        await db.execute(
+          'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
+          [channelId, channelName, channelCategory, channelDescription, channelAccess]
+        );
+
+        await db.end();
+
+        return res.status(201).json({
+          success: true,
+          channel: {
+            id: channelId,
+            name: channelName,
+            displayName: displayName || toDisplayName(channelName),
+            category: channelCategory,
+            description: channelDescription,
+            accessLevel: channelAccess,
+            locked
+          }
+        });
+      } catch (dbError) {
+        console.error('Database error creating channel:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to create channel'
+        });
+      }
+    } catch (error) {
+      console.error('Error creating channel:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  if (req.method === 'DELETE') {
+    try {
+      const channelId =
+        req.query.id ||
+        req.query.channelId ||
+        req.body?.id ||
+        req.body?.channelId;
+
+      if (!channelId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Channel ID is required'
+        });
+      }
+
+      if (PROTECTED_CHANNEL_IDS.has(channelId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'This channel cannot be deleted'
+        });
+      }
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error'
+        });
+      }
+
+      try {
+        await ensureChannelsTable(db);
+
+        await db.execute('DELETE FROM messages WHERE channel_id = ?', [channelId]);
+        const [result] = await db.execute('DELETE FROM channels WHERE id = ?', [channelId]);
+        await db.end();
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            success: false,
+            message: 'Channel not found'
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: 'Channel deleted successfully'
+        });
+      } catch (dbError) {
+        console.error('Database error deleting channel:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to delete channel'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting channel:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error'
       });
     }
   }

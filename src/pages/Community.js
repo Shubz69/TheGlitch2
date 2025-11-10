@@ -1,17 +1,12 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import '../styles/Community.css';
 import { useWebSocket } from '../utils/useWebSocket';
-import { useAuth } from '../context/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import Api from '../services/Api';
 import BinaryBackground from '../components/BinaryBackground';
 
 // Icons
-import { FaHashtag, FaLock, FaBullhorn, FaUserAlt, FaPaperPlane, FaSmile, FaCrown, FaShieldAlt, FaBan, FaVolumeMute, FaTrash, FaPaperclip, FaTimes } from 'react-icons/fa';
-import { BsStars } from 'react-icons/bs';
-import { RiAdminFill } from 'react-icons/ri';
+import { FaHashtag, FaLock, FaBullhorn, FaPaperPlane, FaSmile, FaTrash, FaPaperclip, FaTimes, FaPlus } from 'react-icons/fa';
 
 // All API calls use real endpoints only - no mock mode
 
@@ -97,14 +92,12 @@ const getChannelIcon = (channel) => {
 
 // Main Community Component
 const Community = () => {
-    const { user: authUser } = useAuth();
     const [userLevel, setUserLevel] = useState(1);
     const [storedUser, setStoredUser] = useState(null);
     const [userId, setUserId] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(false);
-    const location = useLocation();
     const navigate = useNavigate();
     const { id: channelIdParam } = useParams();
     
@@ -115,7 +108,6 @@ const Community = () => {
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [totalUsers, setTotalUsers] = useState(0);
     const [onlineCount, setOnlineCount] = useState(0);
-    const [apiConnected, setApiConnected] = useState(true);
     const [connectionStatus, setConnectionStatus] = useState('connecting'); // 'connected', 'connecting', 'server-issue', 'wifi-issue'
     const messagesEndRef = useRef(null);
     const messageInputRef = useRef(null);
@@ -128,10 +120,48 @@ const Community = () => {
     
     // Welcome message and channel visibility
     const [hasReadWelcome, setHasReadWelcome] = useState(false);
-    const [showAllChannels, setShowAllChannels] = useState(false);
     const [courses, setCourses] = useState([]);
     const [subscriptionStatus, setSubscriptionStatus] = useState(null);
     const [paymentFailed, setPaymentFailed] = useState(false);
+    const [showChannelManager, setShowChannelManager] = useState(false);
+    const [newChannelName, setNewChannelName] = useState('');
+    const [newChannelCategory, setNewChannelCategory] = useState('trading');
+    const [newChannelDescription, setNewChannelDescription] = useState('');
+    const [newChannelAccess, setNewChannelAccess] = useState('open');
+    const [channelActionStatus, setChannelActionStatus] = useState(null);
+    const [channelActionLoading, setChannelActionLoading] = useState(false);
+    
+    const categoryOrder = useMemo(() => ([
+        'announcements',
+        'staff',
+        'courses',
+        'trading',
+        'general',
+        'support',
+        'premium'
+    ]), []);
+
+    const protectedChannelIds = useMemo(() => (['welcome', 'announcements', 'admin']), []);
+
+    const sortChannels = useCallback((channels) => {
+        const orderMap = categoryOrder.reduce((map, category, index) => {
+            map[category] = index;
+            return map;
+        }, {});
+
+        return [...channels].sort((a, b) => {
+            const catA = orderMap[(a.category || 'general')] ?? Number.MAX_SAFE_INTEGER;
+            const catB = orderMap[(b.category || 'general')] ?? Number.MAX_SAFE_INTEGER;
+
+            if (catA !== catB) {
+                return catA - catB;
+            }
+
+            const nameA = (a.displayName || a.name || '').toLowerCase();
+            const nameB = (b.displayName || b.name || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+    }, [categoryOrder]);
     
     // Initialize WebSocket connection for real-time messaging
     const { 
@@ -141,7 +171,6 @@ const Community = () => {
     } = useWebSocket(
         selectedChannel?.id,
         (message) => {
-            console.log('WebSocket: Message received', message);
             setMessages(prev => {
                 const isDuplicate = prev.some(m => 
                     m.id === message.id ||
@@ -151,7 +180,6 @@ const Community = () => {
                 );
                 
                 if (isDuplicate) {
-                    console.log('Skipping duplicate message');
                     return prev;
                 }
                 
@@ -169,10 +197,10 @@ const Community = () => {
     
     // Save messages to localStorage
     const saveMessagesToStorage = (channelId, messages) => {
+        if (!channelId) return;
         try {
             const key = `community_messages_${channelId}`;
             localStorage.setItem(key, JSON.stringify(messages));
-            console.log(`Saved ${messages.length} messages to localStorage for channel ${channelId}`);
         } catch (error) {
             console.error('Error saving messages to localStorage:', error);
         }
@@ -180,12 +208,12 @@ const Community = () => {
 
     // Load messages from localStorage
     const loadMessagesFromStorage = (channelId) => {
+        if (!channelId) return [];
         try {
             const key = `community_messages_${channelId}`;
             const stored = localStorage.getItem(key);
             if (stored) {
                 const messages = JSON.parse(stored);
-                console.log(`Loaded ${messages.length} messages from localStorage for channel ${channelId}`);
                 return messages;
             }
         } catch (error) {
@@ -194,12 +222,20 @@ const Community = () => {
         return [];
     };
 
+    const persistMessagesList = (channelId, nextMessages) => {
+        setMessages(nextMessages);
+        saveMessagesToStorage(channelId, nextMessages);
+    };
+
+    const replaceMessageById = (list, messageId, replacement) =>
+        list.map(msg => (msg.id === messageId ? replacement : msg));
+
     // ***** XP SYSTEM FUNCTIONS *****
     
     // XP and Level calculation rules
-    const XP_PER_MESSAGE = 10; // Base XP for sending a message
+    const XP_PER_MESSAGE = 0.01; // Base XP for sending a message
     const XP_PER_FILE = 20; // Extra XP for including a file/image
-    const XP_PER_EMOJI = 2; // Extra XP per emoji in message
+    const XP_PER_EMOJI = 0.001; // Extra XP per emoji in message
     
     // Level thresholds - XP required to reach each level
     const getLevelFromXP = (xp) => {
@@ -256,15 +292,6 @@ const Community = () => {
             setStoredUser(updatedUser);
             setUserLevel(newLevel);
             
-            // Log XP gain
-            console.log(`+${earnedXP} XP! Total XP: ${newXP}, Level: ${newLevel}`);
-            
-            // Check for level up
-            if (newLevel > oldLevel) {
-                console.log(`🎉 LEVEL UP! You are now Level ${newLevel}!`);
-                // You could add a toast notification here
-            }
-            
             return {
                 earnedXP,
                 newXP,
@@ -313,7 +340,6 @@ const Community = () => {
             const currentTime = Date.now() / 1000;
             
             if (payload.exp && payload.exp < currentTime) {
-                console.log('Token expired');
                 return false;
             }
             
@@ -466,7 +492,6 @@ const Community = () => {
             const response = await Api.getChannelMessages(channelId);
             if (response && response.data && Array.isArray(response.data)) {
                 const apiMessages = response.data;
-                console.log(`✅ Loaded ${apiMessages.length} messages from backend for channel ${channelId}`);
                 
                 // Save to localStorage as backup/cache
                 saveMessagesToStorage(channelId, apiMessages);
@@ -479,7 +504,6 @@ const Community = () => {
                 // Response format unexpected, try localStorage
                 const storedMessages = loadMessagesFromStorage(channelId);
                 if (storedMessages.length > 0) {
-                    console.log(`Loaded ${storedMessages.length} messages from localStorage`);
                     setMessages(storedMessages);
                 } else {
                     setMessages([]);
@@ -490,10 +514,8 @@ const Community = () => {
             // Use localStorage as persistent storage - messages persist here
             const storedMessages = loadMessagesFromStorage(channelId);
             if (storedMessages.length > 0) {
-                console.log(`✅ Loaded ${storedMessages.length} messages from localStorage`);
                 setMessages(storedMessages);
             } else {
-                console.log('No messages found - starting with empty channel');
                 setMessages([]);
             }
         }
@@ -501,11 +523,102 @@ const Community = () => {
         setLoading(false);
     }, []);
 
+    const handleCreateChannel = async (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (!newChannelName.trim()) {
+            setChannelActionStatus({ type: 'error', message: 'Channel name is required.' });
+            return;
+        }
+
+        setChannelActionLoading(true);
+        setChannelActionStatus(null);
+
+        try {
+            const payload = {
+                displayName: newChannelName.trim(),
+                category: newChannelCategory,
+                description: newChannelDescription.trim(),
+                accessLevel: newChannelAccess
+            };
+
+            const response = await Api.createChannel(payload);
+            const createdChannel = response?.data?.channel || {
+                id: `channel-${Date.now()}`,
+                name: newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                displayName: newChannelName.trim(),
+                category: newChannelCategory,
+                description: newChannelDescription.trim(),
+                accessLevel: newChannelAccess,
+                locked: newChannelAccess === 'admin-only'
+            };
+
+            const updatedList = sortChannels([...channelList.filter(ch => ch.id !== createdChannel.id), createdChannel]);
+            setChannelList(updatedList);
+            setChannelActionStatus({ type: 'success', message: 'Channel created successfully.' });
+
+            setNewChannelName('');
+            setNewChannelDescription('');
+            setNewChannelAccess('open');
+
+            setSelectedChannel(createdChannel);
+            fetchMessages(createdChannel.id);
+        } catch (error) {
+            console.error('Failed to create channel:', error);
+            setChannelActionStatus({
+                type: 'error',
+                message: error.response?.data?.message || error.message || 'Failed to create channel.'
+            });
+        } finally {
+            setChannelActionLoading(false);
+        }
+    };
+
+    const handleDeleteChannel = async (channel) => {
+        if (!channel || protectedChannelIds.includes(channel.id)) {
+            return;
+        }
+
+        const confirmed = window.confirm(`Delete channel "${channel.displayName || channel.name}"? This cannot be undone.`);
+        if (!confirmed) return;
+
+        setChannelActionLoading(true);
+        setChannelActionStatus(null);
+
+        try {
+            await Api.deleteChannel(channel.id);
+            const remaining = channelList.filter(ch => ch.id !== channel.id);
+            const sortedRemaining = sortChannels(remaining);
+            setChannelList(sortedRemaining);
+            localStorage.removeItem(`community_messages_${channel.id}`);
+
+            if (selectedChannel?.id === channel.id) {
+                const fallbackChannel = sortedRemaining[0] || null;
+                setSelectedChannel(fallbackChannel);
+                setMessages([]);
+                if (fallbackChannel) {
+                    fetchMessages(fallbackChannel.id);
+                }
+            }
+
+            setChannelActionStatus({ type: 'success', message: 'Channel deleted successfully.' });
+        } catch (error) {
+            console.error('Failed to delete channel:', error);
+            setChannelActionStatus({
+                type: 'error',
+                message: error.response?.data?.message || error.message || 'Failed to delete channel.'
+            });
+        } finally {
+            setChannelActionLoading(false);
+        }
+    };
+
     // Check if welcome message has been read
     useEffect(() => {
         const readStatus = localStorage.getItem('welcomeMessageRead') === 'true';
         setHasReadWelcome(readStatus);
-        setShowAllChannels(readStatus);
     }, []);
 
     // Fetch courses for channel naming
@@ -617,23 +730,14 @@ const Community = () => {
     }, [isAuthenticated, navigate]);
 
     // Initialize component
-    useEffect(() => {
-        console.log("===========================");
-        console.log("Community component initializing - Real API Mode");
-        
+    useEffect(() => {        
         const storedToken = localStorage.getItem('token');
         const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
         
         const tokenIsValid = storedToken && storedToken.split('.').length === 3;
         setIsAuthenticated(tokenIsValid);
         
-        console.log("Community component initializing");
-        console.log("Is authenticated:", tokenIsValid);
-        console.log("User object:", storedUserData);
-        console.log("===========================");
-
         if (!tokenIsValid) {
-            console.log("User not authenticated, redirecting to login");
             navigate('/login');
             return;
         }
@@ -682,13 +786,6 @@ const Community = () => {
             
             // Set user level
             setUserLevel(calculatedLevel);
-            
-            console.log("Display name:", displayName);
-            console.log("User XP:", currentXP);
-            console.log("User level:", calculatedLevel);
-            console.log("Total messages:", enhancedUser.totalMessages);
-            console.log("User is admin:", userIsAdmin);
-            console.log("User role:", storedUserData.role);
         }
     }, [navigate]);
 
@@ -738,17 +835,17 @@ const Community = () => {
                         });
                     }
                     
-                    console.log(`Loaded ${apiChannels.length} channels from API`);
-                    setChannelList(apiChannels);
+                    const sortedChannels = sortChannels(apiChannels);
+                    setChannelList(sortedChannels);
                     
                     // Select first channel or channel from URL
                     if (channelIdParam) {
-                        const channel = apiChannels.find(c => c.id === parseInt(channelIdParam));
+                        const channel = sortedChannels.find(c => c.id === parseInt(channelIdParam));
                         if (channel) {
                             setSelectedChannel(channel);
                         }
-                    } else if (apiChannels.length > 0 && !selectedChannel) {
-                        setSelectedChannel(apiChannels[0]);
+                    } else if (sortedChannels.length > 0 && !selectedChannel) {
+                        setSelectedChannel(sortedChannels[0]);
                     }
                     return;
                 }
@@ -784,8 +881,7 @@ const Community = () => {
                     { id: 28, name: "general-chat", displayName: "General Chat", description: "General trading discussion", accessLevel: "open", category: "trading", memberCount: 0, lastActivity: null, unread: false, locked: false }
                 ];
                 
-                const allChannels = [...essentialChannels, ...courseChannels];
-                console.log(`Created ${allChannels.length} channels from courses (backend unavailable)`);
+                const allChannels = sortChannels([...essentialChannels, ...courseChannels]);
                 setChannelList(allChannels);
                 
                 // Select first channel or channel from URL
@@ -821,16 +917,13 @@ const Community = () => {
             });
             
             clearTimeout(timeoutId);
-            setApiConnected(response.ok || response.status < 500);
             return response.ok || response.status < 500;
         } catch (error) {
             // Network error (timeout, abort, etc.) = likely WiFi issue
             if (error.name === 'AbortError' || error.name === 'NetworkError' || !navigator.onLine) {
-                setApiConnected(false);
                 return false;
             }
             // Server error (500, etc.) = server issue
-            setApiConnected(false);
             return false;
         }
     }, []);
@@ -856,17 +949,9 @@ const Community = () => {
                 setOnlineUsers(online);
                 setOnlineCount(online.length);
                 setTotalUsers(total);
-                setApiConnected(true); // API is working
-            } else {
-                // Server returned error (500, 503, etc.)
-                setApiConnected(false);
             }
         } catch (error) {
             console.error('Failed to fetch online status:', error);
-            // Network error = WiFi issue
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                setApiConnected(false);
-            }
         }
     }, [isAuthenticated]);
 
@@ -1071,9 +1156,13 @@ Let's build generational wealth together! 💰🚀`,
         }
 
         const messageContent = newMessage.trim();
+        const senderUsername = storedUser?.username || storedUser?.name || 'User';
+
         const messageToSend = {
             channelId: selectedChannel.id,
             content: messageContent,
+            userId,
+            username: senderUsername,
             file: selectedFile ? {
                 name: selectedFile.name,
                 type: selectedFile.type,
@@ -1099,12 +1188,14 @@ Let's build generational wealth together! 💰🚀`,
                 type: selectedFile.type,
                 size: selectedFile.size,
                 preview: filePreview
-            } : null
+            } : null,
+            userId,
+            username: senderUsername
         };
         
         // Add message to state immediately for instant UI feedback
         const updatedMessages = [...messages, optimisticMessage];
-        setMessages(updatedMessages);
+        persistMessagesList(selectedChannel.id, updatedMessages);
         
         // Clear inputs immediately
         setNewMessage('');
@@ -1118,14 +1209,8 @@ Let's build generational wealth together! 💰🚀`,
                 if (response && response.data) {
                     // Replace optimistic message with server response (has real ID)
                     const serverMessage = response.data;
-                    const finalMessages = updatedMessages
-                        .filter(msg => msg.id !== optimisticMessage.id) // Remove temp message
-                        .concat(serverMessage); // Add server message
-                    
-                    setMessages(finalMessages);
-                    saveMessagesToStorage(selectedChannel.id, finalMessages);
-                    
-                    console.log('✅ Message saved to backend:', serverMessage);
+                    const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, serverMessage);
+                    persistMessagesList(selectedChannel.id, finalMessages);
                 } else {
                     // If response doesn't have expected format, keep optimistic message
                     // Convert temp ID to permanent ID
@@ -1133,11 +1218,8 @@ Let's build generational wealth together! 💰🚀`,
                         ...optimisticMessage,
                         id: Date.now()
                     };
-                    const finalMessages = updatedMessages.map(msg => 
-                        msg.id === optimisticMessage.id ? permanentMessage : msg
-                    );
-                    saveMessagesToStorage(selectedChannel.id, finalMessages);
-                    console.log('Message sent and saved to localStorage');
+                    const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, permanentMessage);
+                    persistMessagesList(selectedChannel.id, finalMessages);
                 }
             } catch (apiError) {
                 console.error('Backend API unavailable, saving to localStorage:', apiError);
@@ -1147,30 +1229,20 @@ Let's build generational wealth together! 💰🚀`,
                     ...optimisticMessage,
                     id: Date.now()
                 };
-                const finalMessages = updatedMessages.map(msg => 
-                    msg.id === optimisticMessage.id ? permanentMessage : msg
-                );
-                setMessages(finalMessages);
-                saveMessagesToStorage(selectedChannel.id, finalMessages);
-                console.log('Message saved to localStorage (backend unavailable)');
+                const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, permanentMessage);
+                persistMessagesList(selectedChannel.id, finalMessages);
             }
             
             // ***** AWARD XP FOR SENDING MESSAGE *****
             const earnedXP = calculateMessageXP(messageContent, !!selectedFile);
             const xpResult = awardXP(earnedXP);
-            
-            if (xpResult) {
-                console.log(`✨ +${xpResult.earnedXP} XP! | Total: ${xpResult.newXP} XP | Level ${xpResult.newLevel}`);
-                
-                if (xpResult.leveledUp) {
-                    // Optional: Show level up notification
-                    console.log(`🎉 LEVEL UP! You reached Level ${xpResult.newLevel}!`);
-                }
+            if (xpResult?.leveledUp) {
+                // Placeholder: trigger level-up UI feedback if desired
             }
         } catch (error) {
             console.error('Error sending message:', error);
             // On error, remove optimistic message and show error
-            setMessages(messages);
+            persistMessagesList(selectedChannel.id, messages);
             alert('Failed to send message. Please try again.');
         }
     };
@@ -1193,7 +1265,6 @@ Let's build generational wealth together! 💰🚀`,
     const handleWelcomeAcknowledgment = () => {
         localStorage.setItem('welcomeMessageRead', 'true');
         setHasReadWelcome(true);
-        setShowAllChannels(true);
     };
 
     // Group channels by category
@@ -1224,9 +1295,6 @@ Let's build generational wealth together! 💰🚀`,
         acc[category].push(channel);
         return acc;
     }, {});
-
-    // Category order
-    const categoryOrder = ['announcements', 'staff', 'courses', 'trading', 'general', 'support', 'premium'];
 
     // Check subscription status for banner and channel visibility
     const hasActiveSubscription = checkSubscription();
@@ -1476,8 +1544,39 @@ Let's build generational wealth together! 💰🚀`,
                 pointerEvents: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto',
                 userSelect: (showSubscribeBanner || showPaymentFailedBanner) ? 'none' : 'auto'
             }}>
-                <div className="sidebar-header">
-                    <h2>Channels</h2>
+                <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <h2 style={{ margin: 0 }}>Channels</h2>
+                    {isAdmin && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setChannelActionStatus(null);
+                                setShowChannelManager(true);
+                            }}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: 'rgba(139, 92, 246, 0.15)',
+                                border: '1px solid rgba(139, 92, 246, 0.4)',
+                                color: '#A78BFA',
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.25)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
+                            }}
+                        >
+                            <FaPlus size={10} /> Manage
+                        </button>
+                    )}
                 </div>
                 
                 <div className="channels-section">
@@ -1503,12 +1602,48 @@ Let's build generational wealth together! 💰🚀`,
                                                 key={channel.id}
                                                 className={`channel-item ${isActive ? 'active' : ''} ${channel.unread ? 'unread' : ''}`}
                                                 onClick={() => canAccess && setSelectedChannel(channel)}
-                                                style={{ cursor: canAccess ? 'pointer' : 'not-allowed', opacity: canAccess ? 1 : 0.5 }}
+                                                style={{ 
+                                                    cursor: canAccess ? 'pointer' : 'not-allowed', 
+                                                    opacity: canAccess ? 1 : 0.5,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    gap: '8px'
+                                                }}
                                             >
-                                                <span className="channel-icon">
-                                                    {getChannelIcon(channel)}
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                                                    <span className="channel-icon">
+                                                        {getChannelIcon(channel)}
+                                                    </span>
+                                                    <span className="channel-name" style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        {channel.displayName || channel.name}
+                                                    </span>
                                                 </span>
-                                                <span className="channel-name">{channel.displayName || channel.name}</span>
+                                                {isAdmin && !protectedChannelIds.includes(channel.id) && (
+                                                    <button
+                                                        type="button"
+                                                        aria-label={`Delete channel ${channel.displayName || channel.name}`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteChannel(channel);
+                                                        }}
+                                                        style={{
+                                                            background: 'transparent',
+                                                            border: 'none',
+                                                            color: '#f87171',
+                                                            opacity: 0.7,
+                                                            cursor: 'pointer',
+                                                            padding: '4px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                                                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0.7}
+                                                    >
+                                                        <FaTrash size={12} />
+                                                    </button>
+                                                )}
                                             </li>
                                         );
                                     })}
@@ -1862,6 +1997,245 @@ Let's build generational wealth together! 💰🚀`,
                 </div>
                 
             </div>
+
+            {/* Channel Manager Modal */}
+            {isAdmin && showChannelManager && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 2000,
+                        padding: '20px'
+                    }}
+                    onClick={() => {
+                        if (!channelActionLoading) {
+                            setShowChannelManager(false);
+                        }
+                    }}
+                >
+                    <div
+                        style={{
+                            background: '#1f2024',
+                            borderRadius: '16px',
+                            padding: '24px',
+                            width: '100%',
+                            maxWidth: '520px',
+                            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35)',
+                            border: '1px solid rgba(139, 92, 246, 0.2)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h3 style={{ margin: 0, color: '#fff' }}>Manage Channels</h3>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!channelActionLoading) {
+                                        setShowChannelManager(false);
+                                    }
+                                }}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#9ca3af',
+                                    cursor: 'pointer',
+                                    fontSize: '1.2rem'
+                                }}
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        {channelActionStatus && (
+                            <div
+                                style={{
+                                    marginBottom: '16px',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.85rem',
+                                    background: channelActionStatus.type === 'success'
+                                        ? 'rgba(34,197,94,0.1)'
+                                        : 'rgba(248,113,113,0.1)',
+                                    border: `1px solid ${channelActionStatus.type === 'success' ? 'rgba(34,197,94,0.4)' : 'rgba(248,113,113,0.4)'}`,
+                                    color: channelActionStatus.type === 'success' ? '#34d399' : '#f87171'
+                                }}
+                            >
+                                {channelActionStatus.message}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleCreateChannel} style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af' }}>
+                                    Channel Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newChannelName}
+                                    onChange={(e) => setNewChannelName(e.target.value)}
+                                    placeholder="e.g. Smart Money Concepts"
+                                    required
+                                    style={{
+                                        background: '#111827',
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        borderRadius: '8px',
+                                        padding: '10px 12px',
+                                        color: 'white'
+                                    }}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <div style={{ flex: 1, display: 'grid', gap: '8px' }}>
+                                    <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af' }}>
+                                        Category
+                                    </label>
+                                    <select
+                                        value={newChannelCategory}
+                                        onChange={(e) => setNewChannelCategory(e.target.value)}
+                                        style={{
+                                            background: '#111827',
+                                            border: '1px solid rgba(255,255,255,0.08)',
+                                            borderRadius: '8px',
+                                            padding: '10px 12px',
+                                            color: 'white'
+                                        }}
+                                    >
+                                        <option value="trading">Trading</option>
+                                        <option value="courses">Courses</option>
+                                        <option value="general">General</option>
+                                        <option value="support">Support</option>
+                                        <option value="premium">Premium</option>
+                                        <option value="staff">Staff</option>
+                                    </select>
+                                </div>
+                                <div style={{ flex: 1, display: 'grid', gap: '8px' }}>
+                                    <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af' }}>
+                                        Access
+                                    </label>
+                                    <select
+                                        value={newChannelAccess}
+                                        onChange={(e) => setNewChannelAccess(e.target.value)}
+                                        style={{
+                                            background: '#111827',
+                                            border: '1px solid rgba(255,255,255,0.08)',
+                                            borderRadius: '8px',
+                                            padding: '10px 12px',
+                                            color: 'white'
+                                        }}
+                                    >
+                                        <option value="open">Open</option>
+                                        <option value="read-only">Read Only</option>
+                                        <option value="admin-only">Admin Only</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                                <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9ca3af' }}>
+                                    Description
+                                </label>
+                                <textarea
+                                    value={newChannelDescription}
+                                    onChange={(e) => setNewChannelDescription(e.target.value)}
+                                    rows={3}
+                                    placeholder="Describe the purpose of this channel..."
+                                    style={{
+                                        background: '#111827',
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        borderRadius: '8px',
+                                        padding: '10px 12px',
+                                        color: 'white',
+                                        resize: 'vertical'
+                                    }}
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={channelActionLoading}
+                                style={{
+                                    background: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '12px',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                    cursor: channelActionLoading ? 'not-allowed' : 'pointer',
+                                    opacity: channelActionLoading ? 0.6 : 1,
+                                    transition: 'transform 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!channelActionLoading) {
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                {channelActionLoading ? 'Creating...' : 'Create Channel'}
+                            </button>
+                        </form>
+
+                        <div style={{ marginBottom: '8px', color: '#9ca3af', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Existing Channels
+                        </div>
+
+                        <div style={{ maxHeight: '220px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                            {channelList.filter(channel => !protectedChannelIds.includes(channel.id)).length === 0 ? (
+                                <div style={{ padding: '16px', color: '#9ca3af', fontSize: '0.85rem' }}>
+                                    No custom channels yet.
+                                </div>
+                            ) : (
+                                channelList
+                                    .filter(channel => !protectedChannelIds.includes(channel.id))
+                                    .map(channel => (
+                                        <div
+                                            key={channel.id}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                padding: '12px 16px',
+                                                borderBottom: '1px solid rgba(255,255,255,0.05)'
+                                            }}
+                                        >
+                                            <div>
+                                                <div style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem' }}>
+                                                    {channel.displayName || channel.name}
+                                                </div>
+                                                <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                                                    {(channel.category || 'general')} · {(channel.accessLevel || 'open')}
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteChannel(channel)}
+                                                disabled={channelActionLoading}
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: '1px solid rgba(248,113,113,0.4)',
+                                                    color: '#fca5a5',
+                                                    padding: '6px 10px',
+                                                    borderRadius: '6px',
+                                                    cursor: channelActionLoading ? 'not-allowed' : 'pointer',
+                                                    fontSize: '0.75rem'
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Emoji Picker */}
             {showEmojiPicker && (

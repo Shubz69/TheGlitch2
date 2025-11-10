@@ -478,6 +478,40 @@ const Api = {
         }
     },
     
+    createChannel: async (channelData) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Authentication required to create channels');
+        }
+
+        return axios.post(`${API_BASE_URL}/api/community/channels`, channelData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+    },
+
+    deleteChannel: async (channelId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Authentication required to delete channels');
+        }
+
+        return axios.delete(`${API_BASE_URL}/api/community/channels`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            data: {
+                id: channelId
+            },
+            params: {
+                id: channelId
+            }
+        });
+    },
+
     getChannelMessages: async (channelId, customHeaders = {}) => {
         console.log(`Attempting to fetch messages for channel ${channelId}`);
         try {

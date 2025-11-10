@@ -16,9 +16,43 @@ export const AuthProvider = ({ children }) => {
   const [mfaVerified, setMfaVerified] = useState(false);
   const navigate = useNavigate();
 
-  // Function to get token from localStorage
-  const getToken = useCallback(() => {
-    return localStorage.getItem('token');
+  const clearSession = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('mfaVerified');
+    localStorage.removeItem('mfaEmail');
+    localStorage.removeItem('user');
+    localStorage.removeItem('hasActiveSubscription');
+    localStorage.removeItem('pendingSubscription');
+    localStorage.removeItem('subscriptionSkipped');
+  }, []);
+
+  const persistTokens = (token, refreshToken) => {
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
+  };
+
+  const resolveUserInfo = (data = {}) => ({
+    id: data.id || data.userId || data.sub || null,
+    username: data.username || data.name || '',
+    email: data.email || '',
+    name: data.name || data.username || '',
+    avatar: data.avatar || '/avatars/avatar_ai.png',
+    phone: data.phone || '',
+    address: data.address || '',
+    role: data.role || 'USER',
+    mfaVerified: data.mfaVerified || false
+  });
+
+  const persistUser = useCallback((userInfo) => {
+    const safeUser = resolveUserInfo(userInfo);
+    localStorage.setItem('user', JSON.stringify(safeUser));
+    setUser(safeUser);
+    return safeUser;
   }, []);
 
   // Check if user has a verified session in localStorage
@@ -31,13 +65,11 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function defined using useCallback
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('mfaVerified');
+    clearSession();
     setUser(null);
     setMfaVerified(false);
     navigate('/login');
-  }, [navigate]);
+  }, [clearSession, navigate]);
 
   // Check if token exists and is valid on app load
   useEffect(() => {
@@ -58,8 +90,6 @@ export const AuthProvider = ({ children }) => {
           const currentTime = Date.now() / 1000;
           
           if (decodedToken.exp < currentTime) {
-            // Token expired
-            console.log('Token expired, logging out');
             logout();
             setLoading(false);
             return;
@@ -67,18 +97,12 @@ export const AuthProvider = ({ children }) => {
           
           // Token is valid, get minimal user info from token
           // No API call for now to avoid errors
-          const userData = {
+          const userData = persistUser({
             id: decodedToken.id || decodedToken.userId || decodedToken.sub,
             email: decodedToken.email || '',
             role: decodedToken.role || 'USER'
-          };
+          });
           
-          // Store user data in localStorage for components that need it
-          localStorage.setItem('user', JSON.stringify(userData));
-          
-          setUser(userData);
-          
-          // If user is ADMIN, bypass MFA verification
           if (userData.role === 'ADMIN') {
             localStorage.setItem('mfaVerified', 'true');
             setMfaVerified(true);
@@ -99,7 +123,7 @@ export const AuthProvider = ({ children }) => {
     };
     
     checkAuth();
-  }, [logout]);
+  }, [logout, persistUser]);
 
   // Login function - supports both email/password login and token-based login from MFA
   const login = async (emailOrToken, passwordOrRole, userData = null) => {
@@ -109,22 +133,13 @@ export const AuthProvider = ({ children }) => {
       
       // Check which login method is being used
       if (userData) {
-        // This is a direct login with token (from MFA verification)
         const token = emailOrToken;
         const role = passwordOrRole;
-        
-        // Token is already set in localStorage by the VerifyMFA component
-        
-        // Set MFA as verified
+
+        persistTokens(token, localStorage.getItem('refreshToken'));
         localStorage.setItem('mfaVerified', 'true');
         setMfaVerified(true);
-        
-        setUser({
-          ...userData,
-          role
-        });
-        
-        return userData;
+        return persistUser({ ...userData, role });
       } else {
         // This is an email/password login
         const email = emailOrToken;
@@ -132,15 +147,10 @@ export const AuthProvider = ({ children }) => {
         
         // Call the login API
         const response = await Api.login({ email, password });
-        const data = response.data;
-        
-        console.log('Login response:', data);
+        const data = response.data || {};
         
         if (data.status === "MFA_REQUIRED" && !data.mfaVerified) {
           // Redirect to MFA verification
-          console.log('MFA required, redirecting to verification page');
-          
-          // Set email for MFA verification
           localStorage.setItem('mfaEmail', email);
           
           // Navigate programmatically to the MFA verification page
@@ -161,38 +171,9 @@ export const AuthProvider = ({ children }) => {
           return data;
         }
         
-        // Store the token and set user data
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          console.log('Token stored in localStorage');
-        } else {
-          console.error('No token in login response');
-        }
+        persistTokens(data.token, data.refreshToken);
+        const userInfo = persistUser(data);
         
-        // If there's a refreshToken in the response, store it
-        if (data.refreshToken) {
-          localStorage.setItem('refreshToken', data.refreshToken);
-        }
-        
-        const userInfo = {
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          name: data.name,
-          avatar: data.avatar || '/avatars/avatar_ai.png',
-          phone: data.phone || "",
-          address: data.address || "",
-          role: data.role || 'USER',
-          mfaVerified: data.mfaVerified || false
-        };
-        
-        // Store user data in localStorage for other components
-        localStorage.setItem('user', JSON.stringify(userInfo));
-        console.log('User data stored:', userInfo);
-        
-        setUser(userInfo);
-        
-        // If user is ADMIN, bypass MFA verification
         if (data.role === 'ADMIN') {
           localStorage.setItem('mfaVerified', 'true');
           setMfaVerified(true);
@@ -215,8 +196,33 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError(Api.handleApiError(error));
-      throw error;
+
+      let friendlyMessage = '';
+
+      if (error.response) {
+        const status = error.response.status;
+        const serverMessage = error.response.data?.message || error.response.data?.error;
+
+        if (status === 401) {
+          friendlyMessage = serverMessage || 'Incorrect password. Please try again or reset your password.';
+        } else if (status === 404) {
+          friendlyMessage = serverMessage || 'No account with this email exists. Please sign up for a new account.';
+        } else {
+          friendlyMessage = serverMessage || Api.handleApiError(error);
+        }
+      } else if (error.message && error.message.toLowerCase().includes('invalid email or password')) {
+        friendlyMessage = 'No account with this email exists or the password is incorrect.';
+      } else {
+        friendlyMessage = Api.handleApiError(error);
+      }
+
+      setError(friendlyMessage);
+
+      const wrappedError = new Error(friendlyMessage);
+      if (error.response) {
+        wrappedError.response = error.response;
+      }
+      throw wrappedError;
     } finally {
       setLoading(false);
     }
@@ -232,8 +238,6 @@ export const AuthProvider = ({ children }) => {
       const data = response.data;
       
       if (data.status === "MFA_REQUIRED") {
-        // Redirect to MFA verification
-        console.log('MFA required after registration, redirecting to verification page');
         navigate('/verify-mfa', {
           state: {
             userId: data.id,
@@ -245,42 +249,24 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       
-      // Store the token
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        if (data.refreshToken) {
-          localStorage.setItem('refreshToken', data.refreshToken);
-        }
-        
-        const userInfo = {
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          name: data.name,
-          avatar: data.avatar,
-          role: data.role
-        };
-        
-        setUser(userInfo);
-        
-        // Send welcome message to new user
-        sendWelcomeMessage(userInfo.id, userData.email);
-        
-        // If user is ADMIN, bypass MFA verification
-        if (data.role === 'ADMIN') {
-          localStorage.setItem('mfaVerified', 'true');
-          setMfaVerified(true);
-        }
-        
-        // For new signups, redirect to subscription page
-        // Check if this is a new signup (from SignUp page)
-        if (localStorage.getItem('newSignup') === 'true') {
-          localStorage.setItem('pendingSubscription', 'true');
-          navigate('/subscription');
-          return data;
-        }
+      persistTokens(data.token, data.refreshToken);
+      const userInfo = persistUser(data);
+      
+      sendWelcomeMessage(userInfo.id, userData.email);
+      
+      if (userInfo.role === 'ADMIN') {
+        localStorage.setItem('mfaVerified', 'true');
+        setMfaVerified(true);
       }
       
+      if (localStorage.getItem('newSignup') === 'true') {
+        localStorage.setItem('pendingSubscription', 'true');
+        localStorage.removeItem('newSignup');
+        navigate('/subscription');
+        return data;
+      }
+      
+      localStorage.removeItem('newSignup');
       return data;
     } catch (error) {
       console.error('Registration error:', error);

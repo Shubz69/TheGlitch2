@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
 import "../styles/AdminUserList.css";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import AdminApi from "../services/AdminApi";
 import BinaryBackground from '../components/BinaryBackground';
 
@@ -12,97 +9,57 @@ const AdminUserList = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [onlineUsers, setOnlineUsers] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState(new Set());
 
     const fetchUsers = useCallback(async () => {
         if (user?.role !== "ADMIN") return;
         setLoading(true);
         try {
-            // Try using the AdminApi service
-            try {
-                const res = await AdminApi.getAllUsers();
-                setUsers(res.data);
-                setError(null);
-            } catch (apiError) {
-                console.error("API service method failed, using direct axios call:", apiError);
-                
-                // Fallback to direct axios call
-                const token = localStorage.getItem("token");
-                const res = await axios.get("https://theglitch.world/api/users", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setUsers(res.data);
-                setError(null);
-            }
+            const res = await AdminApi.getAllUsers();
+            setUsers(res.data);
+            setError(null);
         } catch (err) {
-            console.error("All attempts to fetch users failed:", err);
             setError("Failed to fetch users. Please check your connection and try again.");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, [user]);
 
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        const socket = new SockJS("https://theglitch.world/ws");
-        const client = new Client({
-            webSocketFactory: () => socket,
-            connectHeaders: {
-                Authorization: `Bearer ${token}`
-            },
-            onConnect: () => {
-                client.subscribe("/topic/online-users", (msg) => {
-                    try {
-                        const ids = JSON.parse(msg.body);
-                        setOnlineUsers(ids);
-                    } catch (e) {
-                        console.error("Failed to parse online users WS:", e);
-                    }
-                });
-            },
-            reconnectDelay: 5000
-        });
+    const fetchOnlineUsers = useCallback(async () => {
+        if (user?.role !== "ADMIN") return;
+        try {
+            const response = await AdminApi.getOnlineStatus();
+            const ids = Array.isArray(response.data?.onlineUsers) ? response.data.onlineUsers.map(u => u.id) : [];
+            setOnlineUsers(new Set(ids));
+        } catch (err) {
+            // ignore fetch errors; status UI will show offline
+        }
+    }, [user]);
 
-        client.activate();
-        return () => client.deactivate();
-    }, []);
+    useEffect(() => {
+        fetchOnlineUsers();
+        const interval = setInterval(fetchOnlineUsers, 30000);
+        return () => clearInterval(interval);
+    }, [fetchOnlineUsers]);
 
     const deleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+            return;
+        }
         try {
-            // Try using the AdminApi service
-            try {
-                await AdminApi.deleteUser(userId);
-            } catch (apiError) {
-                console.error("API service method failed, using direct fetch call:", apiError);
-                
-                // Fallback to direct fetch call
-                const token = localStorage.getItem("token");
-                const res = await fetch(`https://theglitch.world/api/users/${userId}`, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                });
-                
-                if (!res.ok) {
-                    throw new Error("Failed to delete user");
-                }
-            }
-            
-            // Refresh the user list
+            await AdminApi.deleteUser(userId);
             await fetchUsers();
             setError(null);
         } catch (error) {
-            console.error("All attempts to delete user failed:", error);
             setError("Failed to delete user. Please check your connection and try again.");
         }
     };
 
-    const isUserOnline = (id) => onlineUsers.includes(id);
+    const isUserOnline = (id) => onlineUsers.has(id);
 
     const formatDate = (isoString) => {
         if (!isoString) return "N/A";

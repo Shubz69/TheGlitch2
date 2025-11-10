@@ -41,9 +41,7 @@ const AdminPanel = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            // Use current origin to avoid CORS redirect issues
-            const apiBaseUrl = window.location.origin;
-            const response = await fetch(`${apiBaseUrl}/api/community/users`, {
+            const response = await fetch(`/api/community/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -57,7 +55,6 @@ const AdminPanel = () => {
             const data = await response.json();
             setUsers(data);
         } catch (err) {
-            console.error('Failed to fetch users:', err);
             setError('Failed to load users. Please try again.');
         } finally {
             setLoading(false);
@@ -67,9 +64,7 @@ const AdminPanel = () => {
     const fetchOnlineStatus = async () => {
         try {
             const token = localStorage.getItem('token');
-            // Use current origin to avoid CORS redirect issues
-            const apiBaseUrl = window.location.origin;
-            const response = await fetch(`${apiBaseUrl}/api/admin/user-status`, {
+            const response = await fetch(`/api/admin/user-status`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -81,7 +76,6 @@ const AdminPanel = () => {
                 setOnlineUsers(new Set(data.onlineUsers.map(u => u.id)));
             }
         } catch (err) {
-            console.error('Failed to fetch online status:', err);
         }
     };
 
@@ -99,7 +93,7 @@ const AdminPanel = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`https://theglitch.world/api/users/${userId}`, {
+            const response = await fetch(`/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -114,7 +108,6 @@ const AdminPanel = () => {
             // Refresh the user list
             fetchUsers();
         } catch (err) {
-            console.error('Failed to delete user:', err);
             setError('Failed to delete user. Please try again.');
         }
     };

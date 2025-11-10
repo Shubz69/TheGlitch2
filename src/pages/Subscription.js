@@ -6,6 +6,7 @@ import axios from 'axios';
 import '../styles/Subscription.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://www.theglitch.world';
+const STRIPE_PAYMENT_LINK = process.env.REACT_APP_STRIPE_PAYMENT_LINK || 'https://buy.stripe.com/7sY00i9fefKA1oP0f7dIA0j';
 
 const Subscription = () => {
     const navigate = useNavigate();
@@ -49,8 +50,14 @@ const Subscription = () => {
     }, [isAuthenticated, navigate]);
 
     const handleSubscribe = () => {
-        // Redirect directly to Stripe payment link
-        window.location.href = 'https://buy.stripe.com/7sY00i9fefKA1oP0f7dIA0j';
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const userEmail = user?.email || storedUser?.email;
+        const paymentLink = userEmail
+            ? `${STRIPE_PAYMENT_LINK}${STRIPE_PAYMENT_LINK.includes('?') ? '&' : '?'}prefilled_email=${encodeURIComponent(userEmail)}`
+            : STRIPE_PAYMENT_LINK;
+
+        const redirectPage = `${window.location.origin}/stripe-redirect.html?paymentLink=${encodeURIComponent(paymentLink)}`;
+        window.location.assign(redirectPage);
     };
 
     const handleSkipForNow = () => {
@@ -110,11 +117,20 @@ const Subscription = () => {
     
     // Handle successful subscription (called from payment success page or webhook)
     useEffect(() => {
-        // Check if coming from payment success
+        if (subscriptionActivated) {
+            return;
+        }
+
         const params = new URLSearchParams(window.location.search);
-        const paymentSuccess = params.get('payment_success') === 'true' || params.get('session_id');
-        
-        if (paymentSuccess && user && user.id) {
+        const paymentSuccess =
+            params.get('payment_success') === 'true' ||
+            params.get('session_id') ||
+            params.get('redirect_status') === 'succeeded';
+
+        const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
+        const activeUserId = user?.id || storedUserData?.id;
+
+        if (paymentSuccess && activeUserId) {
             const activateSubscription = async () => {
                 try {
                     setLoading(true);
@@ -123,7 +139,7 @@ const Subscription = () => {
                     const sessionId = params.get('session_id');
                     const response = await axios.post(
                         `${API_BASE_URL}/api/stripe/subscription-success`,
-                        { userId: user.id, session_id: sessionId },
+                        { userId: activeUserId, session_id: sessionId },
                         {
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -152,6 +168,7 @@ const Subscription = () => {
                         // Show success message
                         setError('');
                         setSubscriptionActivated(true);
+                        window.history.replaceState({}, document.title, window.location.pathname);
                         setLoading(false);
                         
                         // Start countdown timer
@@ -192,6 +209,8 @@ const Subscription = () => {
             };
 
             activateSubscription();
+        } else if (paymentSuccess && !activeUserId) {
+            console.log('Payment success detected but user context not ready. Waiting for authentication...');
         }
         
         // Cleanup function
@@ -201,7 +220,7 @@ const Subscription = () => {
                 countdownIntervalRef.current = null;
             }
         };
-    }, [navigate, user]);
+    }, [user, subscriptionActivated]);
 
     if (!isAuthenticated) {
         return null; // Will redirect

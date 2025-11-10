@@ -77,6 +77,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('courseId') || '1';
         const courseTitle = urlParams.get('title') || 'Trading Course';
+        const suppliedPaymentLink = urlParams.get('paymentLink') ? decodeURIComponent(urlParams.get('paymentLink')) : null;
         
         // Stripe payment links (replace with your actual payment links)
         const stripeLinks = {
@@ -89,14 +90,20 @@
             'default': 'https://buy.stripe.com/test_28o14C1Ygf7L9gc5kk'
         };
         
-        // Select the payment link based on course title
-        const paymentLink = stripeLinks[courseTitle] || stripeLinks['default'];
+        // Select the payment link based on course title or supplied link
+        let paymentLink = suppliedPaymentLink || stripeLinks[courseTitle] || stripeLinks['default'];
         
         // Add client reference ID for tracking
-        const finalUrl = `${paymentLink}?client_reference_id=${courseId}`;
+        let finalUrl = paymentLink;
+        if (!suppliedPaymentLink) {
+            finalUrl = `${paymentLink}${paymentLink.includes('?') ? '&' : '?'}client_reference_id=${courseId}`;
+        }
         
         // Update the manual link
         document.getElementById('manual-redirect').href = finalUrl;
+        if (suppliedPaymentLink) {
+            document.getElementById('manual-redirect').textContent = 'Continue to Stripe Checkout';
+        }
         
         // Countdown timer
         let seconds = 3;

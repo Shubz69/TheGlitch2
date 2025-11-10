@@ -1,4 +1,63 @@
 const mysql = require('mysql2/promise');
+const nodemailer = require('nodemailer');
+
+// Configure email transporter (optional – logs warning if credentials missing)
+const createTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('Contact email credentials not configured – messages will be stored but no email will be sent.');
+    return null;
+  }
+
+  try {
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587,
+      secure: process.env.EMAIL_SECURE === 'true',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+  } catch (error) {
+    console.error('Failed to configure email transporter:', error.message);
+    return null;
+  }
+};
+
+const transporter = createTransporter();
+const CONTACT_INBOX = process.env.CONTACT_INBOX || 'platform@theglitch.online';
+const CONTACT_FROM = process.env.CONTACT_FROM || process.env.EMAIL_USER || 'no-reply@theglitch.world';
+
+const sendContactEmail = async ({ name, email, subject, message }) => {
+  if (!transporter) {
+    console.log('Email transporter not configured; skipping outbound contact email.');
+    return { sent: false, reason: 'transporter_not_configured' };
+  }
+
+  try {
+    await transporter.sendMail({
+      from: CONTACT_FROM,
+      to: CONTACT_INBOX,
+      subject: subject ? `[Contact] ${subject}` : `Contact form message from ${name || 'Visitor'}`,
+      replyTo: email,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${email || 'N/A'}</p>
+        ${subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
+        <p><strong>Message:</strong></p>
+        <p>${(message || '').replace(/\n/g, '<br>')}</p>
+        <hr />
+        <p style="font-size: 12px; color: #666;">Submitted via THE GLITCH contact form.</p>
+      `
+    });
+
+    return { sent: true };
+  } catch (error) {
+    console.error('Failed to send contact email:', error.message);
+    return { sent: false, reason: error.message };
+  }
+};
 
 // Get database connection
 const getDbConnection = async () => {
@@ -182,9 +241,11 @@ module.exports = async (req, res) => {
     try {
       const db = await getDbConnection();
       if (!db) {
-        return res.status(500).json({
+        return res.status(200).json({
+          onlineUsers: [],
+          totalUsers: 0,
           success: false,
-          message: 'Database connection error'
+          message: 'User status unavailable (database not configured)'
         });
       }
 
@@ -246,19 +307,16 @@ module.exports = async (req, res) => {
   // Handle /api/contact (GET, POST, DELETE) - consolidated into admin endpoint
   // Check if this is a contact endpoint request
   const isContactRequest = pathname.includes('/contact') || pathname.endsWith('/contact') || 
-                          (req.url && req.url.includes('/contact')) ||
-                          (!pathname.includes('/user-status') && (req.method === 'GET' || req.method === 'POST' || req.method === 'DELETE') && req.query && Object.keys(req.query).length === 0);
+                          (req.url && req.url.includes('/contact'));
 
-  if (isContactRequest || (!pathname.includes('/user-status') && req.method !== 'OPTIONS')) {
+  if (isContactRequest) {
     // GET - Fetch all contact messages (admin only)
     if (req.method === 'GET') {
       try {
         const db = await getDbConnection();
         if (!db) {
-          return res.status(500).json({
-            success: false,
-            message: 'Database connection error'
-          });
+          console.warn('Contact GET requested but database connection unavailable – returning empty list.');
+          return res.status(200).json([]);
         }
 
         try {
@@ -312,7 +370,7 @@ module.exports = async (req, res) => {
     // POST - Submit new contact message
     if (req.method === 'POST') {
       try {
-        const { name, email, subject, message } = req.body;
+        const { name, email, subject, message } = req.body || {};
 
         if (!name || !email || !message) {
           return res.status(400).json({
@@ -322,15 +380,11 @@ module.exports = async (req, res) => {
         }
 
         const db = await getDbConnection();
-        if (!db) {
-          return res.status(500).json({
-            success: false,
-            message: 'Database connection error'
-          });
-        }
+        let emailResult = { sent: false, reason: 'skipped' };
 
         try {
-          await db.execute(`
+          if (db) {
+            await db.execute(`
             CREATE TABLE IF NOT EXISTS contact_messages (
               id INT AUTO_INCREMENT PRIMARY KEY,
               name VARCHAR(255) NOT NULL,
@@ -342,22 +396,38 @@ module.exports = async (req, res) => {
             )
           `);
 
-          await db.execute(
-            'INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
-            [name, email, subject || '', message]
-          );
-          await db.end();
+            await db.execute(
+              'INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)',
+              [name, email, subject || '', message]
+            );
+            await db.end();
+          } else {
+            console.warn('Contact POST received but database not configured – message will not be persisted.');
+          }
+
+          emailResult = await sendContactEmail({ name, email, subject, message });
 
           return res.status(200).json({
             success: true,
-            message: 'Contact message submitted successfully'
+            message: emailResult.sent
+              ? 'Contact message submitted successfully'
+              : 'Contact message received. Email notification could not be sent automatically.',
+            emailSent: emailResult.sent,
+            emailReason: emailResult.reason || null
           });
         } catch (dbError) {
           console.error('Database error submitting contact message:', dbError.message);
           if (db && !db.ended) await db.end();
-          return res.status(500).json({
-            success: false,
-            message: 'Failed to submit contact message'
+
+          emailResult = await sendContactEmail({ name, email, subject, message });
+
+          return res.status(200).json({
+            success: true,
+            message: emailResult.sent
+              ? 'Contact message submitted successfully (email notification sent).'
+              : 'Contact message submitted but email notification failed.',
+            emailSent: emailResult.sent,
+            emailReason: emailResult.reason || dbError.message
           });
         }
       } catch (error) {
@@ -373,8 +443,14 @@ module.exports = async (req, res) => {
     if (req.method === 'DELETE') {
       try {
         const { id } = req.query || {};
+        let messageId = id;
 
-        if (!id) {
+        if (!messageId && pathname) {
+          const parts = pathname.split('/');
+          messageId = parts[parts.length - 1];
+        }
+
+        if (!messageId) {
           return res.status(400).json({
             success: false,
             message: 'Message ID is required'
@@ -392,7 +468,7 @@ module.exports = async (req, res) => {
         try {
           const [result] = await db.execute(
             'DELETE FROM contact_messages WHERE id = ?',
-            [id]
+            [messageId]
           );
           await db.end();
 

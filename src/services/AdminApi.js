@@ -53,6 +53,16 @@ const AdminApi = {
                 'Accept': 'application/json'
             }
         });
+    },
+
+    getOnlineStatus: () => {
+        const token = localStorage.getItem('token');
+        return axios.get(`${API_BASE_URL}/api/admin/user-status`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
     }
 };
 

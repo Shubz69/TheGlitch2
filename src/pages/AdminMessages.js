@@ -10,45 +10,19 @@ const AdminMessages = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            if (!user || !user.role === 'ADMIN') {
-                setError('Access denied. Admin privileges required.');
-                setLoading(false);
-                return;
-            }
+        if (!user || user.role !== 'ADMIN') {
+            setError('Access denied. Admin privileges required.');
+            setLoading(false);
+            return;
+        }
 
+        const fetchMessages = async () => {
             setLoading(true);
             try {
-                // Try using the AdminApi service
-                try {
-                    const response = await AdminApi.getContactMessages();
-                    console.log('Contact messages received:', response.data);
-                    setMessages(response.data);
-                    setError(null);
-                } catch (apiError) {
-                    console.error("API service method failed, using direct fetch:", apiError);
-                    
-                    // Fallback to direct fetch
-                    const token = localStorage.getItem("token");
-                    // Use current origin to avoid CORS redirect issues
-                    const apiBaseUrl = window.location.origin;
-                    const res = await fetch(`${apiBaseUrl}/api/contact`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
-                    
-                    if (!res.ok) {
-                        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
-                    }
-                    
-                    const data = await res.json();
-                    console.log('Contact messages received via direct fetch:', data);
-                    setMessages(data);
-                    setError(null);
-                }
+                const response = await AdminApi.getContactMessages();
+                setMessages(response.data);
+                setError(null);
             } catch (err) {
-                console.error("Failed to fetch messages:", err);
                 setError(`Failed to load messages: ${err.message}`);
             } finally {
                 setLoading(false);
@@ -104,7 +78,7 @@ const AdminMessages = () => {
                         </div>
                         <div className="messages-grid">
                             {messages.map((msg) => (
-                                <div key={msg.id || Math.random().toString()} className="message-card">
+                                <div key={msg.id || `${msg.email}-${msg.timestamp}`} className="message-card">
                                     <div className="message-header">
                                         <div className="user-info">
                                             <div className="user-avatar">
@@ -117,7 +91,7 @@ const AdminMessages = () => {
                                         </div>
                                         <div className="message-time">
                                             <span className="time-icon">🕒</span>
-                                            {new Date(msg.timestamp).toLocaleString()}
+                                            {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : msg.timestamp ? new Date(msg.timestamp).toLocaleString() : 'N/A'}
                                         </div>
                                     </div>
                                     <div className="message-content">

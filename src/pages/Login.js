@@ -4,7 +4,6 @@ import "../styles/Login.css";
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import BinaryBackground from '../components/BinaryBackground';
-import Api from '../services/Api';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -87,21 +86,18 @@ const Login = () => {
         setIsLoading(true);
         
         try {
-            console.log('Attempting login with:', email);
-            
             // Use AuthContext login which handles MFA properly
             const result = await loginWithAuth(email, password);
             
             // If MFA is required, the login function will redirect to verify-mfa
             // If login succeeds, reload to update auth state
             if (result && result.status === "MFA_REQUIRED") {
-                // MFA redirect is handled in AuthContext
                 setIsLoading(false);
                 return;
             }
             
-            // Successful login without MFA - redirect to community
             if (result && result.token) {
+                setIsLoading(false);
                 navigate('/community');
                 return;
             }
@@ -109,24 +105,28 @@ const Login = () => {
             setIsLoading(false);
         } catch (err) {
             console.error('Login error details:', err);
-            // Handle specific error messages from API
+
             let errorMessage = err.message || 'An error occurred. Please try again.';
-            
-            // Check if the error response has a specific message
-            if (err.response?.data?.message) {
-                errorMessage = err.response.data.message;
-            } else if (err.message) {
-                errorMessage = err.message;
+
+            if (err.response) {
+                const status = err.response.status;
+                const serverMessage = err.response.data?.message || err.response.data?.error;
+
+                if (status === 404) {
+                    errorMessage = serverMessage || 'No account with this email exists. Please check your email or sign up.';
+                } else if (status === 401) {
+                    errorMessage = serverMessage || 'Incorrect password. Please try again or reset your password.';
+                } else if (serverMessage) {
+                    errorMessage = serverMessage;
+                }
             }
-            
-            // Map common error patterns to user-friendly messages
-            if (errorMessage.includes('not in use') || errorMessage.includes('not found')) {
-                setError('The account connected to this email is not in use');
-            } else if (errorMessage.includes('Incorrect password') || errorMessage.includes('password')) {
-                setError('Incorrect password for this account');
-            } else {
-                setError(errorMessage);
+
+            // Provide a combined fallback message if we still have a generic status error
+            if (errorMessage === 'Request failed with status code 401') {
+                errorMessage = 'No account with this email exists or the password is incorrect.';
             }
+
+            setError(errorMessage);
             setIsLoading(false);
         }
     };

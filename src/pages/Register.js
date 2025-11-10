@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import "../styles/Register.css";
 import BinaryBackground from '../components/BinaryBackground';
 import Api from '../services/Api';
+import { useAuth } from '../context/AuthContext';
 // Import avatar images
 // import avatar1 from '../../public/avatars/avatar_ai.png';
 // import avatar2 from '../../public/avatars/avatar_money.png';
@@ -26,6 +27,7 @@ const Register = () => {
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [emailVerified, setEmailVerified] = useState(false);
     const navigate = useNavigate();
+    const { register: registerUser } = useAuth();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -175,7 +177,6 @@ const Register = () => {
 
         // Prevent multiple registration attempts
         if (isLoading && step === 3) {
-            console.log("Registration already in progress, please wait...");
             return;
         }
 
@@ -192,37 +193,12 @@ const Register = () => {
                 avatar: '/avatars/avatar_ai.png'
             };
 
-            const response = await Api.register(submitData);
-
-            // Registration successful - store authentication data
-            if (response && response.data) {
-                // Store token if provided
-                if (response.data.token) {
-                    localStorage.setItem('token', response.data.token);
-                }
-                
-                // Store user data
-                const userData = {
-                    id: response.data.id,
-                    username: response.data.username,
-                    email: response.data.email,
-                    name: response.data.name || response.data.username,
-                    avatar: response.data.avatar || '/avatars/avatar_ai.png',
-                    role: response.data.role || 'USER'
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
-            }
-            
-            // Set subscription flags
-            localStorage.setItem('pendingSubscription', 'true');
             localStorage.setItem('newSignup', 'true');
-            
-            // Clear email verification flag
             localStorage.removeItem('emailVerified');
-            
-            // Registration successful - redirect immediately
-            console.log('Registration successful, redirecting to community...');
-            
+
+            await registerUser(submitData);
+            setIsLoading(false);
+
             toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
                 position: "top-center",
                 autoClose: 1500,
@@ -231,20 +207,9 @@ const Register = () => {
                 pauseOnHover: true,
                 draggable: true,
             });
-            
-            // Clear any previous errors/success messages
+
             setError('');
             setSuccess('');
-            
-            // Force a hard redirect to community page
-            // Use full URL to ensure it works regardless of current route
-            const baseUrl = window.location.origin;
-            console.log('Redirecting to:', `${baseUrl}/community`);
-            
-            // Use window.location.replace for a hard redirect (no back button)
-            setTimeout(() => {
-                window.location.replace(`${baseUrl}/community`);
-            }, 1000);
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';
