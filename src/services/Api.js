@@ -3,21 +3,14 @@ import axios from 'axios';
 // Define a fixed API base URL with proper fallback
 // Automatically detect the origin to avoid CORS issues with www redirects
 const getApiBaseUrl = () => {
-    // Use environment variable if set
+    if (typeof window !== 'undefined' && window.location?.origin) {
+        return window.location.origin;
+    }
+
     if (process.env.REACT_APP_API_URL) {
         return process.env.REACT_APP_API_URL;
     }
     
-    // Detect current origin to match www/non-www
-    if (typeof window !== 'undefined') {
-        const origin = window.location.origin;
-        // If frontend is on www.theglitch.world, use that for API too
-        if (origin.includes('theglitch.world')) {
-            return origin; // This will be https://www.theglitch.world or https://theglitch.world
-        }
-    }
-    
-    // Fallback to non-www version
     return 'https://theglitch.world';
 };
 
@@ -538,7 +531,7 @@ const Api = {
     },
     
     getUserLevel: (userId) => {
-        const baseUrl = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://theglitch.world');
+        const baseUrl = getApiBaseUrl();
         const token = localStorage.getItem('token');
         
         if (!token) {
@@ -555,6 +548,8 @@ const Api = {
     },
     
     // Contact
+    getBaseUrl: () => getApiBaseUrl(),
+    
     getContactMessages: () => {
         return axios.get(`${API_BASE_URL}/api/contact`);
     },

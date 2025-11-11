@@ -12,12 +12,19 @@ const PublicProfile = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    const resolveApiBaseUrl = () => {
+        if (typeof window !== 'undefined' && window.location?.origin) {
+            return window.location.origin;
+        }
+        return process.env.REACT_APP_API_URL || 'https://theglitch.world';
+    };
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
                 // For demo, create a mock profile if the API fails
-                const baseUrl = window.location.origin;
+                const baseUrl = resolveApiBaseUrl();
                 const response = await fetch(`${baseUrl}/api/users/public-profile/${userId}`);
                 if (response.ok) {
                     const data = await response.json();
