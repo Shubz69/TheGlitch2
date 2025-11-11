@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../styles/Courses.css';
 import Api from '../services/Api';
-import { FaBrain, FaDumbbell, FaShoppingCart, FaExchangeAlt, FaBitcoin, FaRobot, FaCode, FaInstagram, FaHome } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
-import axios from 'axios';
 import BinaryBackground from '../components/BinaryBackground';
 
 // Fallback API URL
@@ -16,9 +11,6 @@ const Courses = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [usingMockData, setUsingMockData] = useState(false);
-    const [processingPayment, setProcessingPayment] = useState(false);
-    const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuth();
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -67,75 +59,6 @@ const Courses = () => {
 
         fetchCourses();
     }, []);
-
-    const handleCourseClick = (courseId) => {
-        navigate(`/courses/${courseId}`);
-    };
-
-    const handleEnrollClick = async (course) => {
-        try {
-            setProcessingPayment(true);
-            console.log("Starting course purchase for:", course.id, course.title);
-            
-            // Store the course ID for later use after payment completes
-            localStorage.setItem("purchasedCourseId", course.id);
-            localStorage.setItem("purchasedCourseTitle", course.title);
-            
-            // Check if the course is free
-            if (course.price === 0) {
-                console.log("Processing free course enrollment");
-                try {
-                    // For free courses, directly process the enrollment
-                    const response = await axios.post(
-                        `${API_BASE_URL}/api/payments/complete`,
-                        { courseId: course.id },
-                        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-                    );
-                    
-                    if (response.status === 200) {
-                        toast.success(`Successfully enrolled in ${course.title}!`);
-                        navigate('/payment-success');
-                    } else {
-                        throw new Error("Failed to enroll in course");
-                    }
-                } catch (error) {
-                    console.error('Error enrolling in free course:', error);
-                    toast.error('Unable to enroll in course. Please try again.');
-                    setProcessingPayment(false);
-                }
-                return;
-            }
-            
-            // DIRECT STRIPE PAYMENT LINK APPROACH
-            console.log("Using direct Stripe payment link");
-            
-            // Live Stripe payment link provided by the user
-            const stripePaymentLink = "https://buy.stripe.com/14k6pTfh32W07zG9AK";
-            
-            // Open the payment link in a new tab
-            window.open(stripePaymentLink, "_blank");
-            
-            // Reset the processing state
-            setProcessingPayment(false);
-            
-        } catch (error) {
-            console.error('Payment initiation error:', error);
-            toast.error('Payment processing failed. Please try again.');
-            setProcessingPayment(false);
-        }
-    };
-
-    const getCourseIcon = (title) => {
-        if (title.includes('Health') || title.includes('Fitness')) return <FaDumbbell />;
-        if (title.includes('E-Commerce')) return <FaShoppingCart />;
-        if (title.includes('Forex')) return <FaExchangeAlt />;
-        if (title.includes('Crypto') || title.includes('Blockchain')) return <FaBitcoin />;
-        if (title.includes('Algorithmic') || title.includes('FX')) return <FaRobot />;
-        if (title.includes('Intelligent') || title.includes('Systems') || title.includes('Development')) return <FaCode />;
-        if (title.includes('Social') || title.includes('Media')) return <FaInstagram />;
-        if (title.includes('Real') || title.includes('Estate')) return <FaHome />;
-        return <FaBrain />;
-    };
 
     if (loading) {
         return (

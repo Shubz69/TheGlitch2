@@ -26,23 +26,6 @@ const emojis = [
     '💜', '💙', '💚', '💛', '🧡', '🖤', '🤍', '🤎', '💔', '❣️'
 ];
 
-// Helper function to get correct avatar path
-const getAvatarPath = (avatarName) => {
-    if (!avatarName) return '/avatars/avatar_ai.png';
-    
-    // Check if the avatarName already has the full path
-    if (avatarName.startsWith('/')) return avatarName;
-    if (avatarName.startsWith('http')) return avatarName;
-    
-    // Handle numbered avatars (avatar1, avatar2, etc)
-    if (avatarName.startsWith('avatar')) {
-        return `/avatars/${avatarName}.png`;
-    }
-    
-    // Default case
-    return `/avatars/${avatarName}`;
-};
-
 // Online users will be fetched from API or computed from real data
 
 
@@ -97,7 +80,6 @@ const Community = () => {
     const [userId, setUserId] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { id: channelIdParam } = useParams();
     
@@ -105,7 +87,6 @@ const Community = () => {
     const [selectedChannel, setSelectedChannel] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [onlineUsers, setOnlineUsers] = useState([]);
     const [totalUsers, setTotalUsers] = useState(0);
     const [onlineCount, setOnlineCount] = useState(0);
     const [connectionStatus, setConnectionStatus] = useState('connecting'); // 'connected', 'connecting', 'server-issue', 'wifi-issue'
@@ -165,7 +146,6 @@ const Community = () => {
     
     // Initialize WebSocket connection for real-time messaging
     const { 
-        sendMessage: sendSocketMessage,
         isConnected, 
         connectionError 
     } = useWebSocket(
@@ -244,29 +224,6 @@ const Community = () => {
         return Math.floor(Math.sqrt(xp / 100)) + 1;
     };
     
-    const getXPForLevel = (level) => {
-        // Reverse formula: XP needed for a level = (level - 1)^2 * 100
-        return Math.pow(level - 1, 2) * 100;
-    };
-    
-    const getXPProgress = (xp) => {
-        const currentLevel = getLevelFromXP(xp);
-        const currentLevelXP = getXPForLevel(currentLevel);
-        const nextLevelXP = getXPForLevel(currentLevel + 1);
-        const xpInCurrentLevel = xp - currentLevelXP;
-        const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
-        const progressPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
-        
-        return {
-            currentLevel,
-            currentXP: xp,
-            xpInCurrentLevel,
-            xpNeededForNextLevel,
-            progressPercentage: Math.min(100, Math.max(0, progressPercentage)),
-            nextLevel: currentLevel + 1
-        };
-    };
-    
     // Award XP and update user data
     const awardXP = (earnedXP) => {
         try {
@@ -325,29 +282,6 @@ const Community = () => {
         totalXP += lengthBonus;
         
         return totalXP;
-    };
-
-    // Check for valid auth token
-    const hasValidToken = () => {
-        const token = localStorage.getItem('token');
-        if (!token) return false;
-        
-        try {
-            const parts = token.split('.');
-            if (parts.length !== 3) return false;
-            
-            const payload = JSON.parse(atob(parts[1]));
-            const currentTime = Date.now() / 1000;
-            
-            if (payload.exp && payload.exp < currentTime) {
-                return false;
-            }
-            
-            return true;
-        } catch (e) {
-            console.error('Token validation error:', e);
-            return false;
-        }
     };
 
     // Get user's role
@@ -485,8 +419,6 @@ const Community = () => {
     const fetchMessages = useCallback(async (channelId) => {
         if (!channelId) return;
         
-        setLoading(true);
-        
         try {
             // Fetch from backend API for permanent persistence
             const response = await Api.getChannelMessages(channelId);
@@ -498,7 +430,6 @@ const Community = () => {
                 
                 // Set messages from API
                 setMessages(apiMessages);
-                setLoading(false);
                 return;
             } else {
                 // Response format unexpected, try localStorage
@@ -519,8 +450,6 @@ const Community = () => {
                 setMessages([]);
             }
         }
-        
-        setLoading(false);
     }, []);
 
     const handleCreateChannel = async (event) => {
@@ -639,8 +568,27 @@ const Community = () => {
         }
     }, [isAuthenticated]);
 
+    // Check subscription status from localStorage (fallback)
+    const checkSubscriptionLocal = useCallback(() => {
+        const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
+        const subscriptionExpiry = localStorage.getItem('subscriptionExpiry');
+        
+        if (hasActiveSubscription && subscriptionExpiry) {
+            const expiryDate = new Date(subscriptionExpiry);
+            if (expiryDate > new Date()) {
+                return true; // Active subscription
+            } else {
+                // Subscription expired
+                localStorage.removeItem('hasActiveSubscription');
+                localStorage.removeItem('subscriptionExpiry');
+                return false;
+            }
+        }
+        return false;
+    }, []);
+
     // Check subscription status from database
-    const checkSubscriptionFromDB = async () => {
+    const checkSubscriptionFromDB = useCallback(async () => {
         if (!userId) return false;
         
         try {
@@ -668,26 +616,7 @@ const Community = () => {
             // Fallback to localStorage check
             return checkSubscriptionLocal();
         }
-    };
-    
-    // Check subscription status from localStorage (fallback)
-    const checkSubscriptionLocal = () => {
-        const hasActiveSubscription = localStorage.getItem('hasActiveSubscription') === 'true';
-        const subscriptionExpiry = localStorage.getItem('subscriptionExpiry');
-        
-        if (hasActiveSubscription && subscriptionExpiry) {
-            const expiryDate = new Date(subscriptionExpiry);
-            if (expiryDate > new Date()) {
-                return true; // Active subscription
-            } else {
-                // Subscription expired
-                localStorage.removeItem('hasActiveSubscription');
-                localStorage.removeItem('subscriptionExpiry');
-                return false;
-            }
-        }
-        return false;
-    };
+    }, [userId, checkSubscriptionLocal]);
     
     // Combined subscription check
     const checkSubscription = () => {
@@ -711,7 +640,7 @@ const Community = () => {
         }, 30000);
         
         return () => clearInterval(interval);
-    }, [userId, isAuthenticated]);
+    }, [userId, isAuthenticated, checkSubscriptionFromDB]);
 
     // Check subscription before allowing access to community
     useEffect(() => {
@@ -853,9 +782,6 @@ const Community = () => {
                 console.warn('Failed to fetch channels from API:', apiError.message);
             }
             
-            // Initialize online users count (will be fetched from API when available)
-            setOnlineUsers([]);
-            
             // If API fails, create minimal channel structure from courses
             // This ensures the UI works even if backend isn't ready
             if (courses.length > 0) {
@@ -899,7 +825,7 @@ const Community = () => {
         };
         
         loadChannels();
-    }, [isAuthenticated, channelIdParam, selectedChannel, courses]);
+    }, [isAuthenticated, channelIdParam, selectedChannel, courses, sortChannels]);
 
     // Check API connectivity
     const checkApiConnectivity = useCallback(async () => {
@@ -943,11 +869,9 @@ const Community = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                const online = data.onlineUsers || [];
                 const total = data.totalUsers || 0;
                 
-                setOnlineUsers(online);
-                setOnlineCount(online.length);
+                setOnlineCount((data.onlineUsers || []).length);
                 setTotalUsers(total);
             }
         } catch (error) {
@@ -1272,8 +1196,6 @@ Let's build generational wealth together! 💰🚀`,
         const category = channel.category || 'general';
         const channelName = (channel.name || '').toLowerCase();
         const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked || channelName === 'admin';
-        const isWelcomeChannel = channelName === 'welcome';
-        const isAnnouncementsChannel = channelName === 'announcements';
         
         // Admin channel: Only admins can see it
         if (isAdminChannel && !isAdmin) {
@@ -1298,7 +1220,6 @@ Let's build generational wealth together! 💰🚀`,
 
     // Check subscription status for banner and channel visibility
     const hasActiveSubscription = checkSubscription();
-    const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
     const storedUserDataForBanner = JSON.parse(localStorage.getItem('user') || '{}');
     const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin';
     const showSubscribeBanner = !isAdminForBanner && !hasActiveSubscription;

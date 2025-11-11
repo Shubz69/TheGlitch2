@@ -7,7 +7,6 @@ import BinaryBackground from '../components/BinaryBackground';
 const MyCourses = () => {
     const [courses, setCourses] = useState([]);
     const [userRole, setUserRole] = useState('');
-    const [userData, setUserData] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -31,7 +30,6 @@ const MyCourses = () => {
         if (userJson) {
             const user = JSON.parse(userJson);
             setUserRole(user.role);
-            setUserData(user);
             fetchCourses(user.id, user.role);
         } else {
             setError('User not authenticated');

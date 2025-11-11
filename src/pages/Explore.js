@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import '../styles/Explore.css';
 import BinaryBackground from '../components/BinaryBackground';
 
 const Explore = () => {
-  const [dataPoints, setDataPoints] = useState([]);
-  const chartRef = useRef(null);
-  
   // Stock ticker data
   const stockData = [
     { symbol: 'BTC', price: '41,225.78', change: '+3.6%', positive: true },

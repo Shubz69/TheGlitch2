@@ -172,7 +172,7 @@ export const AuthProvider = ({ children }) => {
         }
         
         persistTokens(data.token, data.refreshToken);
-        const userInfo = persistUser(data);
+        persistUser(data);
         
         if (data.role === 'ADMIN') {
           localStorage.setItem('mfaVerified', 'true');

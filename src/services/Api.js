@@ -105,93 +105,6 @@ const mockLogin = async (email, password) => {
     });
 };
 
-const mockRegister = async (userData) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            // Handle FormData or regular object
-            const userInfo = userData instanceof FormData ? {
-                email: userData.get('email'),
-                password: userData.get('password'),
-                name: userData.get('name'),
-                username: userData.get('username'),
-                avatar: userData.get('avatar') || '/avatars/avatar_ai.png'
-            } : {
-                ...userData,
-                avatar: userData.avatar || '/avatars/avatar_ai.png'
-            };
-            
-            // Check if user already exists (case-insensitive email and username check)
-            const existingUser = MOCK_USERS.find(u => 
-                u.email.toLowerCase() === userInfo.email.toLowerCase() || 
-                u.username.toLowerCase() === userInfo.username.toLowerCase()
-            );
-            if (existingUser) {
-                if (existingUser.email.toLowerCase() === userInfo.email.toLowerCase()) {
-                    reject(new Error('An account with this email already exists'));
-                } else {
-                    reject(new Error('This username is already taken. Please choose another one.'));
-                }
-                return;
-            }
-            
-            // Create new user
-            const newUser = {
-                id: MOCK_USERS.length + 1,
-                email: userInfo.email,
-                password: userInfo.password,
-                name: userInfo.name,
-                username: userInfo.username,
-                avatar: userInfo.avatar,
-                role: 'USER',
-                level: 1,
-                xp: 0,
-                totalMessages: 0
-            };
-            
-            MOCK_USERS.push(newUser);
-            
-            // Generate a proper 3-part JWT token
-            const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-            const payload = btoa(JSON.stringify({
-                sub: newUser.id.toString(),
-                email: newUser.email,
-                name: newUser.name,
-                username: newUser.username,
-                role: newUser.role,
-                exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-            }));
-            const signature = btoa('mock-signature');
-            const token = `${header}.${payload}.${signature}`;
-            
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({
-                id: newUser.id,
-                email: newUser.email,
-                name: newUser.name,
-                username: newUser.username,
-                avatar: newUser.avatar,
-                role: newUser.role,
-                level: newUser.level,
-                xp: newUser.xp,
-                totalMessages: newUser.totalMessages
-            }));
-            
-            resolve({
-                data: {
-                    status: "MFA_REQUIRED",
-                    id: newUser.id,
-                    email: newUser.email,
-                    name: newUser.name,
-                    username: newUser.username,
-                    avatar: newUser.avatar,
-                    role: newUser.role,
-                    mfaVerified: false
-                }
-            });
-        }, 1000); // Simulate network delay
-    });
-};
-
 // List of endpoints that should be accessible without authentication
 const PUBLIC_ENDPOINTS = [
     '/api/courses',
@@ -252,9 +165,6 @@ const shouldMakeRequest = (url) => {
     // Block requests to protected endpoints if no valid auth
     return hasValidAuth();
 };
-
-// Create a custom axios instance for auth-skipping requests
-const axiosNoAuth = axios.create();
 
 // Add global interceptor to include auth token
 axios.interceptors.request.use(

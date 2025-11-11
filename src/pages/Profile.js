@@ -37,7 +37,6 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editedUserData, setEditedUserData] = useState({});
     const [userRole, setUserRole] = useState("");
-    const [error, setError] = useState(null);
     // eslint-disable-next-line no-unused-vars
     const [isEditing, setIsEditing] = useState(false);
     // eslint-disable-next-line no-unused-vars
@@ -243,10 +242,6 @@ const Profile = () => {
 
     if (loading) {
         return <div className="profile-container"><div className="loading">Loading...</div></div>;
-    }
-
-    if (error) {
-        return <div className="profile-container"><div className="error">{error}</div></div>;
     }
 
     return (

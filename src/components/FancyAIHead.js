@@ -8,12 +8,11 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
     const [hoveredElement, setHoveredElement] = useState(null);
     const [isInteracting, setIsInteracting] = useState(false);
     const [eyeDirection, setEyeDirection] = useState({ x: 0, y: 0 });
-    const [pulseIntensity, setPulseIntensity] = useState(1);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const pulseIntensityRef = useRef(1);
+    const mousePosRef = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
         const neuralCanvas = neuralRef.current;
         const neuralCtx = neuralCanvas.getContext('2d');
 
@@ -89,8 +88,8 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                 const centerY = rect.top + rect.height / 2;
                 
                 // Use provided mousePosition or current mousePos state
-                const currentX = mouseX !== undefined ? mouseX : mousePos.x;
-                const currentY = mouseY !== undefined ? mouseY : mousePos.y;
+                const currentX = mouseX !== undefined ? mouseX : mousePosRef.current.x;
+                const currentY = mouseY !== undefined ? mouseY : mousePosRef.current.y;
                 
                 const deltaX = (currentX - centerX) / (rect.width / 2);
                 const deltaY = (currentY - centerY) / (rect.height / 2);
@@ -108,7 +107,7 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
 
         // Mouse move event handler
         const handleMouseMove = (e) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
+            mousePosRef.current = { x: e.clientX, y: e.clientY };
             updateEyeDirection(e.clientX, e.clientY);
         };
 
@@ -118,7 +117,7 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
         // Animation loop
         const animate = () => {
             // Update eye direction in animation loop for smooth tracking
-            if (mousePos.x !== 0 || mousePos.y !== 0) {
+            if (mousePosRef.current.x !== 0 || mousePosRef.current.y !== 0) {
                 updateEyeDirection();
             }
             
@@ -140,7 +139,8 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                     targetPulse = 1;
             }
             
-            setPulseIntensity(prev => prev + (targetPulse - prev) * 0.1);
+            const updatedPulse = pulseIntensityRef.current + (targetPulse - pulseIntensityRef.current) * 0.1;
+            pulseIntensityRef.current = updatedPulse;
 
             // Animate neural network
             layers.forEach((layer, layerIndex) => {
@@ -148,33 +148,28 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                     let speedMultiplier = 1;
                     let sizeMultiplier = 1;
                     let colorIntensity = 0.3;
-                    let connectionRange = 100;
 
                     switch (state) {
                         case 'thinking':
                             speedMultiplier = 0.15;
                             sizeMultiplier = 2.2;
                             colorIntensity = 0.9;
-                            connectionRange = 180;
                             break;
                         case 'analyzing':
                             speedMultiplier = 3.0;
                             sizeMultiplier = 0.6;
                             colorIntensity = 1.0;
-                            connectionRange = 70;
                             break;
                         case 'learning':
                             speedMultiplier = 2.2;
                             sizeMultiplier = 1.5;
                             colorIntensity = 0.95;
-                            connectionRange = 140;
                             break;
                         case 'idle':
                         default:
                             speedMultiplier = 1;
                             sizeMultiplier = 1;
                             colorIntensity = 0.3;
-                            connectionRange = 100;
                     }
 
                     // Update node position
@@ -188,7 +183,7 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
 
                     // Draw node with enhanced effects
                     const alpha = colorIntensity + 0.3 * Math.sin(node.pulse);
-                    const nodeSize = node.size * sizeMultiplier * pulseIntensity;
+                    const nodeSize = node.size * sizeMultiplier * pulseIntensityRef.current;
                     
                     // Node glow
                     neuralCtx.beginPath();
@@ -238,6 +233,10 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
                         maxDistance = 140;
                         lineWidth = 2.8;
                         break;
+                    default:
+                        maxDistance = 100;
+                        lineWidth = 1;
+                        break;
                 }
                 
                 if (distance < maxDistance) {
@@ -284,7 +283,7 @@ const FancyAIHead = ({ state = 'idle', onInteraction, mousePosition }) => {
             window.removeEventListener('resize', resizeCanvas);
             window.removeEventListener('mousemove', handleMouseMove);
         };
-    }, [state, mousePosition]);
+    }, [state]);
 
     const handleElementHover = (element) => {
         setHoveredElement(element);

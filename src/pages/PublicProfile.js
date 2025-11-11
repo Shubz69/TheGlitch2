@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/PublicProfile.css';
-import { useAuth } from "../context/AuthContext";
 import BinaryBackground from '../components/BinaryBackground';
 
 import { FaArrowLeft, FaMedal, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
@@ -11,7 +10,6 @@ const PublicProfile = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {

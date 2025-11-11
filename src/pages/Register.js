@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import "../styles/Register.css";
 import BinaryBackground from '../components/BinaryBackground';
@@ -26,7 +26,6 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [emailVerified, setEmailVerified] = useState(false);
-    const navigate = useNavigate();
     const { register: registerUser } = useAuth();
 
     const handleInputChange = (e) => {

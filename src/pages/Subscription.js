@@ -40,13 +40,6 @@ const Subscription = () => {
                 return;
             }
         }
-        
-        // If new signup, automatically grant first month free
-        const isNewSignup = localStorage.getItem('newSignup') === 'true';
-        const pendingSubscription = localStorage.getItem('pendingSubscription') === 'true';
-        
-        // Don't auto-grant free trial - user must subscribe via banner
-        // Remove this auto-grant feature
     }, [isAuthenticated, navigate]);
 
     const handleSubscribe = () => {

@@ -12,48 +12,10 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showMfaVerification, setShowMfaVerification] = useState(false);
     const [mfaCode, setMfaCode] = useState('');
-    const [userId, setUserId] = useState('');
     const [countdown, setCountdown] = useState(30);
     const [canResendCode, setCanResendCode] = useState(false);
     const { login: loginWithAuth, isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    
-    // Lightning background effect
-    const [lightningBolt, setLightningBolt] = useState(null);
-    const [flashEffect, setFlashEffect] = useState(false);
-    
-    useEffect(() => {
-        // Create lightning effect
-        const createLightning = () => {
-            const bolt = {
-                id: Date.now(),
-                x: Math.random() * 100,
-                y: Math.random() * 100,
-                intensity: Math.random() * 0.8 + 0.2,
-                duration: Math.random() * 200 + 100
-            };
-            setLightningBolt(bolt);
-            setFlashEffect(true);
-            
-            // Clear lightning after duration
-            setTimeout(() => {
-                setLightningBolt(null);
-                setFlashEffect(false);
-            }, bolt.duration);
-        };
-
-        // Create lightning bolts at random intervals
-        const lightningInterval = setInterval(() => {
-            if (Math.random() < 0.3) { // 30% chance every interval
-                createLightning();
-            }
-        }, 2000);
-
-        // Initial lightning
-        setTimeout(createLightning, 1000);
-
-        return () => clearInterval(lightningInterval);
-    }, []);
     
     useEffect(() => {
         // Reset countdown timer if MFA verification is shown
@@ -149,7 +111,13 @@ const Login = () => {
                     resolve({
                         data: {
                             token: 'mock-mfa-token',
-                            user: { id: userId, email: email }
+                            refreshToken: 'mock-refresh-token',
+                            role: 'USER',
+                            id: 'mock-user',
+                            username: email.split('@')[0] || 'user',
+                            email,
+                            name: '',
+                            avatar: 'avatar_ai.png'
                         }
                     });
                 }, 1000);
