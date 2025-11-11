@@ -48,6 +48,27 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const enableConnection = shouldConnect && DEFAULT_ENV_ENABLE;
   const hasLoggedDisabledRef = useRef(false);
 
+  const preferNativeSocket = useCallback(() => {
+    const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
+    try {
+      return new WebSocket(wsUrl);
+    } catch (error) {
+      console.warn('Native WebSocket unavailable, falling back to SockJS:', error?.message || error);
+      return null;
+    }
+  }, []);
+
+  const createSockJsConnection = useCallback(() => {
+    return new SockJS(`${WS_BASE_URL}/ws`, null, {
+      transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+      transportOptions: {
+        'xhr-streaming': { withCredentials: false },
+        'xhr-polling': { withCredentials: false }
+      },
+      sessionId: () => `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    });
+  }, []);
+
   // Get auth headers for WebSocket connection
   const getAuthHeaders = useCallback(() => {
     const headers = {};
@@ -64,7 +85,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     if (reconnectAttempts.current < maxReconnectAttempts) {
       reconnectAttempts.current += 1;
       console.log(`Reconnect attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
-      
+
       // Instead of calling connect directly, schedule a reconnection
       setTimeout(() => {
         console.log('Attempting to reconnect...');
@@ -91,24 +112,23 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
       return;
     }
-    
+
     try {
       console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
-      
+
       // Clear any previous connection
       if (stompClientRef.current && stompClientRef.current.connected) {
         stompClientRef.current.disconnect();
       }
-      
-      // Create new SockJS instance
-      const socket = new SockJS(`${WS_BASE_URL}/ws`);
-      
-      // Create STOMP client over SockJS
+
+      const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
+      const nativeSocket = preferNativeSocket();
+
       const client = new Client({
-        webSocketFactory: () => socket,
+        brokerURL: nativeSocket ? wsUrl : undefined,
+        webSocketFactory: () => nativeSocket || createSockJsConnection(),
         connectHeaders: getAuthHeaders(),
         debug: (str) => {
-          // Only log in development environment
           if (process.env.NODE_ENV === 'development') {
             console.log(`STOMP: ${str}`);
           }
@@ -124,7 +144,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setIsConnected(true);
         setConnectionError(null);
         reconnectAttempts.current = 0;
-        
+
         // Subscribe to channel
         if (channelId) {
           client.subscribe(`/topic/chat/${channelId}`, (message) => {
@@ -150,13 +170,12 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
               console.error('Error handling message:', error);
             }
           });
-          
+
           // Also subscribe to online users updates
           client.subscribe('/topic/online-users', (message) => {
             try {
               if (message.body) {
                 const data = JSON.parse(message.body);
-                // This will be handled by the admin panel for online status updates
                 console.log('Online users update received:', data);
               }
             } catch (error) {
@@ -174,11 +193,10 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       };
 
       client.onWebSocketError = (error) => {
-        // Check if error is an Event object (common when server is unreachable)
-        const errorMessage = error instanceof Event 
-          ? 'Cannot connect to server. Server may be unavailable.' 
+        const errorMessage = error instanceof Event
+          ? 'Cannot connect to server. Server may be unavailable.'
           : (error.message || 'Connection failed');
-          
+
         console.error('WebSocket Error:', error);
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
@@ -193,14 +211,14 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       // Activate the client
       stompClientRef.current = client;
       client.activate();
-      
+
     } catch (error) {
       console.error('Error creating WebSocket connection:', error);
       setConnectionError(`Connection Error: ${error.message}`);
       setIsConnected(false);
       handleReconnect();
     }
-  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection]);
+  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection]);
 
   // Update the connectRef when connect changes
   useEffect(() => {
@@ -213,12 +231,12 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       console.log('WebSocket connections disabled, not sending message');
       return false;
     }
-    
+
     if (!isAuthenticated || !token) {
       console.log('Cannot send message: Not authenticated');
       return false;
     }
-    
+
     if (!stompClientRef.current || !stompClientRef.current.connected || !channelId) {
       console.error('Cannot send message: WebSocket not connected or channelId missing');
       return false;
@@ -244,7 +262,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     } else {
       console.log('WebSocket connections disabled, not connecting');
     }
-    
+
     // Cleanup on unmount
     return () => {
       if (stompClientRef.current) {
