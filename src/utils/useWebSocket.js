@@ -8,6 +8,12 @@ const API_BASE_URL = (typeof window !== 'undefined' && window.location?.origin)
   ? window.location.origin
   : (process.env.REACT_APP_API_URL || 'https://theglitch.world');
 
+const ENV_ENABLE_FLAG = typeof process !== 'undefined' ? process.env.REACT_APP_ENABLE_WEBSOCKETS : undefined;
+const isBrowser = typeof window !== 'undefined';
+const DEFAULT_ENV_ENABLE =
+  ENV_ENABLE_FLAG === 'true' ||
+  (ENV_ENABLE_FLAG !== 'false' && isBrowser && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+
 export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true) => {
   const { token, isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -16,6 +22,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const connectRef = useRef(null);
+  const enableConnection = shouldConnect && DEFAULT_ENV_ENABLE;
+  const hasLoggedDisabledRef = useRef(false);
 
   // Get auth headers for WebSocket connection
   const getAuthHeaders = useCallback(() => {
@@ -28,7 +36,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Handle reconnection logic - define before connect
   const handleReconnect = useCallback(() => {
-    if (!shouldConnect) return; // Skip reconnection if shouldConnect is false
+    if (!enableConnection) return; // Skip reconnection if connections disabled
     
     if (reconnectAttempts.current < maxReconnectAttempts) {
       reconnectAttempts.current += 1;
@@ -46,13 +54,18 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       console.error('Max reconnect attempts reached');
       setConnectionError('Max reconnect attempts reached. Please refresh the page to try again.');
     }
-  }, [shouldConnect]); // Add shouldConnect as dependency
+  }, [enableConnection]);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
     // Skip connection if not authenticated or missing channelId or shouldConnect is false
-    if (!shouldConnect || !isAuthenticated || !token || !channelId) {
-      console.log('Skipping WebSocket connection:', !shouldConnect ? 'Connection disabled' : 'Not authenticated or missing channelId');
+    if (!enableConnection || !isAuthenticated || !token || !channelId) {
+      if (!enableConnection && !hasLoggedDisabledRef.current) {
+        console.info('WebSocket connections disabled for this environment.');
+        hasLoggedDisabledRef.current = true;
+      } else if (!isAuthenticated || !token || !channelId) {
+        console.log('Skipping WebSocket connection:', 'Not authenticated or missing channelId');
+      }
       return;
     }
     
@@ -164,7 +177,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       setIsConnected(false);
       handleReconnect();
     }
-  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, shouldConnect]); // Add shouldConnect as dependency
+  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection]);
 
   // Update the connectRef when connect changes
   useEffect(() => {
@@ -173,7 +186,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Send message through WebSocket
   const sendMessage = useCallback((message) => {
-    if (!shouldConnect) {
+    if (!enableConnection) {
       console.log('WebSocket connections disabled, not sending message');
       return false;
     }
@@ -199,11 +212,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       console.error('Error sending message:', error);
       return false;
     }
-  }, [channelId, getAuthHeaders, isAuthenticated, token, shouldConnect]); // Add shouldConnect as dependency
+  }, [channelId, getAuthHeaders, isAuthenticated, token, enableConnection]);
 
   // Initial connection
   useEffect(() => {
-    if (shouldConnect) {
+    if (enableConnection) {
       connect();
     } else {
       console.log('WebSocket connections disabled, not connecting');
@@ -216,7 +229,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         stompClientRef.current.deactivate();
       }
     };
-  }, [connect, shouldConnect]); // Add shouldConnect as dependency
+  }, [connect, enableConnection]);
 
   return {
     isConnected,
