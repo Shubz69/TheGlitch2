@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mfaVerified, setMfaVerified] = useState(false);
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
   const navigate = useNavigate();
 
   const clearSession = useCallback(() => {
@@ -25,16 +26,22 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('hasActiveSubscription');
     localStorage.removeItem('pendingSubscription');
     localStorage.removeItem('subscriptionSkipped');
+    setToken(null);
   }, []);
 
-  const persistTokens = (token, refreshToken) => {
-    if (token) {
-      localStorage.setItem('token', token);
+  const persistTokens = useCallback((nextToken, refreshToken) => {
+    if (nextToken) {
+      localStorage.setItem('token', nextToken);
+      setToken(nextToken);
+    } else {
+      localStorage.removeItem('token');
+      setToken(null);
     }
+
     if (refreshToken) {
       localStorage.setItem('refreshToken', refreshToken);
     }
-  };
+  }, []);
 
   const resolveUserInfo = (data = {}) => ({
     id: data.id || data.userId || data.sub || null,
@@ -318,6 +325,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     error,
+    token,
     isAuthenticated: !!user,
     login,
     logout,

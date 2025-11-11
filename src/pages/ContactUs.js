@@ -5,6 +5,7 @@ import { IoSend } from 'react-icons/io5';
 import '../styles/ContactUs.css';
 import Chatbot from "../components/Chatbot";
 import BinaryBackground from '../components/BinaryBackground';
+import Api from '../services/Api';
 
 // Simple Text Component
 const SimpleText = ({ text }) => {
@@ -51,29 +52,18 @@ const ContactUs = () => {
         setSubmitStatus(null);
         
         try {
-            // Send to backend API using the live domain
-            const response = await fetch('https://theglitch.world/api/contact', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    message: formData.message
-                }),
+            await Api.submitContactForm({
+                name: formData.name,
+                email: formData.email,
+                message: formData.message
             });
             
-            if (response.ok) {
-                setSubmitStatus({
-                    type: 'success',
-                    message: 'Your message has been sent successfully. We will contact you soon.'
-                });
-                // Reset form
-                setFormData({ name: '', email: '', message: '' });
-            } else {
-                throw new Error('Failed to send message');
-            }
+            setSubmitStatus({
+                type: 'success',
+                message: 'Your message has been sent successfully. We will contact you soon.'
+            });
+            // Reset form
+            setFormData({ name: '', email: '', message: '' });
         } catch (error) {
             console.error('Error sending message:', error);
             setSubmitStatus({

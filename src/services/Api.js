@@ -538,7 +538,7 @@ const Api = {
     },
     
     getUserLevel: (userId) => {
-        const baseUrl = process.env.REACT_APP_API_URL || 'https://theglitch.world';
+        const baseUrl = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://theglitch.world');
         const token = localStorage.getItem('token');
         
         if (!token) {

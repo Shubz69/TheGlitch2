@@ -5,6 +5,8 @@ import "../styles/Profile.css";
 import { useNavigate } from 'react-router-dom';
 import BinaryBackground from '../components/BinaryBackground';
 
+const API_BASE_URL = typeof window !== 'undefined' ? window.location.origin : (process.env.REACT_APP_API_URL || 'https://theglitch.world');
+
 // Helper function to ensure avatar path is valid
 const getAvatarPath = (avatarName) => {
     const availableAvatars = [
@@ -89,7 +91,7 @@ const Profile = () => {
                 const token = localStorage.getItem("token");
                 if (token) {
                     const response = await axios.get(
-                        `https://theglitch.world/api/users/${user.id}`,
+                        `${API_BASE_URL}/api/users/${user.id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`
@@ -151,7 +153,7 @@ const Profile = () => {
 
         try {
             const res = await axios.put(
-                `https://theglitch.world/api/users/${user.id}/update`,
+                `${API_BASE_URL}/api/users/${user.id}/update`,
                 { [field]: formData[field] },
                 {
                     headers: {
@@ -199,7 +201,7 @@ const Profile = () => {
     const handleSaveChanges = async () => {
         try {
             const res = await axios.put(
-                `https://theglitch.world/api/users/${user.id}/update`,
+                `${API_BASE_URL}/api/users/${user.id}/update`,
                 editedUserData,
                 {
                     headers: {
