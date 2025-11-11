@@ -20,6 +20,74 @@ const toDisplayName = (value) => {
     .join(' ');
 };
 
+const normalizeAccessLevel = (value) => {
+  const normalized = (value || 'open')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+
+  const allowedLevels = new Set([
+    'open',
+    'read-only',
+    'admin-only',
+    'premium',
+    'support',
+    'staff'
+  ]);
+
+  return allowedLevels.has(normalized) ? normalized : 'open';
+};
+
+const normalizeCategory = (value) => {
+  const normalized = (value || 'general')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalized || 'general';
+};
+
+const ensureChannelSchema = async (db) => {
+  if (!process.env.MYSQL_DATABASE) {
+    return;
+  }
+
+  try {
+    const [columns] = await db.execute(`
+      SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels'
+    `, [process.env.MYSQL_DATABASE]);
+
+    const idColumn = columns.find((column) => column.COLUMN_NAME === 'id');
+    if (idColumn) {
+      if (idColumn.DATA_TYPE !== 'varchar' || (idColumn.EXTRA || '').includes('auto_increment')) {
+        await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
+      }
+    }
+
+    const nameColumn = columns.find((column) => column.COLUMN_NAME === 'name');
+    if (nameColumn && nameColumn.DATA_TYPE !== 'varchar') {
+      await db.execute('ALTER TABLE channels MODIFY COLUMN name VARCHAR(255) NOT NULL');
+    }
+
+    const [existingPrimaryKeys] = await db.execute(`
+      SELECT CONSTRAINT_NAME
+      FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND CONSTRAINT_TYPE = 'PRIMARY KEY'
+    `, [process.env.MYSQL_DATABASE]);
+
+    if (existingPrimaryKeys.length === 0) {
+      await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
+    }
+  } catch (schemaError) {
+    console.log('Channels schema alignment note:', schemaError.message);
+  }
+};
+
 // Get database connection
 const getDbConnection = async () => {
   if (!process.env.MYSQL_HOST || !process.env.MYSQL_USER || !process.env.MYSQL_PASSWORD || !process.env.MYSQL_DATABASE) {
@@ -109,6 +177,7 @@ module.exports = async (req, res) => {
         try {
           // Create channels table if it doesn't exist
           await ensureChannelsTable(db);
+          await ensureChannelSchema(db);
           
           // Add access_level column if it doesn't exist
           try {
@@ -243,8 +312,6 @@ module.exports = async (req, res) => {
             console.error('Error creating/updating channels:', insertError.message);
           }
           
-          await db.end();
-
           if (rows && rows.length > 0) {
             const channels = rows.map(row => {
               // Create a proper displayName from the name
@@ -267,7 +334,12 @@ module.exports = async (req, res) => {
           }
         } catch (dbError) {
           console.error('Database error fetching channels:', dbError);
-          await db.end();
+        } finally {
+          try {
+            await db.end();
+          } catch (endError) {
+            console.log('Error closing channels DB connection:', endError.message);
+          }
         }
       }
 
@@ -303,6 +375,7 @@ module.exports = async (req, res) => {
 
       try {
         await ensureChannelsTable(db);
+        await ensureChannelSchema(db);
 
         const slugBase = slugify(name || sourceName) || `channel-${Date.now()}`;
         let channelId = id && id.trim() ? slugify(id) : slugBase;
@@ -321,17 +394,23 @@ module.exports = async (req, res) => {
         }
 
         const channelName = slugify(name || sourceName) || channelId;
-        const channelCategory = (category || 'general').toLowerCase();
+        const channelCategory = normalizeCategory(category);
         const channelDescription = description || '';
-        const channelAccess = (accessLevel || 'open').toLowerCase();
+        const channelAccess = normalizeAccessLevel(accessLevel);
         const locked = channelAccess === 'admin-only';
+
+        const [existingByName] = await db.execute('SELECT id FROM channels WHERE name = ?', [channelName]);
+        if (existingByName && existingByName.length > 0) {
+          return res.status(409).json({
+            success: false,
+            message: 'A channel with this name already exists.'
+          });
+        }
 
         await db.execute(
           'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
           [channelId, channelName, channelCategory, channelDescription, channelAccess]
         );
-
-        await db.end();
 
         return res.status(201).json({
           success: true,
@@ -347,11 +426,24 @@ module.exports = async (req, res) => {
         });
       } catch (dbError) {
         console.error('Database error creating channel:', dbError);
-        if (db && !db.ended) await db.end();
+        if (dbError?.code === 'ER_DUP_ENTRY') {
+          return res.status(409).json({
+            success: false,
+            message: 'A channel with this identifier already exists.'
+          });
+        }
+
         return res.status(500).json({
           success: false,
-          message: 'Failed to create channel'
+          message: 'Failed to create channel',
+          error: dbError.message
         });
+      } finally {
+        try {
+          await db.end();
+        } catch (endError) {
+          console.log('Error closing channels DB connection after create:', endError.message);
+        }
       }
     } catch (error) {
       console.error('Error creating channel:', error);

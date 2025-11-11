@@ -98,6 +98,16 @@ const Community = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
     const fileInputRef = useRef(null);
+    const channelListRef = useRef([]);
+    const selectedChannelRef = useRef(null);
+
+    useEffect(() => {
+        channelListRef.current = channelList;
+    }, [channelList]);
+
+    useEffect(() => {
+        selectedChannelRef.current = selectedChannel;
+    }, [selectedChannel]);
     
     // Welcome message and channel visibility
     const [hasReadWelcome, setHasReadWelcome] = useState(false);
@@ -143,6 +153,109 @@ const Community = () => {
             return nameA.localeCompare(nameB);
         });
     }, [categoryOrder]);
+
+    const refreshChannelList = useCallback(async ({ selectChannelId } = {}) => {
+        if (!isAuthenticated) {
+            return channelListRef.current;
+        }
+
+        let channelsFromServer = [];
+
+        try {
+            const response = await Api.getChannels();
+            if (Array.isArray(response?.data)) {
+                channelsFromServer = response.data;
+            } else if (Array.isArray(response?.data?.channels)) {
+                channelsFromServer = response.data.channels;
+            }
+        } catch (error) {
+            console.warn('Failed to fetch channels from API:', error?.message || error);
+        }
+
+        let preparedChannels = [];
+
+        if (Array.isArray(channelsFromServer) && channelsFromServer.length > 0) {
+            preparedChannels = channelsFromServer.map((channel) => {
+                const baseId = channel.id ?? channel.name ?? `channel-${Date.now()}`;
+                const idString = String(baseId);
+                const normalizedName = channel.name || idString;
+                const displayNameValue = channel.displayName || normalizedName
+                    .split('-')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                const accessLevelValue = (channel.accessLevel || channel.access_level || 'open').toLowerCase();
+
+                return {
+                    ...channel,
+                    id: idString,
+                    name: normalizedName,
+                    displayName: displayNameValue,
+                    category: channel.category || 'general',
+                    description: channel.description || '',
+                    accessLevel: accessLevelValue,
+                    locked: channel.locked ?? accessLevelValue === 'admin-only'
+                };
+            });
+        } else if (channelListRef.current.length > 0) {
+            preparedChannels = channelListRef.current;
+        } else if (courses && courses.length > 0) {
+            const courseChannels = courses.map((course, index) => {
+                const courseTitle = course.title || course.name || `Course ${index + 1}`;
+                const slug = courseTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                return {
+                    id: `course-${course.id || index}`,
+                    name: slug,
+                    displayName: courseTitle,
+                    description: `${courseTitle} course channel`,
+                    accessLevel: 'open',
+                    category: 'courses',
+                    locked: false
+                };
+            });
+
+            const essentialChannels = [
+                { id: 'welcome', name: 'welcome', displayName: 'Welcome', category: 'announcements', description: 'Welcome to THE GLITCH community!', accessLevel: 'open', locked: false },
+                { id: 'announcements', name: 'announcements', displayName: 'Announcements', category: 'announcements', description: 'Important platform announcements', accessLevel: 'admin-only', locked: true },
+                { id: 'general-chat', name: 'general-chat', displayName: 'General Chat', category: 'trading', description: 'General trading discussion', accessLevel: 'open', locked: false }
+            ];
+
+            preparedChannels = [...essentialChannels, ...courseChannels];
+        } else {
+            preparedChannels = [
+                { id: 'welcome', name: 'welcome', displayName: 'Welcome', category: 'announcements', description: 'Welcome to THE GLITCH community!', accessLevel: 'open', locked: false },
+                { id: 'announcements', name: 'announcements', displayName: 'Announcements', category: 'announcements', description: 'Important platform announcements', accessLevel: 'admin-only', locked: true },
+                { id: 'general-chat', name: 'general-chat', displayName: 'General Chat', category: 'general', description: 'General trading discussion', accessLevel: 'open', locked: false }
+            ];
+        }
+
+        if (preparedChannels.length === 0) {
+            return channelListRef.current;
+        }
+
+        const sortedChannels = sortChannels(preparedChannels);
+        setChannelList(sortedChannels);
+
+        const currentSelectedId = selectedChannelRef.current?.id || null;
+        const normalizedSelectId = selectChannelId ? selectChannelId.toString() : null;
+        const routeTargetId = channelIdParam ? channelIdParam.toString() : null;
+        const targetId = normalizedSelectId || routeTargetId || currentSelectedId;
+
+        let nextSelection = sortedChannels.find((channel) => String(channel.id) === String(targetId));
+
+        if (!nextSelection && currentSelectedId) {
+            nextSelection = sortedChannels.find((channel) => String(channel.id) === String(currentSelectedId));
+        }
+
+        if (!nextSelection && sortedChannels.length > 0) {
+            nextSelection = sortedChannels[0];
+        }
+
+        if ((nextSelection?.id || null) !== currentSelectedId) {
+            setSelectedChannel(nextSelection || null);
+        }
+
+        return sortedChannels;
+    }, [isAuthenticated, courses, sortChannels, channelIdParam]);
     
     // Initialize WebSocket connection for real-time messaging
     const { 
@@ -474,9 +587,11 @@ const Community = () => {
             };
 
             const response = await Api.createChannel(payload);
-            const createdChannel = response?.data?.channel || {
-                id: `channel-${Date.now()}`,
-                name: newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+            const createdChannel = response?.data?.channel;
+            const fallbackId = createdChannel?.id || createdChannel?.name || newChannelName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const localChannel = createdChannel || {
+                id: fallbackId,
+                name: fallbackId,
                 displayName: newChannelName.trim(),
                 category: newChannelCategory,
                 description: newChannelDescription.trim(),
@@ -484,16 +599,19 @@ const Community = () => {
                 locked: newChannelAccess === 'admin-only'
             };
 
-            const updatedList = sortChannels([...channelList.filter(ch => ch.id !== createdChannel.id), createdChannel]);
-            setChannelList(updatedList);
+            setChannelList(previous => {
+                const withoutExisting = previous.filter(ch => ch.id !== localChannel.id);
+                return sortChannels([...withoutExisting, localChannel]);
+            });
+            setSelectedChannel(localChannel);
+
+            await refreshChannelList({ selectChannelId: fallbackId });
             setChannelActionStatus({ type: 'success', message: 'Channel created successfully.' });
 
             setNewChannelName('');
             setNewChannelDescription('');
             setNewChannelAccess('open');
 
-            setSelectedChannel(createdChannel);
-            fetchMessages(createdChannel.id);
         } catch (error) {
             console.error('Failed to create channel:', error);
             setChannelActionStatus({
@@ -518,18 +636,11 @@ const Community = () => {
 
         try {
             await Api.deleteChannel(channel.id);
-            const remaining = channelList.filter(ch => ch.id !== channel.id);
-            const sortedRemaining = sortChannels(remaining);
-            setChannelList(sortedRemaining);
+            await refreshChannelList();
             localStorage.removeItem(`community_messages_${channel.id}`);
 
             if (selectedChannel?.id === channel.id) {
-                const fallbackChannel = sortedRemaining[0] || null;
-                setSelectedChannel(fallbackChannel);
                 setMessages([]);
-                if (fallbackChannel) {
-                    fetchMessages(fallbackChannel.id);
-                }
             }
 
             setChannelActionStatus({ type: 'success', message: 'Channel deleted successfully.' });
@@ -718,114 +829,21 @@ const Community = () => {
         }
     }, [navigate]);
 
-    // Load channels
+    // Load channels initially and on dependency changes
+    useEffect(() => {
+        refreshChannelList();
+    }, [refreshChannelList]);
+
+    // Periodically refresh channels so new ones appear for everyone
     useEffect(() => {
         if (!isAuthenticated) return;
-        
-        const loadChannels = async () => {
-            try {
-                // Use real API to fetch channels
-                const response = await Api.getChannels();
-                if (response && response.data && Array.isArray(response.data)) {
-                    let apiChannels = response.data.map(channel => {
-                        // Ensure displayName is set - format from name if missing
-                        let displayName = channel.displayName;
-                        if (!displayName && channel.name) {
-                            displayName = channel.name
-                                .split('-')
-                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(' ');
-                        }
-                        
-                        return {
-                            ...channel,
-                            displayName: displayName || channel.name,
-                            memberCount: channel.memberCount || 0,
-                            lastActivity: channel.lastActivity || null,
-                            unread: false,
-                            locked: channel.accessLevel === 'admin-only'
-                        };
-                    });
-                    
-                    // Update course channel names with actual course titles
-                    if (courses.length > 0) {
-                        apiChannels = apiChannels.map(channel => {
-                            if (channel.category === 'courses' && channel.courseId) {
-                                const course = courses.find(c => c.id === channel.courseId);
-                                if (course) {
-                                    return {
-                                        ...channel,
-                                        name: course.title.toLowerCase().replace(/\s+/g, '-'),
-                                        displayName: course.title
-                                    };
-                                }
-                            }
-                            return channel;
-                        });
-                    }
-                    
-                    const sortedChannels = sortChannels(apiChannels);
-                    setChannelList(sortedChannels);
-                    
-                    // Select first channel or channel from URL
-                    if (channelIdParam) {
-                        const channel = sortedChannels.find(c => c.id === parseInt(channelIdParam));
-                        if (channel) {
-                            setSelectedChannel(channel);
-                        }
-                    } else if (sortedChannels.length > 0 && !selectedChannel) {
-                        setSelectedChannel(sortedChannels[0]);
-                    }
-                    return;
-                }
-            } catch (apiError) {
-                console.warn('Failed to fetch channels from API:', apiError.message);
-            }
-            
-            // If API fails, create minimal channel structure from courses
-            // This ensures the UI works even if backend isn't ready
-            if (courses.length > 0) {
-                // Create basic channels structure from available courses
-                const courseChannels = courses.map((course, index) => ({
-                    id: 40 + index,
-                    name: course.title.toLowerCase().replace(/\s+/g, '-'),
-                    displayName: course.title,
-                    description: `${course.title} course channel`,
-                    accessLevel: "open",
-                    courseId: course.id,
-                    category: "courses",
-                    memberCount: 0,
-                    lastActivity: null,
-                    unread: false,
-                    locked: false
-                }));
-                
-                // Add essential channels
-                const essentialChannels = [
-                    { id: 25, name: "welcome", displayName: "Welcome", description: "Welcome to the trading platform", accessLevel: "open", category: "announcements", memberCount: 0, lastActivity: null, unread: false, locked: false },
-                    { id: 26, name: "announcements", displayName: "Announcements", description: "Important platform announcements", accessLevel: "admin-only", category: "announcements", memberCount: 0, lastActivity: null, unread: false, locked: true },
-                    { id: 28, name: "general-chat", displayName: "General Chat", description: "General trading discussion", accessLevel: "open", category: "trading", memberCount: 0, lastActivity: null, unread: false, locked: false }
-                ];
-                
-                const allChannels = sortChannels([...essentialChannels, ...courseChannels]);
-                setChannelList(allChannels);
-                
-                // Select first channel or channel from URL
-                if (channelIdParam) {
-                    const channel = allChannels.find(c => c.id === parseInt(channelIdParam));
-                    if (channel) {
-                        setSelectedChannel(channel);
-                    }
-                } else if (allChannels.length > 0 && !selectedChannel) {
-                    setSelectedChannel(allChannels[0]);
-                }
-            } else {
-                console.error('Unable to load channels - API unavailable and no courses loaded');
-            }
-        };
-        
-        loadChannels();
-    }, [isAuthenticated, channelIdParam, selectedChannel, courses, sortChannels]);
+
+        const intervalId = setInterval(() => {
+            refreshChannelList();
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [isAuthenticated, refreshChannelList]);
 
     // Check API connectivity
     const checkApiConnectivity = useCallback(async () => {
