@@ -72,15 +72,19 @@ module.exports = async (req, res) => {
       }
 
       try {
-        // Check if columns exist
-        try {
-          await db.execute('SELECT last_seen FROM users LIMIT 1');
-        } catch (e) {
-          await db.execute('ALTER TABLE users ADD COLUMN last_seen DATETIME DEFAULT NULL');
-        }
+        const ensureUserColumn = async (columnDefinition, testQuery) => {
+          try {
+            await db.execute(testQuery);
+          } catch (err) {
+            await db.execute(`ALTER TABLE users ADD COLUMN ${columnDefinition}`);
+          }
+        };
+
+        await ensureUserColumn('last_seen DATETIME DEFAULT NULL', 'SELECT last_seen FROM users LIMIT 1');
+        await ensureUserColumn('created_at DATETIME DEFAULT CURRENT_TIMESTAMP', 'SELECT created_at FROM users LIMIT 1');
 
         const [rows] = await db.execute(
-          'SELECT id, username, email, name, avatar, role, created_at, last_seen FROM users ORDER BY created_at DESC'
+          'SELECT id, username, email, name, avatar, role, created_at, last_seen FROM users ORDER BY COALESCE(created_at, NOW()) DESC'
         );
         await db.end();
 

@@ -250,13 +250,17 @@ module.exports = async (req, res) => {
       }
 
       try {
-        // Check if last_seen column exists
-        try {
-          await db.execute('SELECT last_seen FROM users LIMIT 1');
-        } catch (e) {
-          // Column doesn't exist, add it
-          await db.execute('ALTER TABLE users ADD COLUMN last_seen DATETIME DEFAULT NULL');
-        }
+        // Ensure required columns exist
+        const ensureUserColumn = async (columnDefinition, testQuery) => {
+          try {
+            await db.execute(testQuery);
+          } catch (err) {
+            await db.execute(`ALTER TABLE users ADD COLUMN ${columnDefinition}`);
+          }
+        };
+
+        await ensureUserColumn('last_seen DATETIME DEFAULT NULL', 'SELECT last_seen FROM users LIMIT 1');
+        await ensureUserColumn('created_at DATETIME DEFAULT CURRENT_TIMESTAMP', 'SELECT created_at FROM users LIMIT 1');
 
         // Consider users online if they were active in the last 5 minutes
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
@@ -264,8 +268,9 @@ module.exports = async (req, res) => {
         const [rows] = await db.execute(
           `SELECT id, username, email, name, avatar, role, last_seen, created_at
            FROM users 
-           WHERE last_seen >= ? OR (last_seen IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE))
-           ORDER BY last_seen DESC`,
+           WHERE (last_seen IS NOT NULL AND last_seen >= ?)
+              OR (last_seen IS NULL AND created_at IS NOT NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE))
+           ORDER BY COALESCE(last_seen, created_at) DESC`,
           [fiveMinutesAgo]
         );
         
