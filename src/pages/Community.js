@@ -259,11 +259,9 @@ const Community = () => {
     
     // Initialize WebSocket connection for real-time messaging
     const enableRealtime = useMemo(() => {
-        if (typeof window === 'undefined') return false;
-        if (process.env.REACT_APP_ENABLE_WEBSOCKETS === 'true') return true;
         if (process.env.REACT_APP_ENABLE_WEBSOCKETS === 'false') return false;
-        const hostname = window.location.hostname;
-        return hostname === 'localhost' || hostname === '127.0.0.1';
+        if (process.env.REACT_APP_ENABLE_WEBSOCKETS === 'true') return true;
+        return true;
     }, []);
 
     const { 

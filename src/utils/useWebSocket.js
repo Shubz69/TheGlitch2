@@ -4,15 +4,32 @@ import { Client } from '@stomp/stompjs';
 import { useAuth } from '../context/AuthContext';
 
 // Define a fixed API base URL with proper fallback
-const API_BASE_URL = (typeof window !== 'undefined' && window.location?.origin)
-  ? window.location.origin
-  : (process.env.REACT_APP_API_URL || 'https://theglitch.world');
+const resolveWebSocketBaseUrl = () => {
+  if (typeof process !== 'undefined' && process.env?.REACT_APP_WS_URL) {
+    const configured = process.env.REACT_APP_WS_URL;
+    if (configured === 'window-origin') {
+      if (typeof window !== 'undefined' && window.location?.origin) {
+        return window.location.origin;
+      }
+    } else if (configured) {
+      return configured;
+    }
+  }
 
-const ENV_ENABLE_FLAG = typeof process !== 'undefined' ? process.env.REACT_APP_ENABLE_WEBSOCKETS : undefined;
-const isBrowser = typeof window !== 'undefined';
-const DEFAULT_ENV_ENABLE =
-  ENV_ENABLE_FLAG === 'true' ||
-  (ENV_ENABLE_FLAG !== 'false' && isBrowser && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+  if (typeof window !== 'undefined') {
+    const hostname = window.location?.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return window.location.origin;
+    }
+  }
+
+  return 'https://theglitch.world';
+};
+
+const WS_BASE_URL = resolveWebSocketBaseUrl();
+
+const ENV_ENABLE_FLAG = typeof process !== 'undefined' ? process.env?.REACT_APP_ENABLE_WEBSOCKETS : undefined;
+const DEFAULT_ENV_ENABLE = ENV_ENABLE_FLAG === 'false' ? false : true;
 
 export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true) => {
   const { token, isAuthenticated } = useAuth();
@@ -70,7 +87,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     }
     
     try {
-      console.log(`Connecting to WebSocket at ${API_BASE_URL}/ws`);
+      console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
       
       // Clear any previous connection
       if (stompClientRef.current && stompClientRef.current.connected) {
@@ -78,7 +95,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
       
       // Create new SockJS instance
-      const socket = new SockJS(`${API_BASE_URL}/ws`);
+      const socket = new SockJS(`${WS_BASE_URL}/ws`);
       
       // Create STOMP client over SockJS
       const client = new Client({
