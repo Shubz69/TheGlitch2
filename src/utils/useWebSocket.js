@@ -17,13 +17,19 @@ const resolveWebSocketBaseUrl = () => {
   }
 
   if (typeof window !== 'undefined') {
-    const hostname = window.location?.hostname;
+    const { origin, hostname } = window.location ?? {};
+
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return window.location.origin;
+      return origin;
+    }
+
+    // Production fallback when env var is missing
+    if (hostname && hostname.includes('theglitch.world')) {
+      return 'https://glitch-realtime-production.up.railway.app';
     }
   }
 
-  return 'https://theglitch.world';
+  return 'https://glitch-realtime-production.up.railway.app';
 };
 
 const WS_BASE_URL = resolveWebSocketBaseUrl();
