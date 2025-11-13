@@ -76,7 +76,7 @@ const Login = () => {
                 const status = err.response.status;
                 const serverMessage = err.response.data?.message || err.response.data?.error;
 
-                // Use server message if available, otherwise use status-based defaults
+                // Always prioritize server message if available
                 if (serverMessage) {
                     errorMessage = serverMessage;
                 } else if (status === 404) {
@@ -90,7 +90,16 @@ const Login = () => {
                 }
             } else if (err.message) {
                 // Use the error message from AuthContext (which should already be user-friendly)
-                errorMessage = err.message;
+                // Check if it's a specific error message
+                if (err.message.includes('email') || err.message.includes('Email')) {
+                    errorMessage = err.message;
+                } else if (err.message.includes('password') || err.message.includes('Password')) {
+                    errorMessage = err.message;
+                } else if (err.message.includes('Database connection')) {
+                    errorMessage = 'Database connection error. Please try again later.';
+                } else {
+                    errorMessage = err.message;
+                }
             }
 
             setError(errorMessage);

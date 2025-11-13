@@ -225,9 +225,17 @@ export const AuthProvider = ({ children }) => {
 
       setError(friendlyMessage);
 
+      // Preserve the original error response so Login.js can access status codes
       const wrappedError = new Error(friendlyMessage);
       if (error.response) {
         wrappedError.response = error.response;
+        // Ensure the response data includes the message
+        if (!wrappedError.response.data) {
+          wrappedError.response.data = {};
+        }
+        if (!wrappedError.response.data.message && friendlyMessage) {
+          wrappedError.response.data.message = friendlyMessage;
+        }
       }
       throw wrappedError;
     } finally {
