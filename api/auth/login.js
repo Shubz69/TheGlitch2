@@ -60,8 +60,18 @@ module.exports = async (req, res) => {
     const emailLower = email.toLowerCase();
 
     // Connect to database
-    const db = await getDbConnection();
-    if (!db) {
+    let db = null;
+    try {
+      db = await getDbConnection();
+      if (!db) {
+        console.error('Failed to establish database connection - missing environment variables or connection failed');
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error. Please try again later.'
+        });
+      }
+    } catch (connError) {
+      console.error('Database connection error:', connError);
       return res.status(500).json({
         success: false,
         message: 'Database connection error. Please try again later.'
@@ -76,10 +86,16 @@ module.exports = async (req, res) => {
       );
 
       if (!users || users.length === 0) {
-        await db.end();
-        return res.status(401).json({
+        if (db && !db.ended) {
+          try {
+            await db.end();
+          } catch (e) {
+            console.warn('Error closing DB connection:', e.message);
+          }
+        }
+        return res.status(404).json({
           success: false,
-          message: 'The account connected to this email is not in use'
+          message: 'No account with this email exists. Please check your email or sign up for a new account.'
         });
       }
 
@@ -88,10 +104,16 @@ module.exports = async (req, res) => {
       // Verify password
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
-        await db.end();
+        if (db && !db.ended) {
+          try {
+            await db.end();
+          } catch (e) {
+            console.warn('Error closing DB connection:', e.message);
+          }
+        }
         return res.status(401).json({
           success: false,
-          message: 'Incorrect password for this account'
+          message: 'Incorrect password. Please try again or reset your password.'
         });
       }
 
@@ -173,10 +195,17 @@ module.exports = async (req, res) => {
       });
     } catch (dbError) {
       console.error('Database error during login:', dbError);
-      await db.end();
+      if (db && !db.ended) {
+        try {
+          await db.end();
+        } catch (e) {
+          console.warn('Error closing DB connection after error:', e.message);
+        }
+      }
       return res.status(500).json({
         success: false,
-        message: 'Database error. Please try again later.'
+        message: 'Database error. Please try again later.',
+        error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
       });
     }
   } catch (error) {

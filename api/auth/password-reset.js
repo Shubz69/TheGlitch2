@@ -104,8 +104,18 @@ module.exports = async (req, res) => {
       const emailLower = email.toLowerCase();
 
       // Check if user exists
-      const db = await getDbConnection();
-      if (!db) {
+      let db = null;
+      try {
+        db = await getDbConnection();
+        if (!db) {
+          console.error('Failed to establish database connection for password reset');
+          return res.status(500).json({
+            success: false,
+            message: 'Database connection error. Please try again later.'
+          });
+        }
+      } catch (connError) {
+        console.error('Database connection error in password-reset:', connError);
         return res.status(500).json({
           success: false,
           message: 'Database connection error. Please try again later.'
@@ -116,7 +126,13 @@ module.exports = async (req, res) => {
         const [userRows] = await db.execute('SELECT id, email, username FROM users WHERE email = ?', [emailLower]);
         
         if (!userRows || userRows.length === 0) {
-          await db.end();
+          if (db && !db.ended) {
+            try {
+              await db.end();
+            } catch (e) {
+              console.warn('Error closing DB connection:', e.message);
+            }
+          }
           // Don't reveal if email exists or not for security
           return res.status(200).json({
             success: true,
@@ -153,7 +169,15 @@ module.exports = async (req, res) => {
           'INSERT INTO reset_codes (user_id, email, code, expires_at) VALUES (?, ?, ?, ?)',
           [userRows[0].id, emailLower, resetCode, expiresAt]
         );
-        await db.end();
+        
+        // Close DB connection before sending email
+        if (db && !db.ended) {
+          try {
+            await db.end();
+          } catch (e) {
+            console.warn('Error closing DB connection:', e.message);
+          }
+        }
 
         // Send email with reset code
         const transporter = createEmailTransporter();
@@ -190,10 +214,17 @@ module.exports = async (req, res) => {
         });
       } catch (dbError) {
         console.error('Database error in forgot-password:', dbError.message);
-        if (db && !db.ended) await db.end();
+        if (db && !db.ended) {
+          try {
+            await db.end();
+          } catch (e) {
+            console.warn('Error closing DB connection after error:', e.message);
+          }
+        }
         return res.status(500).json({
           success: false,
-          message: 'Failed to send reset email. Please try again later.'
+          message: 'Failed to send reset email. Please try again later.',
+          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
         });
       }
     }

@@ -68,24 +68,28 @@ const Login = () => {
         } catch (err) {
             console.error('Login error details:', err);
 
-            let errorMessage = err.message || 'An error occurred. Please try again.';
+            let errorMessage = 'An error occurred. Please try again.';
 
+            // Check if error has a response from the server
             if (err.response) {
                 const status = err.response.status;
                 const serverMessage = err.response.data?.message || err.response.data?.error;
 
-                if (status === 404) {
-                    errorMessage = serverMessage || 'No account with this email exists. Please check your email or sign up.';
-                } else if (status === 401) {
-                    errorMessage = serverMessage || 'Incorrect password. Please try again or reset your password.';
-                } else if (serverMessage) {
+                // Use server message if available, otherwise use status-based defaults
+                if (serverMessage) {
                     errorMessage = serverMessage;
+                } else if (status === 404) {
+                    errorMessage = 'No account with this email exists. Please check your email or sign up for a new account.';
+                } else if (status === 401) {
+                    errorMessage = 'Incorrect password. Please try again or reset your password.';
+                } else if (status === 500) {
+                    errorMessage = 'Server error. Please try again later.';
+                } else {
+                    errorMessage = err.message || 'An error occurred. Please try again.';
                 }
-            }
-
-            // Provide a combined fallback message if we still have a generic status error
-            if (errorMessage === 'Request failed with status code 401') {
-                errorMessage = 'No account with this email exists or the password is incorrect.';
+            } else if (err.message) {
+                // Use the error message from AuthContext (which should already be user-friendly)
+                errorMessage = err.message;
             }
 
             setError(errorMessage);

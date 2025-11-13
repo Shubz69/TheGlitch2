@@ -195,18 +195,9 @@ axios.interceptors.response.use(
 const Api = {
     // Authentication
     login: async (credentials) => {
-        try {
-            // Try real API first
-            return await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
-        } catch (apiError) {
-            // Only fallback to mock if API completely fails
-            console.warn('API login failed, trying mock fallback:', apiError.message);
-            try {
-                return await mockLogin(credentials.email, credentials.password);
-            } catch (error) {
-                throw apiError; // Throw API error, not mock error
-            }
-        }
+        // Use real API only - no mock fallback for production
+        // This ensures proper error messages are returned
+        return await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
     },
     
     register: async (userData) => {
