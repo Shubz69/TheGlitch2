@@ -106,8 +106,16 @@ const Login = () => {
                 }
             }
 
+            console.log('Setting error message:', errorMessage);
             setError(errorMessage);
             setIsLoading(false);
+            
+            // Force a re-render to ensure error is visible
+            setTimeout(() => {
+                if (!errorMessage) {
+                    console.warn('Error message was cleared unexpectedly');
+                }
+            }, 100);
         }
     };
 
@@ -262,7 +270,11 @@ const Login = () => {
                     <p className="login-subtitle">Access your trading account</p>
                 </div>
                 
-                {error && <div className="error-message">{error}</div>}
+                {error && error.trim() && (
+                    <div className="error-message" role="alert" aria-live="polite" style={{ display: 'block' }}>
+                        <strong>⚠️ {error}</strong>
+                    </div>
+                )}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">

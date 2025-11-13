@@ -249,15 +249,33 @@
 
 /* Error message */
 .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    color: #ff6b6b;
     padding: 16px 20px;
     border-radius: 12px;
     margin-bottom: 24px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-family: var(--font-secondary);
+    font-weight: 600;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    animation: errorPulse 0.5s ease-in-out;
+    position: relative;
+    z-index: 100;
+    display: block;
+    min-height: 20px;
+}
+
+@keyframes errorPulse {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Loading state */
