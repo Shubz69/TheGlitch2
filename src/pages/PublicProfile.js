@@ -23,48 +23,19 @@ const PublicProfile = () => {
         const fetchProfile = async () => {
             try {
                 setLoading(true);
-                // For demo, create a mock profile if the API fails
                 const baseUrl = resolveApiBaseUrl();
                 const response = await fetch(`${baseUrl}/api/users/public-profile/${userId}`);
+                
                 if (response.ok) {
                     const data = await response.json();
                     setProfile(data);
                 } else {
-                    // Mock data for demonstration
-                    setProfile({
-                        id: userId,
-                        username: `User${userId}`,
-                        level: Math.floor(Math.random() * 100) + 1,
-                        xp: Math.floor(Math.random() * 5000),
-                        bio: "This is a demo profile while the API connection is being established.",
-                        avatar: null,
-                        joinDate: new Date(Date.now() - Math.random() * 31536000000).toISOString(), // Random date within last year
-                        stats: {
-                            messages: Math.floor(Math.random() * 500),
-                            trades: Math.floor(Math.random() * 100),
-                            reputation: Math.floor(Math.random() * 100)
-                        }
-                    });
+                    setError("Profile not found. Please check the user ID.");
                 }
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching profile:", err);
                 setError("Failed to load profile. Please try again later.");
-                // Mock data as fallback
-                setProfile({
-                    id: userId,
-                    username: `User${userId}`,
-                    level: Math.floor(Math.random() * 100) + 1,
-                    xp: Math.floor(Math.random() * 5000),
-                    bio: "This is a demo profile while the API connection is being established.",
-                    avatar: null,
-                    joinDate: new Date(Date.now() - Math.random() * 31536000000).toISOString(), // Random date within last year
-                    stats: {
-                        messages: Math.floor(Math.random() * 500),
-                        trades: Math.floor(Math.random() * 100),
-                        reputation: Math.floor(Math.random() * 100)
-                    }
-                });
                 setLoading(false);
             }
         };

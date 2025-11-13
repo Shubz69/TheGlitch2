@@ -1,27 +1,13 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Leaderboard.css';
 import BinaryBackground from '../components/BinaryBackground';
 
 const Leaderboard = () => {
     const containerRef = useRef(null);
     const [loading, setLoading] = useState(true);
-    const [error] = useState(null);
+    const [error, setError] = useState(null);
     const [leaderboardData, setLeaderboardData] = useState([]);
     const [selectedTimeframe, setSelectedTimeframe] = useState('all-time');
-
-    // Mock data for development - replace with real API calls
-    const mockLeaderboardData = useMemo(() => ([
-        { id: 1, username: "CyberTrader", xp: 15420, level: 25, avatar: "avatar_tech.png", rank: 1, strikes: 0, role: "PREMIUM" },
-        { id: 2, username: "QuantumFX", xp: 12850, level: 22, avatar: "avatar_money.png", rank: 2, strikes: 0, role: "PREMIUM" },
-        { id: 3, username: "NeonPulse", xp: 11200, level: 20, avatar: "avatar_trading.png", rank: 3, strikes: 0, role: "PREMIUM" },
-        { id: 4, username: "GlitchMaster", xp: 9850, level: 18, avatar: "avatar_ai.png", rank: 4, strikes: 1, role: "PREMIUM" },
-        { id: 5, username: "CryptoNinja", xp: 8750, level: 17, avatar: "avatar_money.png", rank: 5, strikes: 0, role: "PREMIUM" },
-        { id: 6, username: "BinaryStorm", xp: 7650, level: 16, avatar: "avatar_tech.png", rank: 6, strikes: 2, role: "FREE" },
-        { id: 7, username: "PixelTrader", xp: 6800, level: 15, avatar: "avatar_trading.png", rank: 7, strikes: 0, role: "FREE" },
-        { id: 8, username: "DataFlow", xp: 5900, level: 14, avatar: "avatar_ai.png", rank: 8, strikes: 1, role: "FREE" },
-        { id: 9, username: "MatrixMind", xp: 5200, level: 13, avatar: "avatar_tech.png", rank: 9, strikes: 0, role: "FREE" },
-        { id: 10, username: "CircuitBreaker", xp: 4500, level: 12, avatar: "avatar_money.png", rank: 10, strikes: 0, role: "FREE" }
-    ]), []);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -43,19 +29,35 @@ const Leaderboard = () => {
             }
         }
 
-        const timeoutId = setTimeout(() => {
-            setLeaderboardData(mockLeaderboardData);
-            setLoading(false);
-        }, 1500);
+        const fetchLeaderboard = async () => {
+            try {
+                const Api = (await import('../services/Api')).default;
+                const response = await Api.getLeaderboard(selectedTimeframe);
+                
+                if (response && response.data) {
+                    const data = Array.isArray(response.data) ? response.data : response.data.leaderboard || [];
+                    setLeaderboardData(data);
+                } else {
+                    setLeaderboardData([]);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching leaderboard:', err);
+                setError('Failed to load leaderboard. Please try again.');
+                setLeaderboardData([]);
+                setLoading(false);
+            }
+        };
+
+        fetchLeaderboard();
 
         return () => {
-            clearTimeout(timeoutId);
             if (container) {
                 const dataPoints = container.querySelectorAll('.data-point');
                 dataPoints.forEach(point => point.remove());
             }
         };
-    }, [mockLeaderboardData]);
+    }, [selectedTimeframe]);
 
     const getRankEmoji = (rank) => {
         if (rank === 1) return '🥇';

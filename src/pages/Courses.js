@@ -12,7 +12,6 @@ const Courses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [usingMockData, setUsingMockData] = useState(false);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -33,17 +32,6 @@ const Courses = () => {
                 // Filter out invalid courses
                 coursesData = coursesData.filter(course => course && course.id && course.title);
                 setCourses(coursesData);
-                
-                // Check if we're using mock data by examining the course IDs
-                // The mock data uses IDs 1-8
-                const isMockData = coursesData && 
-                    coursesData.length === 8 && 
-                    coursesData[0]?.id === 1 &&
-                    coursesData[1]?.id === 2 &&
-                    coursesData[2]?.id === 3 &&
-                    coursesData[3]?.id === 4;
-                
-                setUsingMockData(isMockData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -94,12 +82,6 @@ const Courses = () => {
                 <h1 className="courses-title">COURSES</h1>
                 <p>Expand your knowledge with our comprehensive trading courses</p>
             </div>
-            
-            {usingMockData && (
-                <div className="mock-data-banner">
-                    <p>Note: Displaying sample course data. The backend server may be unavailable.</p>
-                </div>
-            )}
             
             <div className="courses-grid">
                 {Array.isArray(courses) && courses.length > 0 ? (

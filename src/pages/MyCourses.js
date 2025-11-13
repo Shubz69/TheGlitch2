@@ -43,50 +43,22 @@ const MyCourses = () => {
             setLoading(false);
             return;
         }
-
-        // Hard-coded list of all courses matching the image
-        const allCourses = [
-            { id: 1, name: "Intro to Trading", description: "Learn the basics of trading.", courseId: "intro-to-trading" },
-            { id: 2, name: "Technical Analysis", description: "Understand charts and indicators.", courseId: "technical-analysis" },
-            { id: 3, name: "Fundamental Analysis", description: "Dive into financial statements.", courseId: "fundamental-analysis" },
-            { id: 4, name: "Crypto Trading", description: "Learn to trade crypto assets.", courseId: "crypto-trading" },
-            { id: 5, name: "Day Trading", description: "Master intraday trading strategies.", courseId: "day-trading" },
-            { id: 6, name: "Swing Trading", description: "Profit from market swings.", courseId: "swing-trading" },
-            { id: 7, name: "Trading Psychology", description: "Control your emotions while trading.", courseId: "trading-psychology" },
-            { id: 8, name: "Risk Management", description: "Minimize losses and manage risk.", courseId: "risk-management" },
-            { id: 9, name: "Trading Plan", description: "Develop your personalized strategy.", courseId: "trading-plan" }
-        ];
-        
-        // If user is admin, immediately set all courses and return
-        if (role === "ADMIN") {
-            setCourses(allCourses);
-            setLoading(false);
-            return;
-        }
-        
-        // Mock course data based on database dump when server is down
-        const getMockCourses = (role) => {
-            // Based on database data, user 14 has purchased courses 1, 2, 3, 5
-            if (role === "ADMIN") {
-                return allCourses; // Admin sees all courses
-            } else if (role === "PREMIUM") {
-                // In real app, we'd query user_courses table
-                // Using the data from the DB dump - user 14 has courses 1, 2, 3, 5
-                return allCourses.filter(course => [1, 2, 3, 5].includes(course.id));
-            } else {
-                // FREE users see no courses
-                return [];
-            }
-        };
         
         try {
-            // For now, use mock data
-            const mockCourses = getMockCourses(role);
-            setCourses(mockCourses);
+            // Use real API to fetch user's courses
+            const Api = (await import('../services/Api')).default;
+            const response = await Api.getUserCourses(userId);
+            
+            if (response && response.data) {
+                setCourses(Array.isArray(response.data) ? response.data : response.data.courses || []);
+            } else {
+                setCourses([]);
+            }
             setLoading(false);
         } catch (error) {
             console.error('Error fetching courses:', error);
             setError('Failed to load courses. Please try again.');
+            setCourses([]);
             setLoading(false);
         }
     };

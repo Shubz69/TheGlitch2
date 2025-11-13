@@ -109,44 +109,29 @@ const Login = () => {
         }
         
         try {
-            // Mock MFA verification for demo purposes
-            const res = await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({
-                        data: {
-                            token: 'mock-mfa-token',
-                            refreshToken: 'mock-refresh-token',
-                            role: 'USER',
-                            id: 'mock-user',
-                            username: email.split('@')[0] || 'user',
-                            email,
-                            name: '',
-                            avatar: 'avatar_ai.png'
-                        }
-                    });
-                }, 1000);
-            });
+            // Use real API for MFA verification
+            const Api = (await import('../services/Api')).default;
+            const response = await Api.verifyMfa(email, mfaCode);
             
-            // Process successful verification
-            if (res.data && res.data.token) {
-                localStorage.setItem("token", res.data.token);
+            if (response && response.token) {
+                localStorage.setItem("token", response.token);
                 
-                if (res.data.refreshToken) {
-                    localStorage.setItem("refreshToken", res.data.refreshToken);
+                if (response.refreshToken) {
+                    localStorage.setItem("refreshToken", response.refreshToken);
                 }
                 
                 localStorage.setItem("mfaVerified", "true");
                 
                 // Use the login function to update context
                 await loginWithAuth(
-                    res.data.token,
-                    res.data.role, 
+                    response.token,
+                    response.role || 'USER', 
                     {
-                        id: res.data.id,
-                        username: res.data.username,
-                        email: res.data.email,
-                        name: res.data.name,
-                        avatar: res.data.avatar,
+                        id: response.id,
+                        username: response.username || email.split('@')[0] || 'user',
+                        email: response.email || email,
+                        name: response.name || '',
+                        avatar: response.avatar || 'avatar_ai.png',
                     }
                 );
                 
@@ -157,7 +142,7 @@ const Login = () => {
             }
         } catch (err) {
             console.error("MFA verification error:", err);
-            setError(err.response?.data?.message || "Invalid code. Please try again.");
+            setError(err.response?.data?.message || err.message || "Invalid code. Please try again.");
             setIsLoading(false);
         }
     };
@@ -167,19 +152,16 @@ const Login = () => {
         setIsLoading(true);
         
         try {
-            // Mock MFA resend for demo purposes
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({ data: { message: 'MFA code resent' } });
-                }, 1000);
-            });
+            // Use real API for MFA resend
+            const Api = (await import('../services/Api')).default;
+            await Api.sendMfa(email);
             
             setCountdown(30);
             setCanResendCode(false);
             alert("Code resent to your email.");
             setIsLoading(false);
         } catch (err) {
-            setError("Failed to resend code. Please try again.");
+            setError(err.response?.data?.message || err.message || "Failed to resend code. Please try again.");
             setIsLoading(false);
         }
     };

@@ -16,88 +16,6 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Mock user database for demo purposes
-const MOCK_USERS = [
-    {
-        id: 1,
-        email: 'shubzfx@gmail.com',
-        password: 'password123', // In real app, this would be hashed
-        name: 'Shubz',
-        username: 'ShubzFx',
-        avatar: '/avatars/avatar_ai.png',
-        role: 'ADMIN',
-        level: 99,
-        xp: 980100, // Level 99 = (99-1)^2 * 100 = 960400
-        totalMessages: 5000
-    },
-    {
-        id: 2,
-        email: 'demo@theglitch.online',
-        password: 'demo123',
-        name: 'Demo User',
-        username: 'demo',
-        avatar: '/avatars/avatar_tech.png',
-        role: 'USER',
-        level: 1,
-        xp: 0,
-        totalMessages: 0
-    }
-];
-
-// Mock authentication functions
-const mockLogin = async (email, password) => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            const user = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-            if (user) {
-                // Generate a proper 3-part JWT token
-                const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-                const payload = btoa(JSON.stringify({
-                    sub: user.id.toString(),
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-                }));
-                const signature = btoa('mock-signature');
-                const token = `${header}.${payload}.${signature}`;
-                
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify({
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    username: user.username,
-                    avatar: user.avatar || '/avatars/avatar_ai.png',
-                    role: user.role,
-                    level: user.level || 1,
-                    xp: user.xp || 0,
-                    totalMessages: user.totalMessages || 0
-                }));
-                
-                resolve({
-                    data: {
-                        token: token,
-                        user: {
-                            id: user.id,
-                            email: user.email,
-                            name: user.name,
-                            username: user.username,
-                            avatar: user.avatar || '/avatars/avatar_ai.png',
-                            level: user.level || 1,
-                            xp: user.xp || 0,
-                            totalMessages: user.totalMessages || 0,
-                            role: user.role
-                        }
-                    }
-                });
-            } else {
-                reject(new Error('Invalid email or password'));
-            }
-        }, 1000); // Simulate network delay
-    });
-};
-
 // List of endpoints that should be accessible without authentication
 const PUBLIC_ENDPOINTS = [
     '/api/courses',
@@ -310,27 +228,8 @@ const Api = {
     
     // Courses
     getCourses: async () => {
-        try {
-            // Try real API first
-            console.log('Fetching courses from live API:', `${API_BASE_URL}/api/courses`);
-            const response = await axios.get(`${API_BASE_URL}/api/courses`);
-            return response;
-        } catch (apiError) {
-            // Only fallback to mock if API completely fails
-            console.warn('API courses fetch failed, using mock fallback:', apiError.message);
-            return {
-                data: [
-                    { id: 1, title: "Health & Fitness", description: "Master the science of peak physical performance, biohacking techniques, and longevity protocols that enhance cognitive function, energy levels, and decision-making capabilities for sustained wealth creation", level: "All Levels", duration: 6, price: 79.99, imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" },
-                    { id: 2, title: "E-Commerce", description: "Build and scale profitable online businesses using advanced dropshipping strategies, Amazon FBA mastery, Shopify optimization, and multi-channel selling techniques that generate 6-7 figure revenues", level: "Intermediate", duration: 8, price: 99.99, imageUrl: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" },
-                    { id: 3, title: "Forex Trading", description: "Master professional-grade currency trading strategies, risk management systems, and market analysis techniques used by institutional traders to consistently profit from global currency fluctuations", level: "Intermediate", duration: 6, price: 89.99, imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" },
-                    { id: 4, title: "Crypto & Blockchain", description: "Navigate the digital asset revolution with advanced DeFi strategies, yield farming protocols, NFT arbitrage, and blockchain technology investments that capitalize on the future of finance", level: "Intermediate", duration: 5, price: 79.99, imageUrl: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2336&q=80" },
-                    { id: 5, title: "Algorithmic FX", description: "Develop sophisticated automated trading systems using machine learning, quantitative analysis, and algorithmic strategies that execute high-frequency trades with precision and minimal risk", level: "Advanced", duration: 10, price: 149.99, imageUrl: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" },
-                    { id: 6, title: "Intelligent Systems Development", description: "Create cutting-edge AI applications, automated trading bots, and intelligent software solutions that generate passive income through technology innovation and system automation", level: "Advanced", duration: 12, price: 199.99, imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" },
-                    { id: 7, title: "Social Media", description: "Build massive personal brands and monetize digital influence across TikTok, Instagram, YouTube, and LinkedIn using advanced content strategies, affiliate marketing, and brand partnerships", level: "All Levels", duration: 4, price: 59.99, imageUrl: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2339&q=80" },
-                    { id: 8, title: "Real Estate", description: "Master strategic property investment, REIT analysis, real estate crowdfunding, and PropTech opportunities that create multiple passive income streams and long-term wealth appreciation", level: "Intermediate", duration: 7, price: 119.99, imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80" }
-                ]
-            };
-        }
+        console.log('Fetching courses from live API:', `${API_BASE_URL}/api/courses`);
+        return await axios.get(`${API_BASE_URL}/api/courses`);
     },
     
     getCourseById: (id) => {
@@ -537,6 +436,25 @@ const Api = {
             }
         });
     },
+
+    getUserCourses: (userId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return Promise.reject(new Error('Authentication required'));
+        }
+        return axios.get(`${API_BASE_URL}/api/users/${userId}/courses`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+    },
+
+    getLeaderboard: (timeframe = 'all-time') => {
+        return axios.get(`${API_BASE_URL}/api/leaderboard`, {
+            params: { timeframe }
+        });
+    },
     
     // Contact
     getBaseUrl: () => getApiBaseUrl(),
@@ -724,7 +642,6 @@ const Api = {
     // Enhanced login with better error handling
     loginWithErrorDetails: async (credentials) => {
         try {
-            // Use real API first
             const response = await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
             return {
                 success: true,
@@ -732,58 +649,42 @@ const Api = {
                 user: response.data.user || response.data
             };
         } catch (apiError) {
-            // Only fallback to mock if API completely fails
-            console.warn('API login failed, trying mock fallback:', apiError.message);
-            try {
-                const user = MOCK_USERS.find(u => u.email.toLowerCase() === credentials.email.toLowerCase());
-                
-                if (!user) {
-                    return {
-                        success: false,
-                        error: 'email',
-                        message: apiError.response?.data?.message || 'Email not found. Please check your email address or register for a new account.'
-                    };
-                }
-                
-                if (user.password !== credentials.password) {
-                    return {
-                        success: false,
-                        error: 'password',
-                        message: apiError.response?.data?.message || 'Incorrect password. Please try again or reset your password.'
-                    };
-                }
-                
-                // Generate token and return success
-                const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-                const payload = btoa(JSON.stringify({
-                    sub: user.id.toString(),
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
-                }));
-                const signature = btoa('mock-signature');
-                const token = `${header}.${payload}.${signature}`;
-                
-                return {
-                    success: true,
-                    token: token,
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        username: user.username,
-                        role: user.role
-                    }
-                };
-            } catch (mockError) {
-                // Return API error details if available
-                return {
-                    success: false,
-                    error: apiError.response?.status === 401 ? 'password' : apiError.response?.status === 404 ? 'email' : 'system',
-                    message: apiError.response?.data?.message || 'An error occurred. Please try again.'
-                };
-            }
+            // Return API error details
+            return {
+                success: false,
+                error: apiError.response?.status === 401 ? 'password' : apiError.response?.status === 404 ? 'email' : 'system',
+                message: apiError.response?.data?.message || 'An error occurred. Please try again.'
+            };
+        }
+    },
+
+    // MFA methods
+    sendMfa: async (email, userId = null) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/send-mfa`, {
+                action: 'send',
+                email,
+                userId
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error sending MFA code:', error);
+            throw error;
+        }
+    },
+
+    verifyMfa: async (email, code, userId = null) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/verify-mfa`, {
+                action: 'verify',
+                email,
+                code,
+                userId
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error verifying MFA code:', error);
+            throw error;
         }
     },
 
