@@ -4,6 +4,7 @@ import "../styles/Login.css";
 import { useAuth } from "../context/AuthContext";
 import { RiTerminalBoxFill } from 'react-icons/ri';
 import BinaryBackground from '../components/BinaryBackground';
+import Api from '../services/Api';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -110,7 +111,6 @@ const Login = () => {
         
         try {
             // Use real API for MFA verification
-            const Api = (await import('../services/Api')).default;
             const response = await Api.verifyMfa(email, mfaCode);
             
             if (response && response.token) {
@@ -153,7 +153,6 @@ const Login = () => {
         
         try {
             // Use real API for MFA resend
-            const Api = (await import('../services/Api')).default;
             await Api.sendMfa(email);
             
             setCountdown(30);

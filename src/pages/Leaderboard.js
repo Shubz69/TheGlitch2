@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Leaderboard.css';
 import BinaryBackground from '../components/BinaryBackground';
+import Api from '../services/Api';
 
 const Leaderboard = () => {
     const containerRef = useRef(null);
@@ -31,7 +32,6 @@ const Leaderboard = () => {
 
         const fetchLeaderboard = async () => {
             try {
-                const Api = (await import('../services/Api')).default;
                 const response = await Api.getLeaderboard(selectedTimeframe);
                 
                 if (response && response.data) {

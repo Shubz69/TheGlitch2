@@ -3,6 +3,7 @@ import '../styles/MyCourses.css';
 import { useNavigate } from 'react-router-dom';
 import { FaChevronRight } from 'react-icons/fa';
 import BinaryBackground from '../components/BinaryBackground';
+import Api from '../services/Api';
 
 const MyCourses = () => {
     const [courses, setCourses] = useState([]);
@@ -46,7 +47,6 @@ const MyCourses = () => {
         
         try {
             // Use real API to fetch user's courses
-            const Api = (await import('../services/Api')).default;
             const response = await Api.getUserCourses(userId);
             
             if (response && response.data) {
