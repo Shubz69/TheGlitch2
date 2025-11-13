@@ -53,19 +53,23 @@ const Login = () => {
             const result = await loginWithAuth(email, password);
             
             // If MFA is required, the login function will redirect to verify-mfa
-            // If login succeeds, reload to update auth state
+            // Don't navigate here - AuthContext handles it
             if (result && result.status === "MFA_REQUIRED") {
                 setIsLoading(false);
                 return;
             }
             
+            // If login succeeds, AuthContext will handle navigation
+            // Only navigate here if AuthContext didn't (shouldn't happen)
             if (result && result.token) {
                 setIsLoading(false);
-                navigate('/community');
+                // AuthContext already navigated, so we don't need to do anything
                 return;
             }
             
+            // If we get here without a token, something went wrong
             setIsLoading(false);
+            setError('Login failed. Please try again.');
         } catch (err) {
             console.error('Login error details:', err);
 

@@ -156,6 +156,15 @@ export const AuthProvider = ({ children }) => {
         const response = await Api.login({ email, password });
         const data = response.data || {};
         
+        // Check if login was successful - must have a token and success flag
+        if (!data.token || data.success === false) {
+          // If we have an error message, use it
+          if (data.message) {
+            throw new Error(data.message);
+          }
+          throw new Error('Login failed: No token received from server');
+        }
+        
         if (data.status === "MFA_REQUIRED" && !data.mfaVerified) {
           // Redirect to MFA verification
           localStorage.setItem('mfaEmail', email);
@@ -176,6 +185,11 @@ export const AuthProvider = ({ children }) => {
           // Return early to prevent further processing
           setLoading(false);
           return data;
+        }
+        
+        // Only proceed if we have a valid token
+        if (!data.token) {
+          throw new Error('Login failed: Invalid response from server');
         }
         
         persistTokens(data.token, data.refreshToken);
