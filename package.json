@@ -63,5 +63,9 @@
   "devDependencies": {
     "jwt-decode": "^4.0.0",
     "sockjs-client": "^1.6.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
