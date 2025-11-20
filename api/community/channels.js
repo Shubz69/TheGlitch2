@@ -56,6 +56,18 @@ const ensureChannelSchema = async (db) => {
   }
 
   try {
+    // Check if channels table exists
+    const [tables] = await db.execute(`
+      SELECT TABLE_NAME
+      FROM INFORMATION_SCHEMA.TABLES
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels'
+    `, [process.env.MYSQL_DATABASE]);
+
+    if (tables.length === 0) {
+      // Table doesn't exist, will be created by ensureChannelsTable
+      return;
+    }
+
     const [columns] = await db.execute(`
       SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY, EXTRA
       FROM INFORMATION_SCHEMA.COLUMNS
@@ -64,16 +76,73 @@ const ensureChannelSchema = async (db) => {
 
     const idColumn = columns.find((column) => column.COLUMN_NAME === 'id');
     if (idColumn) {
-      if (idColumn.DATA_TYPE !== 'varchar' || (idColumn.EXTRA || '').includes('auto_increment')) {
-        await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
+      // Check if id column is INT and needs to be converted to VARCHAR
+      if (idColumn.DATA_TYPE === 'int' || idColumn.DATA_TYPE === 'bigint' || (idColumn.EXTRA || '').includes('auto_increment')) {
+        try {
+          // Drop foreign key constraints that reference channels.id first
+          const [foreignKeys] = await db.execute(`
+            SELECT CONSTRAINT_NAME
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = ? 
+            AND REFERENCED_TABLE_NAME = 'channels' 
+            AND REFERENCED_COLUMN_NAME = 'id'
+          `, [process.env.MYSQL_DATABASE]);
+
+          for (const fk of foreignKeys) {
+            try {
+              const [fkDetails] = await db.execute(`
+                SELECT TABLE_NAME, CONSTRAINT_NAME
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                WHERE CONSTRAINT_NAME = ? AND TABLE_SCHEMA = ?
+              `, [fk.CONSTRAINT_NAME, process.env.MYSQL_DATABASE]);
+              
+              if (fkDetails.length > 0) {
+                await db.execute(`ALTER TABLE ${fkDetails[0].TABLE_NAME} DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                console.log(`Dropped foreign key ${fk.CONSTRAINT_NAME} before converting id column`);
+              }
+            } catch (fkError) {
+              console.log(`Note: Could not drop foreign key ${fk.CONSTRAINT_NAME}:`, fkError.message);
+            }
+          }
+
+          // Drop primary key if it exists
+          try {
+            await db.execute('ALTER TABLE channels DROP PRIMARY KEY');
+          } catch (pkError) {
+            // Primary key might not exist or already dropped
+            console.log('Note: Primary key drop:', pkError.message);
+          }
+
+          // Convert id from INT to VARCHAR
+          await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
+          console.log('Converted channels.id from INT to VARCHAR(255)');
+
+          // Re-add primary key
+          await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
+        } catch (alterError) {
+          console.error('Error converting id column:', alterError.message);
+          // If conversion fails, try to continue - might be a permission issue
+        }
+      } else if (idColumn.DATA_TYPE !== 'varchar') {
+        // If it's some other type, try to convert it
+        try {
+          await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
+        } catch (alterError) {
+          console.log('Note: Could not modify id column:', alterError.message);
+        }
       }
     }
 
     const nameColumn = columns.find((column) => column.COLUMN_NAME === 'name');
     if (nameColumn && nameColumn.DATA_TYPE !== 'varchar') {
-      await db.execute('ALTER TABLE channels MODIFY COLUMN name VARCHAR(255) NOT NULL');
+      try {
+        await db.execute('ALTER TABLE channels MODIFY COLUMN name VARCHAR(255) NOT NULL');
+      } catch (alterError) {
+        console.log('Note: Could not modify name column:', alterError.message);
+      }
     }
 
+    // Ensure primary key exists
     const [existingPrimaryKeys] = await db.execute(`
       SELECT CONSTRAINT_NAME
       FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
@@ -81,7 +150,11 @@ const ensureChannelSchema = async (db) => {
     `, [process.env.MYSQL_DATABASE]);
 
     if (existingPrimaryKeys.length === 0) {
-      await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
+      try {
+        await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
+      } catch (pkError) {
+        console.log('Note: Could not add primary key:', pkError.message);
+      }
     }
   } catch (schemaError) {
     console.log('Channels schema alignment note:', schemaError.message);

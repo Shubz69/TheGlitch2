@@ -12,8 +12,11 @@ const getDbConnection = async () => {
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
+      port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT) : 3306,
+      connectTimeout: 5000, // 5 second timeout
       ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
     });
+    await connection.ping(); // Test connection
     return connection;
   } catch (error) {
     console.error('Database connection error:', error);
