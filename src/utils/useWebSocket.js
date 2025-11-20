@@ -47,6 +47,9 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const connectRef = useRef(null);
   const enableConnection = shouldConnect && DEFAULT_ENV_ENABLE;
   const hasLoggedDisabledRef = useRef(false);
+  const hasReachedMaxAttempts = useRef(false);
+  const reconnectTimeoutRef = useRef(null);
+  const hasLoggedSkipRef = useRef(false);
 
   const preferNativeSocket = useCallback(() => {
     const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
@@ -82,21 +85,42 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const handleReconnect = useCallback(() => {
     if (!enableConnection) return; // Skip reconnection if connections disabled
     
+    // Don't reconnect if we've already reached max attempts
+    if (hasReachedMaxAttempts.current) {
+      return;
+    }
+    
     if (reconnectAttempts.current < maxReconnectAttempts) {
       reconnectAttempts.current += 1;
       console.log(`Reconnect attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
 
+      // Clear any existing reconnection timeout
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+
       // Instead of calling connect directly, schedule a reconnection
-      setTimeout(() => {
-        console.log('Attempting to reconnect...');
-        // We'll use a ref to the latest connect function
-        if (typeof connectRef.current === 'function') {
-          connectRef.current();
+      reconnectTimeoutRef.current = setTimeout(() => {
+        // Check again before attempting to reconnect
+        if (!hasReachedMaxAttempts.current && reconnectAttempts.current <= maxReconnectAttempts) {
+          console.log('Attempting to reconnect...');
+          // We'll use a ref to the latest connect function
+          if (typeof connectRef.current === 'function') {
+            connectRef.current();
+          }
         }
+        reconnectTimeoutRef.current = null;
       }, 2000 * reconnectAttempts.current);
     } else {
-      console.error('Max reconnect attempts reached');
+      hasReachedMaxAttempts.current = true;
+      console.error('Max reconnect attempts reached. Stopping reconnection attempts.');
       setConnectionError('Max reconnect attempts reached. Please refresh the page to try again.');
+      
+      // Clear any pending reconnection timeout
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
     }
   }, [enableConnection]);
 
@@ -107,11 +131,19 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       if (!enableConnection && !hasLoggedDisabledRef.current) {
         console.info('WebSocket connections disabled for this environment.');
         hasLoggedDisabledRef.current = true;
-      } else if (!isAuthenticated || !token || !channelId) {
-        console.log('Skipping WebSocket connection:', 'Not authenticated or missing channelId');
+      } else if ((!isAuthenticated || !token || !channelId) && !hasLoggedSkipRef.current) {
+        // Only log once to avoid spam
+        hasLoggedSkipRef.current = true;
+        // Reset the flag after a delay so it can log again if conditions change
+        setTimeout(() => {
+          hasLoggedSkipRef.current = false;
+        }, 5000);
       }
       return;
     }
+    
+    // Reset skip log flag when we have all requirements
+    hasLoggedSkipRef.current = false;
 
     try {
       console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
@@ -133,7 +165,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
             console.log(`STOMP: ${str}`);
           }
         },
-        reconnectDelay: 5000,
+        reconnectDelay: 0, // Disable STOMP's automatic reconnection - we handle it manually
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
       });
@@ -144,6 +176,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setIsConnected(true);
         setConnectionError(null);
         reconnectAttempts.current = 0;
+        hasReachedMaxAttempts.current = false; // Reset max attempts flag on successful connection
 
         // Subscribe to channel
         if (channelId) {
@@ -189,7 +222,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         console.error('STOMP Error:', frame);
         setConnectionError(`STOMP Error: ${frame.headers?.message || 'Unknown error'}`);
         setIsConnected(false);
-        handleReconnect();
+        
+        // Only attempt reconnection if we haven't reached max attempts
+        if (!hasReachedMaxAttempts.current) {
+          handleReconnect();
+        }
       };
 
       client.onWebSocketError = (error) => {
@@ -200,7 +237,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         console.error('WebSocket Error:', error);
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
-        handleReconnect();
+        
+        // Only attempt reconnection if we haven't reached max attempts
+        if (!hasReachedMaxAttempts.current) {
+          handleReconnect();
+        }
       };
 
       client.onDisconnect = () => {
@@ -216,7 +257,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       console.error('Error creating WebSocket connection:', error);
       setConnectionError(`Connection Error: ${error.message}`);
       setIsConnected(false);
-      handleReconnect();
+      
+      // Only attempt reconnection if we haven't reached max attempts
+      if (!hasReachedMaxAttempts.current) {
+        handleReconnect();
+      }
     }
   }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection]);
 
@@ -265,6 +310,12 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
     // Cleanup on unmount
     return () => {
+      // Clear any pending reconnection timeout
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      
       if (stompClientRef.current) {
         console.log('Disconnecting WebSocket');
         stompClientRef.current.deactivate();
