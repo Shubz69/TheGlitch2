@@ -213,6 +213,23 @@ module.exports = async (req, res) => {
             console.log('Note: category column check:', alterError.message);
           }
 
+          // Check if description column exists, add it if it doesn't
+          try {
+            const [descColumns] = await db.execute(`
+              SELECT COLUMN_NAME 
+              FROM INFORMATION_SCHEMA.COLUMNS 
+              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'description'
+            `, [process.env.MYSQL_DATABASE]);
+            
+            if (descColumns.length === 0) {
+              await db.execute('ALTER TABLE channels ADD COLUMN description TEXT DEFAULT NULL');
+              console.log('Added description column to channels table');
+            }
+          } catch (alterError) {
+            // Column might already exist or other error, log and continue
+            console.log('Note: description column check:', alterError.message);
+          }
+
           // Fetch channels from database, handle NULL categories safely
           let [rows] = [];
           try {
@@ -237,18 +254,32 @@ module.exports = async (req, res) => {
               { id: 'announcements', name: 'announcements', category: 'announcements', description: 'Important announcements', accessLevel: 'read-only' }
             ];
             
+            // Helper function to safely insert/update channels with description
+            const safeInsertChannel = async (channelId, channelName, channelCategory, channelDescription, channelAccess) => {
+              try {
+                await db.execute(
+                  'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
+                  [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
+                );
+              } catch (insertError) {
+                // If description column doesn't exist, insert without it
+                if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
+                  await db.execute(
+                    'INSERT INTO channels (id, name, category, access_level) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, access_level=?',
+                    [channelId, channelName, channelCategory, channelAccess, channelName, channelCategory, channelAccess]
+                  );
+                } else {
+                  throw insertError;
+                }
+              }
+            };
+
             for (const channel of defaultChannels) {
-              await db.execute(
-                'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                [channel.id, channel.name, channel.category, channel.description, channel.accessLevel, channel.name, channel.category, channel.description, channel.accessLevel]
-              );
+              await safeInsertChannel(channel.id, channel.name, channel.category, channel.description, channel.accessLevel);
             }
             
             // Insert admin channel (only admins can see and post)
-            await db.execute(
-              'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-              ['admin', 'admin', 'staff', 'Admin-only channel', 'admin-only', 'admin', 'staff', 'Admin-only channel', 'admin-only']
-            );
+            await safeInsertChannel('admin', 'admin', 'staff', 'Admin-only channel', 'admin-only');
             
             // Create channels from courses (everyone can see and post)
             if (courses && courses.length > 0) {
@@ -256,10 +287,7 @@ module.exports = async (req, res) => {
                 const courseId = `course-${course.id}`;
                 const courseName = (course.title || course.name || 'Unnamed Course').toLowerCase().replace(/\s+/g, '-');
                 const courseDisplayName = course.title || course.name || 'Unnamed Course';
-                await db.execute(
-                  'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                  [courseId, courseName, 'courses', `Discussion for ${courseDisplayName}`, 'open', courseName, 'courses', `Discussion for ${courseDisplayName}`, 'open']
-                );
+                await safeInsertChannel(courseId, courseName, 'courses', `Discussion for ${courseDisplayName}`, 'open');
               }
             }
             
@@ -278,10 +306,7 @@ module.exports = async (req, res) => {
             for (const course of defaultCourses) {
               const courseId = `course-${course.id}`;
               const courseName = course.title.toLowerCase().replace(/\s+/g, '-');
-              await db.execute(
-                'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                [courseId, courseName, 'courses', `Discussion for ${course.title}`, 'open', courseName, 'courses', `Discussion for ${course.title}`, 'open']
-              );
+              await safeInsertChannel(courseId, courseName, 'courses', `Discussion for ${course.title}`, 'open');
             }
             
             // Add trading channels (everyone can see and post)
@@ -300,10 +325,7 @@ module.exports = async (req, res) => {
             ];
             
             for (const channel of tradingChannels) {
-              await db.execute(
-                'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                [channel.id, channel.name, channel.category, channel.description, 'open', channel.name, channel.category, channel.description, 'open']
-              );
+              await safeInsertChannel(channel.id, channel.name, channel.category, channel.description, 'open');
             }
             
             // Re-fetch channels after inserting/updating
@@ -377,6 +399,23 @@ module.exports = async (req, res) => {
         await ensureChannelsTable(db);
         await ensureChannelSchema(db);
 
+        // Check if description column exists, add it if it doesn't
+        try {
+          const [descColumns] = await db.execute(`
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'description'
+          `, [process.env.MYSQL_DATABASE]);
+          
+          if (descColumns.length === 0) {
+            await db.execute('ALTER TABLE channels ADD COLUMN description TEXT DEFAULT NULL');
+            console.log('Added description column to channels table');
+          }
+        } catch (alterError) {
+          // Column might already exist or other error, log and continue
+          console.log('Note: description column check:', alterError.message);
+        }
+
         const slugBase = slugify(name || sourceName) || `channel-${Date.now()}`;
         let channelId = id && id.trim() ? slugify(id) : slugBase;
         if (!channelId) {
@@ -407,10 +446,23 @@ module.exports = async (req, res) => {
           });
         }
 
-        await db.execute(
-          'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
-          [channelId, channelName, channelCategory, channelDescription, channelAccess]
-        );
+        // Try to insert with description, fallback if column doesn't exist
+        try {
+          await db.execute(
+            'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
+            [channelId, channelName, channelCategory, channelDescription, channelAccess]
+          );
+        } catch (insertError) {
+          // If description column doesn't exist, insert without it
+          if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
+            await db.execute(
+              'INSERT INTO channels (id, name, category, access_level) VALUES (?, ?, ?, ?)',
+              [channelId, channelName, channelCategory, channelAccess]
+            );
+          } else {
+            throw insertError;
+          }
+        }
 
         return res.status(201).json({
           success: true,

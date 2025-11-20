@@ -91,6 +91,23 @@ module.exports = async (req, res) => {
           )
         `);
 
+        // Check if duration column exists, add it if it doesn't
+        try {
+          const [columns] = await db.execute(`
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'courses' AND COLUMN_NAME = 'duration'
+          `, [process.env.MYSQL_DATABASE]);
+          
+          if (columns.length === 0) {
+            await db.execute('ALTER TABLE courses ADD COLUMN duration INT DEFAULT NULL');
+            console.log('Courses API: Added duration column to courses table');
+          }
+        } catch (alterError) {
+          // Column might already exist or other error, log and continue
+          console.log('Courses API: duration column check:', alterError.message);
+        }
+
         // Check if courses exist
         const [rows] = await db.execute('SELECT * FROM courses ORDER BY id ASC');
         console.log(`Courses API: Found ${rows.length} courses in database, expecting ${defaultCourses.length}`);
@@ -108,10 +125,24 @@ module.exports = async (req, res) => {
             needsUpdate = true;
           } else {
             // Update existing course to ensure it has latest data
-            await db.execute(
-              'UPDATE courses SET title = ?, description = ?, level = ?, duration = ?, price = ?, image_url = ? WHERE id = ?',
-              [course.title, course.description, course.level, course.duration, course.price, course.imageUrl, course.id]
-            );
+            // Only update columns that exist
+            try {
+              await db.execute(
+                'UPDATE courses SET title = ?, description = ?, level = ?, duration = ?, price = ?, image_url = ? WHERE id = ?',
+                [course.title, course.description, course.level, course.duration, course.price, course.imageUrl, course.id]
+              );
+            } catch (updateError) {
+              // If duration column still doesn't exist, update without it
+              if (updateError.code === 'ER_BAD_FIELD_ERROR' && updateError.message.includes('duration')) {
+                console.log(`Courses API: Updating course ${course.id} without duration column`);
+                await db.execute(
+                  'UPDATE courses SET title = ?, description = ?, level = ?, price = ?, image_url = ? WHERE id = ?',
+                  [course.title, course.description, course.level, course.price, course.imageUrl, course.id]
+                );
+              } else {
+                throw updateError;
+              }
+            }
           }
         }
         
