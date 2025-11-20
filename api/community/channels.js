@@ -159,6 +159,7 @@ module.exports = async (req, res) => {
 
   // Handle HEAD requests (for connection checks)
   if (req.method === 'HEAD') {
+    res.setHeader('Content-Length', '0');
     res.status(200).end();
     return;
   }

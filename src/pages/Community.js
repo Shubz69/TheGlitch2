@@ -457,8 +457,7 @@ const Community = () => {
         const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked || channelName === 'admin';
         const isWelcomeChannel = channelName === 'welcome';
         const isAnnouncementsChannel = channelName === 'announcements';
-        
-        // Admin-only channels: only admins can post
+               // Admin-only channels: only admins can post
         if (isAdminChannel) {
             return userRole === 'admin' || isAdmin;
         }
@@ -857,18 +856,46 @@ const Community = () => {
         try {
             const apiBaseUrl = window.location.origin;
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout (reduced from 5)
             
-            const response = await fetch(`${apiBaseUrl}/api/community/channels`, {
-                method: 'HEAD',
-                signal: controller.signal,
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+            // Try HEAD first, fallback to GET if HEAD fails
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/community/channels`, {
+                    method: 'HEAD',
+                    signal: controller.signal,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                clearTimeout(timeoutId);
+                return response.ok || response.status < 500;
+            } catch (headError) {
+                // If HEAD fails, try GET as fallback
+                clearTimeout(timeoutId);
+                const getController = new AbortController();
+                const getTimeoutId = setTimeout(() => getController.abort(), 3000);
+                
+                try {
+                    const getResponse = await fetch(`${apiBaseUrl}/api/community/channels`, {
+                        method: 'GET',
+                        signal: getController.signal,
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        mode: 'cors',
+                        credentials: 'include'
+                    });
+                    
+                    clearTimeout(getTimeoutId);
+                    return getResponse.ok || getResponse.status < 500;
+                } catch (getError) {
+                    clearTimeout(getTimeoutId);
+                    return false;
                 }
-            });
-            
-            clearTimeout(timeoutId);
-            return response.ok || response.status < 500;
+            }
         } catch (error) {
             // Network error (timeout, abort, etc.) = likely WiFi issue
             if (error.name === 'AbortError' || error.name === 'NetworkError' || !navigator.onLine) {
@@ -1196,18 +1223,71 @@ Let's build generational wealth together! 💰🚀`,
         }
     };
 
-    // Format timestamp
+    // Format timestamp with timezone awareness
     const formatTimestamp = (timestamp) => {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diffInMs = now - date;
-        const diffInMinutes = Math.floor(diffInMs / 60000);
+        if (!timestamp) return 'Unknown time';
         
-        if (diffInMinutes < 1) return 'Just now';
-        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-        
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        try {
+            const date = new Date(timestamp);
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return 'Invalid date';
+            }
+            
+            const now = new Date();
+            const diffInMs = now - date;
+            const diffInMinutes = Math.floor(diffInMs / 60000);
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            const diffInDays = Math.floor(diffInHours / 24);
+            
+            // Relative time for recent messages
+            if (diffInMinutes < 1) return 'Just now';
+            if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            if (diffInDays < 7) return `${diffInDays}d ago`;
+            
+            // For older messages, show date and time in user's local timezone
+            const isToday = date.toDateString() === now.toDateString();
+            const isYesterday = date.toDateString() === new Date(now.getTime() - 86400000).toDateString();
+            
+            if (isToday) {
+                // Show time only for today
+                return date.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+            } else if (isYesterday) {
+                // Show "Yesterday" with time
+                return `Yesterday at ${date.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                })}`;
+            } else if (diffInDays < 365) {
+                // Show date and time for this year
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            } else {
+                // Show full date for older messages
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric',
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        } catch (error) {
+            console.error('Error formatting timestamp:', error, timestamp);
+            return 'Invalid date';
+        }
     };
 
     // Handle welcome message acknowledgment
