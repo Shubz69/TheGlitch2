@@ -266,7 +266,8 @@ const Community = () => {
 
     const { 
         isConnected, 
-        connectionError 
+        connectionError,
+        sendMessage: sendWebSocketMessage
     } = useWebSocket(
         selectedChannel?.id,
         (message) => {
@@ -961,22 +962,24 @@ const Community = () => {
 
         // Check connectivity
         const updateConnectionStatus = async () => {
+            // If WebSocket is connected, prioritize that - show connected even if API has minor issues
+            if (isConnected) {
+                setConnectionStatus('connected');
+                return;
+            }
+            
             const apiWorking = await checkApiConnectivity();
             
-            // If WebSocket is connected and API works, we're fully connected
-            if (isConnected && apiWorking) {
-                setConnectionStatus('connected');
-            } 
             // If browser is offline, it's a WiFi issue
-            else if (!navigator.onLine) {
+            if (!navigator.onLine) {
                 setConnectionStatus('wifi-issue');
             } 
-            // If API not working but browser is online, it's a server issue
-            else if (!apiWorking && navigator.onLine) {
+            // If API not working but browser is online and WebSocket also not connected, it's a server issue
+            else if (!apiWorking && navigator.onLine && !isConnected) {
                 setConnectionStatus('server-issue');
             } 
             // If API works but WebSocket not connected yet, still connecting
-            else if (!isConnected && apiWorking) {
+            else if (apiWorking && !isConnected) {
                 setConnectionStatus('connecting');
             } 
             // Default to connecting
@@ -1200,6 +1203,11 @@ Let's build generational wealth together! 💰🚀`,
                     const serverMessage = response.data;
                     const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, serverMessage);
                     persistMessagesList(selectedChannel.id, finalMessages);
+                    
+                    // Broadcast message via WebSocket so all users see it in real-time
+                    if (sendWebSocketMessage && isConnected) {
+                        sendWebSocketMessage(serverMessage);
+                    }
                 } else {
                     // If response doesn't have expected format, keep optimistic message
                     // Convert temp ID to permanent ID
@@ -1209,6 +1217,11 @@ Let's build generational wealth together! 💰🚀`,
                     };
                     const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, permanentMessage);
                     persistMessagesList(selectedChannel.id, finalMessages);
+                    
+                    // Still try to broadcast via WebSocket
+                    if (sendWebSocketMessage && isConnected) {
+                        sendWebSocketMessage(permanentMessage);
+                    }
                 }
             } catch (apiError) {
                 console.error('Backend API unavailable, saving to localStorage:', apiError);
@@ -1220,6 +1233,11 @@ Let's build generational wealth together! 💰🚀`,
                 };
                 const finalMessages = replaceMessageById(updatedMessages, optimisticMessage.id, permanentMessage);
                 persistMessagesList(selectedChannel.id, finalMessages);
+                
+                // Still try to broadcast via WebSocket if available
+                if (sendWebSocketMessage && isConnected) {
+                    sendWebSocketMessage(permanentMessage);
+                }
             }
             
             // ***** AWARD XP FOR SENDING MESSAGE *****

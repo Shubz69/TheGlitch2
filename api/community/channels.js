@@ -126,7 +126,7 @@ const ensureChannelSchema = async (db) => {
       } else if (idColumn.DATA_TYPE !== 'varchar') {
         // If it's some other type, try to convert it
         try {
-          await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
+        await db.execute('ALTER TABLE channels MODIFY COLUMN id VARCHAR(255) NOT NULL');
         } catch (alterError) {
           console.log('Note: Could not modify id column:', alterError.message);
         }
@@ -136,7 +136,7 @@ const ensureChannelSchema = async (db) => {
     const nameColumn = columns.find((column) => column.COLUMN_NAME === 'name');
     if (nameColumn && nameColumn.DATA_TYPE !== 'varchar') {
       try {
-        await db.execute('ALTER TABLE channels MODIFY COLUMN name VARCHAR(255) NOT NULL');
+      await db.execute('ALTER TABLE channels MODIFY COLUMN name VARCHAR(255) NOT NULL');
       } catch (alterError) {
         console.log('Note: Could not modify name column:', alterError.message);
       }
@@ -151,7 +151,7 @@ const ensureChannelSchema = async (db) => {
 
     if (existingPrimaryKeys.length === 0) {
       try {
-        await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
+      await db.execute('ALTER TABLE channels ADD PRIMARY KEY (id)');
       } catch (pkError) {
         console.log('Note: Could not add primary key:', pkError.message);
       }
@@ -361,7 +361,7 @@ module.exports = async (req, res) => {
                 if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
                   const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId) ? 1 : 0;
                   const hidden = 0;
-                  await db.execute(
+              await db.execute(
                     'INSERT INTO channels (id, name, category, access_level, is_system_channel, hidden) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, access_level=?, is_system_channel=?, hidden=?',
                     [channelId, channelName, channelCategory, channelAccess || 'open', isSystemChannel, hidden, channelName, channelCategory, channelAccess || 'open', isSystemChannel, hidden]
                   );
@@ -557,10 +557,10 @@ module.exports = async (req, res) => {
           if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
             const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId) ? 1 : 0;
             const hidden = 0;
-            await db.execute(
+        await db.execute(
               'INSERT INTO channels (id, name, category, access_level, is_system_channel, hidden) VALUES (?, ?, ?, ?, ?, ?)',
               [channelId, channelName, channelCategory, channelAccess || 'open', isSystemChannel, hidden]
-            );
+        );
           } else {
             throw insertError;
           }

@@ -77,8 +77,8 @@ module.exports = async (req, res) => {
             try {
               [rows] = await db.execute(
                 'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
-                [channelId]
-              );
+          [channelId]
+        );
             } catch (fallbackError) {
               if (!isNaN(numericChannelId)) {
                 [rows] = await db.execute(
@@ -143,21 +143,38 @@ module.exports = async (req, res) => {
           [channelIdValue, userId || null, content.trim()]
         );
 
-        const [newMessage] = await db.execute('SELECT * FROM messages WHERE id = ?', [result.insertId]);
+        // Fetch the newly created message - execute returns [rows, fields]
+        const [newMessageRows] = await db.execute('SELECT * FROM messages WHERE id = ?', [result.insertId]);
+        const newMessage = newMessageRows[0]; // Get first row
+        
+        // Also fetch username from users table if userId is provided
+        let senderUsername = username || 'Anonymous';
+        if (userId) {
+          try {
+            const [userRows] = await db.execute('SELECT username FROM users WHERE id = ?', [userId]);
+            if (userRows && userRows[0]) {
+              senderUsername = userRows[0].username || username || 'Anonymous';
+            }
+          } catch (userError) {
+            console.warn('Could not fetch username from users table:', userError);
+            // Use provided username as fallback
+          }
+        }
+        
         await db.end();
 
         // Map to frontend format
         const message = {
-          id: newMessage[0].id,
-          channelId: newMessage[0].channel_id,
-          userId: newMessage[0].sender_id, // Actual column is sender_id
-          username: username || 'Anonymous', // Use provided username since it's not in DB
-          content: newMessage[0].content,
-          createdAt: newMessage[0].timestamp, // Actual column is timestamp
-          timestamp: newMessage[0].timestamp,
+          id: newMessage.id,
+          channelId: newMessage.channel_id,
+          userId: newMessage.sender_id, // Actual column is sender_id
+          username: senderUsername,
+          content: newMessage.content,
+          createdAt: newMessage.timestamp, // Actual column is timestamp
+          timestamp: newMessage.timestamp,
           sender: {
-            id: newMessage[0].sender_id,
-            username: username || 'Anonymous',
+            id: newMessage.sender_id,
+            username: senderUsername,
             avatar: '/avatars/avatar_ai.png',
             role: 'USER'
           }
