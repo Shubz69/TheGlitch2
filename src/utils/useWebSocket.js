@@ -118,6 +118,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       // Clear any pending reconnection timeout IMMEDIATELY
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        
         reconnectTimeoutRef.current = null;
       }
       
@@ -227,8 +228,28 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
 
       // Clear any previous connection
-      if (stompClientRef.current && stompClientRef.current.connected) {
-        stompClientRef.current.disconnect();
+      if (stompClientRef.current) {
+        try {
+          // Use deactivate() instead of disconnect() - STOMP Client uses deactivate
+          // Check for method existence first, then check if connected
+          if (typeof stompClientRef.current.deactivate === 'function') {
+            if (stompClientRef.current.connected) {
+              stompClientRef.current.deactivate();
+            }
+          } else if (typeof stompClientRef.current.disconnect === 'function') {
+            // Fallback for older API (shouldn't be needed with @stomp/stompjs)
+            if (stompClientRef.current.connected) {
+              stompClientRef.current.disconnect();
+            }
+          }
+          // Clear the reference after cleanup attempt
+          stompClientRef.current = null;
+        } catch (e) {
+          // Ignore errors when cleaning up old connection
+          console.warn('Error cleaning up previous connection:', e);
+          // Clear reference even if cleanup failed
+          stompClientRef.current = null;
+        }
       }
 
       // CRITICAL: Final check before creating client - prevent client creation if disabled
