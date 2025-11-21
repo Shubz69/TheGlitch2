@@ -191,6 +191,16 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Set connection handlers
       client.onConnect = (frame) => {
+        // Only process connection if WebSocket is not disabled
+        if (wsDisabled) {
+          try {
+            client.deactivate();
+          } catch (e) {
+            // Ignore
+          }
+          return;
+        }
+        
         console.log('WebSocket Connected:', frame);
         setIsConnected(true);
         setConnectionError(null);
@@ -337,18 +347,30 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   // Initial connection
   useEffect(() => {
     // Don't attempt connection if WebSocket is disabled or we've reached max attempts
+    // Check both state and ref to ensure we catch all cases
     if (wsDisabled || hasReachedMaxAttempts.current) {
+      // Ensure client is deactivated if it exists
+      if (stompClientRef.current) {
+        try {
+          stompClientRef.current.deactivate();
+        } catch (e) {
+          // Ignore errors
+        }
+      }
       return; // Stop trying after max attempts
     }
     
     // Only connect if all conditions are met
     if (enableConnection && isAuthenticated && token && channelId) {
-      connect();
+      // Double-check wsDisabled before calling connect (race condition protection)
+      if (!wsDisabled && !hasReachedMaxAttempts.current) {
+        connect();
+      }
     } else if (!enableConnection) {
       console.log('WebSocket connections disabled, not connecting');
     }
 
-    // Cleanup on unmount
+    // Cleanup on unmount or when dependencies change
     return () => {
       // Clear any pending reconnection timeout
       if (reconnectTimeoutRef.current) {
@@ -356,11 +378,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         reconnectTimeoutRef.current = null;
       }
       
-      if (stompClientRef.current) {
-        // Only log if we haven't reached max attempts (to reduce spam)
-        if (!hasReachedMaxAttempts.current) {
-          console.log('Disconnecting WebSocket');
-        }
+      // Only disconnect if we haven't reached max attempts (to avoid spam)
+      if (stompClientRef.current && !hasReachedMaxAttempts.current && !wsDisabled) {
         try {
           stompClientRef.current.deactivate();
         } catch (e) {
