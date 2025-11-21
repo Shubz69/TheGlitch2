@@ -55,7 +55,9 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const preferNativeSocket = useCallback(() => {
     const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
     try {
-      return new WebSocket(wsUrl);
+      const ws = new WebSocket(wsUrl);
+      // Add error handler to get more details (will be logged in onWebSocketError)
+      return ws;
     } catch (error) {
       console.warn('Native WebSocket unavailable, falling back to SockJS:', error?.message || error);
       return null;
@@ -97,6 +99,12 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       wsDisabledRef.current = true;
       
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
+      console.warn(`WebSocket server at ${WS_BASE_URL}/ws is not accessible.`);
+      console.warn('Please check:');
+      console.warn('1. Railway WebSocket service is running and accessible');
+      console.warn('2. The WebSocket endpoint URL is correct');
+      console.warn('3. Network/firewall allows WebSocket connections');
+      console.warn('Messages will continue to update via REST API polling every 5 seconds.');
       setConnectionError(null);
       
       // Clear any pending reconnection timeout IMMEDIATELY
@@ -332,9 +340,18 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           ? 'Cannot connect to server. Server may be unavailable.'
           : (error.message || 'Connection failed');
 
-        // Only log if we haven't reached max attempts to reduce spam
-        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
+        // Only log detailed error on first attempt to help diagnose
+        if (reconnectAttempts.current === 0 && !hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           console.error('WebSocket Error:', error);
+          console.error(`Failed to connect to: ${WS_BASE_URL}/ws`);
+          console.error('This usually means:');
+          console.error('1. Railway WebSocket service is down or not running');
+          console.error('2. The WebSocket endpoint URL is incorrect');
+          console.error('3. Network/CORS/firewall issues');
+          console.error('Please check your Railway dashboard to ensure the WebSocket service is running.');
+        } else if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
+          // Less verbose for subsequent attempts
+          console.error('WebSocket Error:', errorMessage);
         }
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
