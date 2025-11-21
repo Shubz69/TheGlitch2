@@ -135,7 +135,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Connect to WebSocket
   const connect = useCallback(() => {
-    // Don't attempt connection if we've reached max attempts
+    // Don't attempt connection if we've reached max attempts - return early
     if (hasReachedMaxAttempts.current) {
       return;
     }
