@@ -296,6 +296,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setIsConnected(false);
       };
 
+      // Final check before activating - if disabled, don't activate
+      if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        return; // Don't activate if disabled
+      }
+
       // Activate the client
       stompClientRef.current = client;
       client.activate();
