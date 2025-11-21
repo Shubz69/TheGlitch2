@@ -101,10 +101,17 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
       console.warn(`WebSocket server at ${WS_BASE_URL}/ws is not accessible.`);
-      console.warn('Please check:');
-      console.warn('1. Railway WebSocket service is running and accessible');
-      console.warn('2. The WebSocket endpoint URL is correct');
-      console.warn('3. Network/firewall allows WebSocket connections');
+      console.warn('');
+      console.warn('🔧 RAILWAY SERVER CONFIGURATION REQUIRED:');
+      console.warn('The Railway service is returning HTTP 200 instead of 101 Switching Protocols.');
+      console.warn('This means the server is not handling WebSocket upgrades properly.');
+      console.warn('');
+      console.warn('To fix this on Railway:');
+      console.warn('1. Ensure your WebSocket server listens on Railway\'s PORT environment variable');
+      console.warn('2. Verify the server properly handles WebSocket upgrade requests (HTTP 101)');
+      console.warn('3. Check Railway service logs for WebSocket-related errors');
+      console.warn('4. Ensure the server code uses proper WebSocket upgrade logic');
+      console.warn('');
       console.warn('Messages will continue to update via REST API polling every 5 seconds.');
       setConnectionError(null);
       
