@@ -84,7 +84,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Handle reconnection logic - define before connect
   const handleReconnect = useCallback(() => {
-    if (!enableConnection) return; // Skip reconnection if connections disabled
+    if (!enableConnection || wsDisabledRef.current) return; // Skip reconnection if connections disabled or WebSocket is disabled
     
     // Don't reconnect if we've already reached max attempts
     if (hasReachedMaxAttempts.current) {
