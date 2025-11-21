@@ -835,30 +835,7 @@ const Community = () => {
         }
     }, [navigate]);
 
-    // Load channels initially and on dependency changes
-    useEffect(() => {
-        refreshChannelList();
-    }, [refreshChannelList]);
-
-    // Periodically refresh channels so new ones appear for everyone
-    useEffect(() => {
-        if (!isAuthenticated) return;
-
-        const intervalId = setInterval(() => {
-            // Only refresh if API is working to avoid spam
-            checkApiConnectivity().then((apiWorking) => {
-                if (apiWorking) {
-                    refreshChannelList().catch((err) => {
-                        console.warn('Failed to refresh channel list:', err.message);
-                    });
-                }
-            });
-        }, 30000);
-
-        return () => clearInterval(intervalId);
-    }, [isAuthenticated, refreshChannelList, checkApiConnectivity]);
-
-    // Check API connectivity
+    // Check API connectivity - defined before useEffects that use it
     const checkApiConnectivity = useCallback(async () => {
         try {
             const apiBaseUrl = window.location.origin;
@@ -896,6 +873,29 @@ const Community = () => {
             return false;
         }
     }, []);
+
+    // Load channels initially and on dependency changes
+    useEffect(() => {
+        refreshChannelList();
+    }, [refreshChannelList]);
+
+    // Periodically refresh channels so new ones appear for everyone
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const intervalId = setInterval(() => {
+            // Only refresh if API is working to avoid spam
+            checkApiConnectivity().then((apiWorking) => {
+                if (apiWorking) {
+                    refreshChannelList().catch((err) => {
+                        console.warn('Failed to refresh channel list:', err.message);
+                    });
+                }
+            });
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [isAuthenticated, refreshChannelList, checkApiConnectivity]);
 
     // Fetch online users status periodically
     const fetchOnlineStatus = useCallback(async () => {
