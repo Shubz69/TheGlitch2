@@ -1,0 +1,18 @@
+{
+  "name": "glitch-realtime",
+  "version": "1.0.0",
+  "description": "WebSocket server for The Glitch real-time messaging",
+  "main": "railway-websocket-server.js",
+  "scripts": {
+    "start": "node railway-websocket-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "stompjs": "^2.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
