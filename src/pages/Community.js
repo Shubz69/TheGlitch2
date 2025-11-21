@@ -845,11 +845,18 @@ const Community = () => {
         if (!isAuthenticated) return;
 
         const intervalId = setInterval(() => {
-            refreshChannelList();
+            // Only refresh if API is working to avoid spam
+            checkApiConnectivity().then((apiWorking) => {
+                if (apiWorking) {
+                    refreshChannelList().catch((err) => {
+                        console.warn('Failed to refresh channel list:', err.message);
+                    });
+                }
+            });
         }, 30000);
 
         return () => clearInterval(intervalId);
-    }, [isAuthenticated, refreshChannelList]);
+    }, [isAuthenticated, refreshChannelList, checkApiConnectivity]);
 
     // Check API connectivity
     const checkApiConnectivity = useCallback(async () => {
