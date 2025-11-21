@@ -53,6 +53,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const hasLoggedSkipRef = useRef(false);
 
   const preferNativeSocket = useCallback(() => {
+    // Try native WebSocket first - Railway should support direct WebSocket connections
     const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
     try {
       const ws = new WebSocket(wsUrl);
@@ -65,12 +66,12 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   }, []);
 
   const createSockJsConnection = useCallback(() => {
+    // SockJS makes an initial HTTP request that Railway is responding to with 200
+    // This suggests the server might not be configured for SockJS
+    // Try with WebSocket transport only to avoid the HTTP check
     return new SockJS(`${WS_BASE_URL}/ws`, null, {
-      transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
-      transportOptions: {
-        'xhr-streaming': { withCredentials: false },
-        'xhr-polling': { withCredentials: false }
-      },
+      transports: ['websocket'], // Use WebSocket transport only to avoid HTTP 200 responses
+      timeout: 5000,
       sessionId: () => `${Date.now()}-${Math.random().toString(36).slice(2)}`
     });
   }, []);
@@ -229,7 +230,15 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
 
       const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
-      const nativeSocket = preferNativeSocket();
+      
+      // Try native WebSocket first - Railway should support direct WebSocket
+      // SockJS is causing issues because it makes HTTP requests that get 200 instead of 101
+      let nativeSocket = null;
+      try {
+        nativeSocket = preferNativeSocket();
+      } catch (error) {
+        console.warn('Failed to create native WebSocket, will try SockJS:', error);
+      }
 
       // CRITICAL: Check again right before creating client
       if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
@@ -237,8 +246,15 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
 
       const client = new Client({
+        // Use brokerURL for native WebSocket, undefined for SockJS
         brokerURL: nativeSocket ? wsUrl : undefined,
-        webSocketFactory: () => nativeSocket || createSockJsConnection(),
+        webSocketFactory: () => {
+          if (nativeSocket) {
+            return nativeSocket;
+          }
+          // Fallback to SockJS only if native WebSocket fails
+          return createSockJsConnection();
+        },
         connectHeaders: getAuthHeaders(),
         debug: (str) => {
           if (process.env.NODE_ENV === 'development' && !wsDisabledRef.current) {
