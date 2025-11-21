@@ -317,12 +317,29 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Final check before activating - if disabled, don't activate
       if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        try {
+          client.deactivate();
+        } catch (e) {
+          // Ignore errors
+        }
         return; // Don't activate if disabled
       }
 
       // Activate the client
       stompClientRef.current = client;
-      client.activate();
+      
+      // CRITICAL: One more check right before activate (race condition protection)
+      if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
+        client.activate();
+      } else {
+        // If disabled after storing client, deactivate immediately
+        try {
+          client.deactivate();
+          stompClientRef.current = null;
+        } catch (e) {
+          // Ignore errors
+        }
+      }
 
     } catch (error) {
       // Only log if we haven't reached max attempts (to reduce spam)
