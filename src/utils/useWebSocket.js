@@ -401,8 +401,10 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       if (stompClientRef.current) {
         try {
           stompClientRef.current.deactivate();
+          stompClientRef.current = null; // Clear reference
         } catch (e) {
           // Ignore errors
+          stompClientRef.current = null; // Clear anyway
         }
       }
       // CRITICAL: Return early - do NOT proceed with any connection logic
@@ -419,9 +421,9 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     if (enableConnection && isAuthenticated && token && channelId) {
       // Triple-check before calling connect (race condition protection)
       if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-        // Final check right before calling
-        if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-          connect();
+        // Final check right before calling - use connectRef to avoid dependency issues
+        if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
+          connectRef.current();
         }
       }
     } else if (!enableConnection && !wsDisabledRef.current) {
@@ -446,7 +448,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
     };
-  }, [connect, enableConnection, isAuthenticated, token, channelId]);
+  }, [enableConnection, isAuthenticated, token, channelId]); // Removed 'connect' from dependencies to prevent re-triggering
 
   return {
     isConnected,
