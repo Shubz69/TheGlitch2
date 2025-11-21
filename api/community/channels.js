@@ -304,6 +304,22 @@ module.exports = async (req, res) => {
             console.log('Note: description column check:', alterError.message);
           }
 
+          // Check if is_system_channel column exists, add it with default if it doesn't
+          try {
+            const [isSystemColumns] = await db.execute(`
+              SELECT COLUMN_NAME 
+              FROM INFORMATION_SCHEMA.COLUMNS 
+              WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'is_system_channel'
+            `, [process.env.MYSQL_DATABASE]);
+            
+            if (isSystemColumns.length === 0) {
+              await db.execute('ALTER TABLE channels ADD COLUMN is_system_channel BOOLEAN DEFAULT FALSE');
+              console.log('Added is_system_channel column to channels table');
+            }
+          } catch (alterError) {
+            console.log('Note: is_system_channel column check:', alterError.message);
+          }
+
           // Fetch channels from database, handle NULL categories safely
           let [rows] = [];
           try {
@@ -331,16 +347,40 @@ module.exports = async (req, res) => {
             // Helper function to safely insert/update channels with description
             const safeInsertChannel = async (channelId, channelName, channelCategory, channelDescription, channelAccess) => {
               try {
-                await db.execute(
-                  'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                  [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
-                );
+                // Check if is_system_channel column exists
+                const [isSystemColumns] = await db.execute(`
+                  SELECT COLUMN_NAME 
+                  FROM INFORMATION_SCHEMA.COLUMNS 
+                  WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'is_system_channel'
+                `, [process.env.MYSQL_DATABASE]);
+                
+                const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId);
+                
+                if (isSystemColumns.length > 0) {
+                  // Column exists, include it in INSERT
+                  await db.execute(
+                    'INSERT INTO channels (id, name, category, description, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?, is_system_channel=?',
+                    [channelId, channelName, channelCategory, channelDescription, channelAccess, isSystemChannel, channelName, channelCategory, channelDescription, channelAccess, isSystemChannel]
+                  );
+                } else {
+                  // Column doesn't exist, insert without it
+                  await db.execute(
+                    'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
+                    [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
+                  );
+                }
               } catch (insertError) {
                 // If description column doesn't exist, insert without it
                 if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
                   await db.execute(
                     'INSERT INTO channels (id, name, category, access_level) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, access_level=?',
                     [channelId, channelName, channelCategory, channelAccess, channelName, channelCategory, channelAccess]
+                  );
+                } else if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('is_system_channel')) {
+                  // If is_system_channel doesn't exist, try without it
+                  await db.execute(
+                    'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
+                    [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
                   );
                 } else {
                   throw insertError;

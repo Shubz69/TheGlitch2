@@ -65,10 +65,40 @@ module.exports = async (req, res) => {
           )
         `);
 
-        const [rows] = await db.execute(
-          'SELECT * FROM messages WHERE channel_id = ? ORDER BY created_at ASC',
-          [channelId]
-        );
+        // Ensure created_at column exists (for existing tables)
+        try {
+          const [columns] = await db.execute(`
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'messages' AND COLUMN_NAME = 'created_at'
+          `, [process.env.MYSQL_DATABASE]);
+          
+          if (columns.length === 0) {
+            await db.execute('ALTER TABLE messages ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+            console.log('Added created_at column to messages table');
+          }
+        } catch (alterError) {
+          console.log('Note: created_at column check:', alterError.message);
+        }
+
+        // Try to fetch with created_at, fallback to id if column doesn't exist
+        let [rows] = [];
+        try {
+          [rows] = await db.execute(
+            'SELECT * FROM messages WHERE channel_id = ? ORDER BY created_at ASC',
+            [channelId]
+          );
+        } catch (orderError) {
+          // If created_at doesn't exist, order by id instead
+          if (orderError.code === 'ER_BAD_FIELD_ERROR' && orderError.message.includes('created_at')) {
+            [rows] = await db.execute(
+              'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
+              [channelId]
+            );
+          } else {
+            throw orderError;
+          }
+        }
         await db.end();
 
         const messages = rows.map(row => ({
