@@ -241,14 +241,14 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       client.onStompError = (frame) => {
         // Only log if we haven't reached max attempts (to reduce spam)
-        if (!hasReachedMaxAttempts.current) {
+        if (!hasReachedMaxAttempts.current && !wsDisabled) {
           console.error('STOMP Error:', frame);
         }
         setConnectionError(`STOMP Error: ${frame.headers?.message || 'Unknown error'}`);
         setIsConnected(false);
         
-        // Only attempt reconnection if we haven't reached max attempts
-        if (!hasReachedMaxAttempts.current) {
+        // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
+        if (!hasReachedMaxAttempts.current && !wsDisabled) {
           handleReconnect();
         }
       };
@@ -259,14 +259,14 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           : (error.message || 'Connection failed');
 
         // Only log if we haven't reached max attempts to reduce spam
-        if (!hasReachedMaxAttempts.current) {
+        if (!hasReachedMaxAttempts.current && !wsDisabled) {
           console.error('WebSocket Error:', error);
         }
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
         
-        // Only attempt reconnection if we haven't reached max attempts
-        if (!hasReachedMaxAttempts.current) {
+        // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
+        if (!hasReachedMaxAttempts.current && !wsDisabled) {
           handleReconnect();
         }
         // After max attempts, silently fail - no more logging
