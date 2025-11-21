@@ -160,7 +160,10 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     hasLoggedSkipRef.current = false;
 
     try {
-      console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
+      // Only log if we haven't reached max attempts (to reduce spam)
+      if (!hasReachedMaxAttempts.current) {
+        console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
+      }
 
       // Clear any previous connection
       if (stompClientRef.current && stompClientRef.current.connected) {
@@ -191,6 +194,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setConnectionError(null);
         reconnectAttempts.current = 0;
         hasReachedMaxAttempts.current = false; // Reset max attempts flag on successful connection
+        reconnectTimeoutRef.current = null; // Clear any pending reconnection
 
         // Subscribe to channel
         if (channelId) {
@@ -233,7 +237,10 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       };
 
       client.onStompError = (frame) => {
-        console.error('STOMP Error:', frame);
+        // Only log if we haven't reached max attempts (to reduce spam)
+        if (!hasReachedMaxAttempts.current) {
+          console.error('STOMP Error:', frame);
+        }
         setConnectionError(`STOMP Error: ${frame.headers?.message || 'Unknown error'}`);
         setIsConnected(false);
         
@@ -258,14 +265,15 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         // Only attempt reconnection if we haven't reached max attempts
         if (!hasReachedMaxAttempts.current) {
           handleReconnect();
-        } else {
-          // Silently fail after max attempts
-          console.warn('WebSocket connection failed. Using REST API polling instead.');
         }
+        // After max attempts, silently fail - no more logging
       };
 
       client.onDisconnect = () => {
-        console.log('WebSocket Disconnected');
+        // Only log if we haven't reached max attempts (to reduce spam)
+        if (!hasReachedMaxAttempts.current) {
+          console.log('WebSocket Disconnected');
+        }
         setIsConnected(false);
       };
 
@@ -322,6 +330,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Initial connection
   useEffect(() => {
+    // Don't attempt connection if we've reached max attempts
+    if (hasReachedMaxAttempts.current) {
+      return; // Stop trying after max attempts
+    }
+    
     if (enableConnection) {
       connect();
     } else {

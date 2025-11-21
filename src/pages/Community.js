@@ -1024,15 +1024,18 @@ const Community = () => {
             return; // WebSocket is working, no need to poll
         }
 
-        // Poll every 3 seconds for new messages when WebSocket is down
+        // Poll every 5 seconds for new messages when WebSocket is down (reduced frequency to avoid spam)
         const pollInterval = setInterval(() => {
-            if (selectedChannel?.id) {
-                fetchMessages(selectedChannel.id);
+            if (selectedChannel?.id && !isConnected) {
+                fetchMessages(selectedChannel.id).catch((err) => {
+                    // Silently handle errors to avoid console spam
+                    console.debug('Polling fetch error:', err.message);
+                });
             }
-        }, 3000);
+        }, 5000); // Increased from 3 to 5 seconds
 
         return () => clearInterval(pollInterval);
-    }, [selectedChannel, isAuthenticated, isConnected, fetchMessages]);
+    }, [selectedChannel?.id, isAuthenticated, isConnected, fetchMessages]);
     
     // Add welcome message when welcome channel is selected for first time
     useEffect(() => {
