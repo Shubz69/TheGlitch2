@@ -41,7 +41,6 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const { token, isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
-  const [wsDisabled, setWsDisabled] = useState(false); // State to track if WebSocket should be disabled
   const stompClientRef = useRef(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -49,6 +48,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const enableConnection = shouldConnect && DEFAULT_ENV_ENABLE;
   const hasLoggedDisabledRef = useRef(false);
   const hasReachedMaxAttempts = useRef(false);
+  const wsDisabledRef = useRef(false); // Use ref for immediate updates (no async state delay)
   const reconnectTimeoutRef = useRef(null);
   const hasLoggedSkipRef = useRef(false);
 
@@ -102,8 +102,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Instead of calling connect directly, schedule a reconnection
       reconnectTimeoutRef.current = setTimeout(() => {
-        // Check again before attempting to reconnect - also check wsDisabled state
-        if (!hasReachedMaxAttempts.current && !wsDisabled && reconnectAttempts.current <= maxReconnectAttempts) {
+        // Check again before attempting to reconnect - also check wsDisabled ref
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current && reconnectAttempts.current <= maxReconnectAttempts) {
           console.log('Attempting to reconnect...');
           // We'll use a ref to the latest connect function
           if (typeof connectRef.current === 'function') {
@@ -114,7 +114,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }, 2000 * reconnectAttempts.current);
     } else {
       hasReachedMaxAttempts.current = true;
-      setWsDisabled(true); // Disable WebSocket via state to prevent reconnection
+      wsDisabledRef.current = true; // Disable WebSocket via ref for immediate effect
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
       setConnectionError(null); // Clear error to indicate fallback mode
       
@@ -133,12 +133,13 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
     }
-  }, [enableConnection, wsDisabled]);
+  }, [enableConnection]);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
     // Don't attempt connection if WebSocket is disabled or we've reached max attempts
-    if (wsDisabled || hasReachedMaxAttempts.current) {
+    // Use ref for immediate check (no async state delay)
+    if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
       return;
     }
     
@@ -191,8 +192,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Set connection handlers
       client.onConnect = (frame) => {
-        // Only process connection if WebSocket is not disabled
-        if (wsDisabled) {
+        // Only process connection if WebSocket is not disabled (use ref for immediate check)
+        if (wsDisabledRef.current) {
           try {
             client.deactivate();
           } catch (e) {
@@ -206,7 +207,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setConnectionError(null);
         reconnectAttempts.current = 0;
         hasReachedMaxAttempts.current = false; // Reset max attempts flag on successful connection
-        setWsDisabled(false); // Re-enable WebSocket on successful connection
+        wsDisabledRef.current = false; // Re-enable WebSocket on successful connection
         reconnectTimeoutRef.current = null; // Clear any pending reconnection
 
         // Subscribe to channel
@@ -251,14 +252,14 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       client.onStompError = (frame) => {
         // Only log if we haven't reached max attempts (to reduce spam)
-        if (!hasReachedMaxAttempts.current && !wsDisabled) {
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           console.error('STOMP Error:', frame);
         }
         setConnectionError(`STOMP Error: ${frame.headers?.message || 'Unknown error'}`);
         setIsConnected(false);
         
         // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
-        if (!hasReachedMaxAttempts.current && !wsDisabled) {
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           handleReconnect();
         }
       };
@@ -269,14 +270,14 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           : (error.message || 'Connection failed');
 
         // Only log if we haven't reached max attempts to reduce spam
-        if (!hasReachedMaxAttempts.current && !wsDisabled) {
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           console.error('WebSocket Error:', error);
         }
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
         
         // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
-        if (!hasReachedMaxAttempts.current && !wsDisabled) {
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           handleReconnect();
         }
         // After max attempts, silently fail - no more logging
@@ -284,7 +285,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       client.onDisconnect = () => {
         // Only log if we haven't reached max attempts (to reduce spam)
-        if (!hasReachedMaxAttempts.current) {
+        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           console.log('WebSocket Disconnected');
         }
         setIsConnected(false);
@@ -296,23 +297,23 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
     } catch (error) {
       // Only log if we haven't reached max attempts (to reduce spam)
-      if (!hasReachedMaxAttempts.current && !wsDisabled) {
+      if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
         console.error('Error creating WebSocket connection:', error);
       }
       setConnectionError(`Connection Error: ${error.message}`);
       setIsConnected(false);
       
       // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
-      if (!hasReachedMaxAttempts.current && !wsDisabled) {
+      if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
         handleReconnect();
       }
     }
-  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection, wsDisabled]);
+  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection]);
 
   // Update the connectRef when connect changes
   useEffect(() => {
     connectRef.current = connect;
-  }, [connect, wsDisabled]); // Include wsDisabled to prevent stale closures
+  }, [connect]);
 
   // Send message through WebSocket
   const sendMessage = useCallback((message) => {
@@ -347,8 +348,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   // Initial connection
   useEffect(() => {
     // Don't attempt connection if WebSocket is disabled or we've reached max attempts
-    // Check both state and ref to ensure we catch all cases
-    if (wsDisabled || hasReachedMaxAttempts.current) {
+    // Use ref for immediate check (no async state delay)
+    if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
       // Ensure client is deactivated if it exists
       if (stompClientRef.current) {
         try {
@@ -362,8 +363,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     
     // Only connect if all conditions are met
     if (enableConnection && isAuthenticated && token && channelId) {
-      // Double-check wsDisabled before calling connect (race condition protection)
-      if (!wsDisabled && !hasReachedMaxAttempts.current) {
+      // Double-check wsDisabledRef before calling connect (race condition protection)
+      if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
         connect();
       }
     } else if (!enableConnection) {
@@ -379,7 +380,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
       
       // Only disconnect if we haven't reached max attempts (to avoid spam)
-      if (stompClientRef.current && !hasReachedMaxAttempts.current && !wsDisabled) {
+      if (stompClientRef.current && !hasReachedMaxAttempts.current && !wsDisabledRef.current) {
         try {
           stompClientRef.current.deactivate();
         } catch (e) {
@@ -387,7 +388,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
     };
-  }, [connect, enableConnection, isAuthenticated, token, channelId, wsDisabled]);
+  }, [connect, enableConnection, isAuthenticated, token, channelId]);
 
   return {
     isConnected,
