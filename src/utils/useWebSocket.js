@@ -129,24 +129,44 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     // Instead of calling connect directly, schedule a reconnection
     reconnectTimeoutRef.current = setTimeout(() => {
       // CRITICAL: Check multiple times before attempting to reconnect
+      // First check - if disabled or max attempts reached, abort immediately
       if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
         reconnectTimeoutRef.current = null;
         return; // Don't reconnect if disabled
       }
       
-      // Check again before proceeding
-      if (reconnectAttempts.current > maxReconnectAttempts || wsDisabledRef.current || hasReachedMaxAttempts.current) {
+      // Second check - if we've exceeded max attempts, abort
+      if (reconnectAttempts.current > maxReconnectAttempts) {
         reconnectTimeoutRef.current = null;
-        return; // Don't reconnect if already exceeded max attempts
+        // Set flags to prevent further attempts
+        hasReachedMaxAttempts.current = true;
+        wsDisabledRef.current = true;
+        return;
+      }
+      
+      // Third check - if we've reached max attempts (not exceeded, but reached), abort
+      if (reconnectAttempts.current >= maxReconnectAttempts) {
+        reconnectTimeoutRef.current = null;
+        // Set flags to prevent further attempts
+        hasReachedMaxAttempts.current = true;
+        wsDisabledRef.current = true;
+        console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
+        return;
       }
       
       // Final check before logging and calling connect
-      if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && reconnectAttempts.current <= maxReconnectAttempts) {
+      // Only proceed if we haven't reached max attempts yet
+      if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && reconnectAttempts.current < maxReconnectAttempts) {
         console.log('Attempting to reconnect...');
         // Final check before calling connect
         if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
           connectRef.current();
         }
+      } else {
+        // If we've reached max attempts, set flags and abort
+        reconnectTimeoutRef.current = null;
+        hasReachedMaxAttempts.current = true;
+        wsDisabledRef.current = true;
       }
       reconnectTimeoutRef.current = null;
     }, 2000 * reconnectAttempts.current);
