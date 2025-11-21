@@ -102,8 +102,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Instead of calling connect directly, schedule a reconnection
       reconnectTimeoutRef.current = setTimeout(() => {
-        // Check again before attempting to reconnect
-        if (!hasReachedMaxAttempts.current && reconnectAttempts.current <= maxReconnectAttempts) {
+        // Check again before attempting to reconnect - also check wsDisabled state
+        if (!hasReachedMaxAttempts.current && !wsDisabled && reconnectAttempts.current <= maxReconnectAttempts) {
           console.log('Attempting to reconnect...');
           // We'll use a ref to the latest connect function
           if (typeof connectRef.current === 'function') {
@@ -133,7 +133,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
     }
-  }, [enableConnection]);
+  }, [enableConnection, wsDisabled]);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
@@ -299,7 +299,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   // Update the connectRef when connect changes
   useEffect(() => {
     connectRef.current = connect;
-  }, [connect]);
+  }, [connect, wsDisabled]); // Include wsDisabled to prevent stale closures
 
   // Send message through WebSocket
   const sendMessage = useCallback((message) => {
