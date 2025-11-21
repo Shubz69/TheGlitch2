@@ -41,6 +41,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
   const { token, isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+  const [wsDisabled, setWsDisabled] = useState(false); // State to track if WebSocket should be disabled
   const stompClientRef = useRef(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
@@ -113,6 +114,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }, 2000 * reconnectAttempts.current);
     } else {
       hasReachedMaxAttempts.current = true;
+      setWsDisabled(true); // Disable WebSocket via state to prevent reconnection
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
       setConnectionError(null); // Clear error to indicate fallback mode
       
@@ -135,8 +137,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Connect to WebSocket
   const connect = useCallback(() => {
-    // Don't attempt connection if we've reached max attempts - return early
-    if (hasReachedMaxAttempts.current) {
+    // Don't attempt connection if WebSocket is disabled or we've reached max attempts
+    if (wsDisabled || hasReachedMaxAttempts.current) {
       return;
     }
     
@@ -194,6 +196,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setConnectionError(null);
         reconnectAttempts.current = 0;
         hasReachedMaxAttempts.current = false; // Reset max attempts flag on successful connection
+        setWsDisabled(false); // Re-enable WebSocket on successful connection
         reconnectTimeoutRef.current = null; // Clear any pending reconnection
 
         // Subscribe to channel
@@ -330,8 +333,8 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Initial connection
   useEffect(() => {
-    // Don't attempt connection if we've reached max attempts
-    if (hasReachedMaxAttempts.current) {
+    // Don't attempt connection if WebSocket is disabled or we've reached max attempts
+    if (wsDisabled || hasReachedMaxAttempts.current) {
       return; // Stop trying after max attempts
     }
     
@@ -362,7 +365,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
     };
-  }, [connect, enableConnection, isAuthenticated, token, channelId]);
+  }, [connect, enableConnection, isAuthenticated, token, channelId, wsDisabled]);
 
   return {
     isConnected,
