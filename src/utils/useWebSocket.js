@@ -84,55 +84,20 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Handle reconnection logic - define before connect
   const handleReconnect = useCallback(() => {
-    if (!enableConnection || wsDisabledRef.current) return; // Skip reconnection if connections disabled or WebSocket is disabled
-    
-    // Don't reconnect if we've already reached max attempts
-    if (hasReachedMaxAttempts.current) {
-      return;
+    // CRITICAL: Check if disabled or max attempts reached BEFORE doing anything
+    if (!enableConnection || wsDisabledRef.current || hasReachedMaxAttempts.current) {
+      return; // Skip if disabled or max attempts reached
     }
     
-    if (reconnectAttempts.current < maxReconnectAttempts) {
-      reconnectAttempts.current += 1;
-      console.log(`Reconnect attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
-
-      // Clear any existing reconnection timeout
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-
-      // Instead of calling connect directly, schedule a reconnection
-      reconnectTimeoutRef.current = setTimeout(() => {
-        // CRITICAL: Check multiple times before attempting to reconnect
-        if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
-          reconnectTimeoutRef.current = null;
-          return; // Don't reconnect if disabled
-        }
-        
-        // Check again before proceeding
-        if (reconnectAttempts.current > maxReconnectAttempts || wsDisabledRef.current || hasReachedMaxAttempts.current) {
-          reconnectTimeoutRef.current = null;
-          return; // Don't reconnect if already exceeded max attempts
-        }
-        
-        if (reconnectAttempts.current <= maxReconnectAttempts && !wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-          // Final check before logging and calling connect
-          if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-            console.log('Attempting to reconnect...');
-            // Final check before calling connect
-            if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
-              connectRef.current();
-            }
-          }
-        }
-        reconnectTimeoutRef.current = null;
-      }, 2000 * reconnectAttempts.current);
-    } else {
-      // CRITICAL: Set both flags immediately to prevent any further attempts
+    // CRITICAL: Check if we've already reached max attempts BEFORE incrementing
+    // This prevents the 6th attempt from happening
+    if (reconnectAttempts.current >= maxReconnectAttempts) {
+      // Set flags immediately
       hasReachedMaxAttempts.current = true;
-      wsDisabledRef.current = true; // Disable WebSocket via ref for immediate effect
+      wsDisabledRef.current = true;
       
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
-      setConnectionError(null); // Clear error to indicate fallback mode
+      setConnectionError(null);
       
       // Clear any pending reconnection timeout IMMEDIATELY
       if (reconnectTimeoutRef.current) {
@@ -144,13 +109,47 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       if (stompClientRef.current) {
         try {
           stompClientRef.current.deactivate();
-          stompClientRef.current = null; // Clear the reference
+          stompClientRef.current = null;
         } catch (e) {
-          // Ignore errors during deactivation
-          stompClientRef.current = null; // Clear anyway
+          stompClientRef.current = null;
         }
       }
+      return;
     }
+    
+    // Only proceed if we haven't reached max attempts yet
+    reconnectAttempts.current += 1;
+    console.log(`Reconnect attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
+
+    // Clear any existing reconnection timeout
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    // Instead of calling connect directly, schedule a reconnection
+    reconnectTimeoutRef.current = setTimeout(() => {
+      // CRITICAL: Check multiple times before attempting to reconnect
+      if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        reconnectTimeoutRef.current = null;
+        return; // Don't reconnect if disabled
+      }
+      
+      // Check again before proceeding
+      if (reconnectAttempts.current > maxReconnectAttempts || wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        reconnectTimeoutRef.current = null;
+        return; // Don't reconnect if already exceeded max attempts
+      }
+      
+      // Final check before logging and calling connect
+      if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && reconnectAttempts.current <= maxReconnectAttempts) {
+        console.log('Attempting to reconnect...');
+        // Final check before calling connect
+        if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
+          connectRef.current();
+        }
+      }
+      reconnectTimeoutRef.current = null;
+    }, 2000 * reconnectAttempts.current);
   }, [enableConnection]);
 
   // Connect to WebSocket
