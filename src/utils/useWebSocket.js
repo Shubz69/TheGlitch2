@@ -285,16 +285,19 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       client.activate();
 
     } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
+      // Only log if we haven't reached max attempts (to reduce spam)
+      if (!hasReachedMaxAttempts.current && !wsDisabled) {
+        console.error('Error creating WebSocket connection:', error);
+      }
       setConnectionError(`Connection Error: ${error.message}`);
       setIsConnected(false);
       
-      // Only attempt reconnection if we haven't reached max attempts
-      if (!hasReachedMaxAttempts.current) {
+      // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
+      if (!hasReachedMaxAttempts.current && !wsDisabled) {
         handleReconnect();
       }
     }
-  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection]);
+  }, [channelId, getAuthHeaders, onMessageCallback, handleReconnect, isAuthenticated, token, enableConnection, preferNativeSocket, createSockJsConnection, wsDisabled]);
 
   // Update the connectRef when connect changes
   useEffect(() => {
