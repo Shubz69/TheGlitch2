@@ -335,9 +335,10 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       return; // Stop trying after max attempts
     }
     
-    if (enableConnection) {
+    // Only connect if all conditions are met
+    if (enableConnection && isAuthenticated && token && channelId) {
       connect();
-    } else {
+    } else if (!enableConnection) {
       console.log('WebSocket connections disabled, not connecting');
     }
 
@@ -350,11 +351,18 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }
       
       if (stompClientRef.current) {
-        console.log('Disconnecting WebSocket');
-        stompClientRef.current.deactivate();
+        // Only log if we haven't reached max attempts (to reduce spam)
+        if (!hasReachedMaxAttempts.current) {
+          console.log('Disconnecting WebSocket');
+        }
+        try {
+          stompClientRef.current.deactivate();
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
       }
     };
-  }, [connect, enableConnection]);
+  }, [connect, enableConnection, isAuthenticated, token, channelId]);
 
   return {
     isConnected,
