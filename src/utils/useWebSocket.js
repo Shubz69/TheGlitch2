@@ -163,6 +163,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
     hasLoggedSkipRef.current = false;
 
     try {
+      // Final check - if disabled, don't proceed at all
+      if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        return;
+      }
+
       // Only log if we haven't reached max attempts (to reduce spam)
       if (!hasReachedMaxAttempts.current) {
         console.log(`Connecting to WebSocket at ${WS_BASE_URL}/ws`);
@@ -347,8 +352,9 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
   // Initial connection
   useEffect(() => {
-    // Don't attempt connection if WebSocket is disabled or we've reached max attempts
+    // CRITICAL: Don't attempt connection if WebSocket is disabled or we've reached max attempts
     // Use ref for immediate check (no async state delay)
+    // This check must be FIRST and must prevent ALL execution if true
     if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
       // Ensure client is deactivated if it exists
       if (stompClientRef.current) {
@@ -358,17 +364,21 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           // Ignore errors
         }
       }
-      return; // Stop trying after max attempts
+      // CRITICAL: Return early - do NOT proceed with any connection logic
+      return;
     }
     
-    // Only connect if all conditions are met
-    if (enableConnection && isAuthenticated && token && channelId) {
-      // Double-check wsDisabledRef before calling connect (race condition protection)
+    // Only connect if all conditions are met AND WebSocket is not disabled
+    if (enableConnection && isAuthenticated && token && channelId && !wsDisabledRef.current && !hasReachedMaxAttempts.current) {
+      // Final safety check before calling connect
       if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
         connect();
       }
     } else if (!enableConnection) {
-      console.log('WebSocket connections disabled, not connecting');
+      // Only log if WebSocket is not disabled (to avoid spam)
+      if (!wsDisabledRef.current) {
+        console.log('WebSocket connections disabled, not connecting');
+      }
     }
 
     // Cleanup on unmount or when dependencies change
