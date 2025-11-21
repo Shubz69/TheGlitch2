@@ -108,11 +108,20 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           return; // Don't reconnect if disabled
         }
         
+        // Check again before proceeding
+        if (reconnectAttempts.current > maxReconnectAttempts || wsDisabledRef.current || hasReachedMaxAttempts.current) {
+          reconnectTimeoutRef.current = null;
+          return; // Don't reconnect if already exceeded max attempts
+        }
+        
         if (reconnectAttempts.current <= maxReconnectAttempts && !wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-          console.log('Attempting to reconnect...');
-          // Final check before calling connect
-          if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
-            connectRef.current();
+          // Final check before logging and calling connect
+          if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
+            console.log('Attempting to reconnect...');
+            // Final check before calling connect
+            if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
+              connectRef.current();
+            }
           }
         }
         reconnectTimeoutRef.current = null;
@@ -275,6 +284,11 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       };
 
       client.onStompError = (frame) => {
+        // CRITICAL: Check if disabled BEFORE doing anything
+        if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+          return; // Don't process error if already disabled
+        }
+        
         // Only log if we haven't reached max attempts (to reduce spam)
         if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           console.error('STOMP Error:', frame);
@@ -283,12 +297,18 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setIsConnected(false);
         
         // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
+        // Double-check before calling handleReconnect
         if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           handleReconnect();
         }
       };
 
       client.onWebSocketError = (error) => {
+        // CRITICAL: Check if disabled BEFORE doing anything
+        if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+          return; // Don't process error if already disabled
+        }
+        
         const errorMessage = error instanceof Event
           ? 'Cannot connect to server. Server may be unavailable.'
           : (error.message || 'Connection failed');
@@ -301,6 +321,7 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         setIsConnected(false);
         
         // Only attempt reconnection if we haven't reached max attempts and WebSocket is not disabled
+        // Double-check before calling handleReconnect
         if (!hasReachedMaxAttempts.current && !wsDisabledRef.current) {
           handleReconnect();
         }
