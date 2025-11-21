@@ -187,15 +187,25 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         stompClientRef.current.disconnect();
       }
 
+      // CRITICAL: Final check before creating client - prevent client creation if disabled
+      if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        return;
+      }
+
       const wsUrl = WS_BASE_URL.replace(/^http/i, 'ws') + '/ws';
       const nativeSocket = preferNativeSocket();
+
+      // CRITICAL: Check again right before creating client
+      if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+        return;
+      }
 
       const client = new Client({
         brokerURL: nativeSocket ? wsUrl : undefined,
         webSocketFactory: () => nativeSocket || createSockJsConnection(),
         connectHeaders: getAuthHeaders(),
         debug: (str) => {
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development' && !wsDisabledRef.current) {
             console.log(`STOMP: ${str}`);
           }
         },
