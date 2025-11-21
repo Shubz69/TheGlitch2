@@ -113,19 +113,33 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
       }, 2000 * reconnectAttempts.current);
     } else {
       hasReachedMaxAttempts.current = true;
-      console.error('Max reconnect attempts reached. Stopping reconnection attempts.');
-      setConnectionError('Max reconnect attempts reached. Please refresh the page to try again.');
+      console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
+      setConnectionError(null); // Clear error to indicate fallback mode
       
       // Clear any pending reconnection timeout
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
       }
+      
+      // Ensure client is deactivated
+      if (stompClientRef.current) {
+        try {
+          stompClientRef.current.deactivate();
+        } catch (e) {
+          // Ignore errors during deactivation
+        }
+      }
     }
   }, [enableConnection]);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
+    // Don't attempt connection if we've reached max attempts
+    if (hasReachedMaxAttempts.current) {
+      return;
+    }
+    
     // Skip connection if not authenticated or missing channelId or shouldConnect is false
     if (!enableConnection || !isAuthenticated || !token || !channelId) {
       if (!enableConnection && !hasLoggedDisabledRef.current) {
@@ -234,13 +248,19 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
           ? 'Cannot connect to server. Server may be unavailable.'
           : (error.message || 'Connection failed');
 
-        console.error('WebSocket Error:', error);
+        // Only log if we haven't reached max attempts to reduce spam
+        if (!hasReachedMaxAttempts.current) {
+          console.error('WebSocket Error:', error);
+        }
         setConnectionError(`WebSocket Error: ${errorMessage}`);
         setIsConnected(false);
         
         // Only attempt reconnection if we haven't reached max attempts
         if (!hasReachedMaxAttempts.current) {
           handleReconnect();
+        } else {
+          // Silently fail after max attempts
+          console.warn('WebSocket connection failed. Using REST API polling instead.');
         }
       };
 

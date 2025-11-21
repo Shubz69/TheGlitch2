@@ -858,10 +858,10 @@ const Community = () => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout (reduced from 5)
             
-            // Try HEAD first, fallback to GET if HEAD fails
+            // Try GET directly (HEAD can cause issues with some servers)
             try {
                 const response = await fetch(`${apiBaseUrl}/api/community/channels`, {
-                    method: 'HEAD',
+                    method: 'GET',
                     signal: controller.signal,
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -872,29 +872,13 @@ const Community = () => {
                 
                 clearTimeout(timeoutId);
                 return response.ok || response.status < 500;
-            } catch (headError) {
-                // If HEAD fails, try GET as fallback
+            } catch (fetchError) {
                 clearTimeout(timeoutId);
-                const getController = new AbortController();
-                const getTimeoutId = setTimeout(() => getController.abort(), 3000);
-                
-                try {
-                    const getResponse = await fetch(`${apiBaseUrl}/api/community/channels`, {
-                        method: 'GET',
-                        signal: getController.signal,
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        mode: 'cors',
-                        credentials: 'include'
-                    });
-                    
-                    clearTimeout(getTimeoutId);
-                    return getResponse.ok || getResponse.status < 500;
-                } catch (getError) {
-                    clearTimeout(getTimeoutId);
+                // Network error (timeout, abort, etc.) = likely connectivity issue
+                if (fetchError.name === 'AbortError' || fetchError.name === 'NetworkError' || !navigator.onLine) {
                     return false;
                 }
+                return false;
             }
         } catch (error) {
             // Network error (timeout, abort, etc.) = likely WiFi issue
@@ -1023,6 +1007,25 @@ const Community = () => {
             navigate(`/community/${selectedChannel.id}`);
         }
     }, [selectedChannel, fetchMessages, navigate]);
+
+    // Poll for new messages when WebSocket is not connected (fallback)
+    useEffect(() => {
+        if (!selectedChannel || !isAuthenticated) return;
+        
+        // Only poll if WebSocket is not connected
+        if (isConnected) {
+            return; // WebSocket is working, no need to poll
+        }
+
+        // Poll every 3 seconds for new messages when WebSocket is down
+        const pollInterval = setInterval(() => {
+            if (selectedChannel?.id) {
+                fetchMessages(selectedChannel.id);
+            }
+        }, 3000);
+
+        return () => clearInterval(pollInterval);
+    }, [selectedChannel, isAuthenticated, isConnected, fetchMessages]);
     
     // Add welcome message when welcome channel is selected for first time
     useEffect(() => {
