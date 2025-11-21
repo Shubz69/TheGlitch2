@@ -345,42 +345,22 @@ module.exports = async (req, res) => {
             ];
             
             // Helper function to safely insert/update channels with description
+            // Based on actual schema: id, name, category, description, access_level, is_system_channel (bit NOT NULL), etc.
             const safeInsertChannel = async (channelId, channelName, channelCategory, channelDescription, channelAccess) => {
               try {
-                // Check if is_system_channel column exists
-                const [isSystemColumns] = await db.execute(`
-                  SELECT COLUMN_NAME 
-                  FROM INFORMATION_SCHEMA.COLUMNS 
-                  WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'is_system_channel'
-                `, [process.env.MYSQL_DATABASE]);
+                const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId) ? 1 : 0; // bit(1) needs 0 or 1
                 
-                const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId);
-                
-                if (isSystemColumns.length > 0) {
-                  // Column exists, include it in INSERT
-                  await db.execute(
-                    'INSERT INTO channels (id, name, category, description, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?, is_system_channel=?',
-                    [channelId, channelName, channelCategory, channelDescription, channelAccess, isSystemChannel, channelName, channelCategory, channelDescription, channelAccess, isSystemChannel]
-                  );
-                } else {
-                  // Column doesn't exist, insert without it
-                  await db.execute(
-                    'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                    [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
-                  );
-                }
+                // is_system_channel exists and is NOT NULL, so we must provide it
+                await db.execute(
+                  'INSERT INTO channels (id, name, category, description, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?, is_system_channel=?',
+                  [channelId, channelName, channelCategory, channelDescription || null, channelAccess || 'open', isSystemChannel, channelName, channelCategory, channelDescription || null, channelAccess || 'open', isSystemChannel]
+                );
               } catch (insertError) {
                 // If description column doesn't exist, insert without it
                 if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
                   await db.execute(
-                    'INSERT INTO channels (id, name, category, access_level) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, access_level=?',
-                    [channelId, channelName, channelCategory, channelAccess, channelName, channelCategory, channelAccess]
-                  );
-                } else if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('is_system_channel')) {
-                  // If is_system_channel doesn't exist, try without it
-                  await db.execute(
-                    'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, description=?, access_level=?',
-                    [channelId, channelName, channelCategory, channelDescription, channelAccess, channelName, channelCategory, channelDescription, channelAccess]
+                    'INSERT INTO channels (id, name, category, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, category=?, access_level=?, is_system_channel=?',
+                    [channelId, channelName, channelCategory, channelAccess || 'open', isSystemChannel, channelName, channelCategory, channelAccess || 'open', isSystemChannel]
                   );
                 } else {
                   throw insertError;
@@ -560,42 +540,21 @@ module.exports = async (req, res) => {
           });
         }
 
-        // Try to insert with description and is_system_channel, fallback if columns don't exist
+        // Insert channel - is_system_channel is bit(1) NOT NULL, so we must provide it
         try {
-          // Check if is_system_channel column exists
-          const [isSystemColumns] = await db.execute(`
-            SELECT COLUMN_NAME 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'channels' AND COLUMN_NAME = 'is_system_channel'
-          `, [process.env.MYSQL_DATABASE]);
+          const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId) ? 1 : 0; // bit(1) needs 0 or 1
           
-          const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId);
-          
-          if (isSystemColumns.length > 0) {
-            // Column exists, include it in INSERT
-            await db.execute(
-              'INSERT INTO channels (id, name, category, description, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?, ?)',
-              [channelId, channelName, channelCategory, channelDescription, channelAccess, isSystemChannel]
-            );
-          } else {
-            // Column doesn't exist, insert without it
-            await db.execute(
-              'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
-              [channelId, channelName, channelCategory, channelDescription, channelAccess]
-            );
-          }
+          await db.execute(
+            'INSERT INTO channels (id, name, category, description, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?, ?)',
+            [channelId, channelName, channelCategory, channelDescription || null, channelAccess || 'open', isSystemChannel]
+          );
         } catch (insertError) {
           // If description column doesn't exist, insert without it
           if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('description')) {
+            const isSystemChannel = PROTECTED_CHANNEL_IDS.has(channelId) ? 1 : 0;
             await db.execute(
-              'INSERT INTO channels (id, name, category, access_level) VALUES (?, ?, ?, ?)',
-              [channelId, channelName, channelCategory, channelAccess]
-            );
-          } else if (insertError.code === 'ER_BAD_FIELD_ERROR' && insertError.message.includes('is_system_channel')) {
-            // If is_system_channel doesn't exist, try without it
-            await db.execute(
-              'INSERT INTO channels (id, name, category, description, access_level) VALUES (?, ?, ?, ?, ?)',
-              [channelId, channelName, channelCategory, channelDescription, channelAccess]
+              'INSERT INTO channels (id, name, category, access_level, is_system_channel) VALUES (?, ?, ?, ?, ?)',
+              [channelId, channelName, channelCategory, channelAccess || 'open', isSystemChannel]
             );
           } else {
             throw insertError;

@@ -52,66 +52,59 @@ module.exports = async (req, res) => {
       }
 
       try {
-        await db.execute(`
-          CREATE TABLE IF NOT EXISTS messages (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            channel_id VARCHAR(255) NOT NULL,
-            user_id INT,
-            username VARCHAR(255),
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_channel (channel_id),
-            INDEX idx_created (created_at)
-          )
-        `);
-
-        // Ensure created_at column exists (for existing tables)
-        try {
-          const [columns] = await db.execute(`
-            SELECT COLUMN_NAME 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'messages' AND COLUMN_NAME = 'created_at'
-          `, [process.env.MYSQL_DATABASE]);
-          
-          if (columns.length === 0) {
-            await db.execute('ALTER TABLE messages ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
-            console.log('Added created_at column to messages table');
-          }
-        } catch (alterError) {
-          console.log('Note: created_at column check:', alterError.message);
-        }
-
-        // Try to fetch with created_at, fallback to id if column doesn't exist
+        // Use existing table structure - don't try to create/modify
+        // The actual table has: id, content, encrypted, timestamp, channel_id, sender_id
+        
+        // Try to fetch messages - use timestamp column (actual column name)
+        // channel_id is bigint in actual table, but we receive it as string, so we need to handle both
         let [rows] = [];
         try {
+          // Try with channel_id as string first (for string IDs like 'welcome')
           [rows] = await db.execute(
-            'SELECT * FROM messages WHERE channel_id = ? ORDER BY created_at ASC',
+            'SELECT * FROM messages WHERE channel_id = ? ORDER BY timestamp ASC',
             [channelId]
           );
-        } catch (orderError) {
-          // If created_at doesn't exist, order by id instead
-          if (orderError.code === 'ER_BAD_FIELD_ERROR' && orderError.message.includes('created_at')) {
+        } catch (queryError) {
+          // If that fails, try converting channelId to number (for numeric IDs)
+          const numericChannelId = parseInt(channelId);
+          if (!isNaN(numericChannelId)) {
             [rows] = await db.execute(
-              'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
-              [channelId]
+              'SELECT * FROM messages WHERE channel_id = ? ORDER BY timestamp ASC',
+              [numericChannelId]
             );
           } else {
-            throw orderError;
+            // If channelId is not numeric and query failed, try ordering by id
+            try {
+              [rows] = await db.execute(
+                'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
+                [channelId]
+              );
+            } catch (fallbackError) {
+              if (!isNaN(numericChannelId)) {
+                [rows] = await db.execute(
+                  'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
+                  [numericChannelId]
+                );
+              } else {
+                throw queryError;
+              }
+            }
           }
         }
         await db.end();
 
+        // Map to frontend format - handle actual column names
         const messages = rows.map(row => ({
           id: row.id,
           channelId: row.channel_id,
-          userId: row.user_id,
-          username: row.username,
+          userId: row.sender_id, // Actual column is sender_id, not user_id
+          username: row.username || 'Anonymous', // username might not exist, use fallback
           content: row.content,
-          createdAt: row.created_at,
-          timestamp: row.created_at, // Add timestamp for frontend compatibility
+          createdAt: row.timestamp, // Actual column is timestamp, not created_at
+          timestamp: row.timestamp,
           sender: {
-            id: row.user_id,
-            username: row.username,
+            id: row.sender_id,
+            username: row.username || 'Anonymous',
             avatar: '/avatars/avatar_ai.png',
             role: 'USER'
           }
@@ -138,36 +131,33 @@ module.exports = async (req, res) => {
       }
 
       try {
-        await db.execute(`
-          CREATE TABLE IF NOT EXISTS messages (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            channel_id VARCHAR(255) NOT NULL,
-            user_id INT,
-            username VARCHAR(255),
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          )
-        `);
-
+        // Use actual table structure: id, content, encrypted, timestamp, channel_id, sender_id
+        // Handle channel_id as either string or number
+        const channelIdValue = isNaN(parseInt(channelId)) ? channelId : parseInt(channelId);
+        
+        // Insert message - use actual column names
+        // Note: username column doesn't exist, so we'll need to get it from users table or store it differently
+        // For now, we'll insert without username and fetch it separately if needed
         const [result] = await db.execute(
-          'INSERT INTO messages (channel_id, user_id, username, content) VALUES (?, ?, ?, ?)',
-          [channelId, userId || null, username || 'Anonymous', content.trim()]
+          'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
+          [channelIdValue, userId || null, content.trim()]
         );
 
         const [newMessage] = await db.execute('SELECT * FROM messages WHERE id = ?', [result.insertId]);
         await db.end();
 
+        // Map to frontend format
         const message = {
           id: newMessage[0].id,
           channelId: newMessage[0].channel_id,
-          userId: newMessage[0].user_id,
-          username: newMessage[0].username,
+          userId: newMessage[0].sender_id, // Actual column is sender_id
+          username: username || 'Anonymous', // Use provided username since it's not in DB
           content: newMessage[0].content,
-          createdAt: newMessage[0].created_at,
-          timestamp: newMessage[0].created_at, // Add timestamp for frontend compatibility
+          createdAt: newMessage[0].timestamp, // Actual column is timestamp
+          timestamp: newMessage[0].timestamp,
           sender: {
-            id: newMessage[0].user_id,
-            username: newMessage[0].username,
+            id: newMessage[0].sender_id,
+            username: username || 'Anonymous',
             avatar: '/avatars/avatar_ai.png',
             role: 'USER'
           }
