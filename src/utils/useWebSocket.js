@@ -102,34 +102,43 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
 
       // Instead of calling connect directly, schedule a reconnection
       reconnectTimeoutRef.current = setTimeout(() => {
-        // Check again before attempting to reconnect - also check wsDisabled ref
-        if (!hasReachedMaxAttempts.current && !wsDisabledRef.current && reconnectAttempts.current <= maxReconnectAttempts) {
+        // CRITICAL: Check multiple times before attempting to reconnect
+        if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
+          reconnectTimeoutRef.current = null;
+          return; // Don't reconnect if disabled
+        }
+        
+        if (reconnectAttempts.current <= maxReconnectAttempts && !wsDisabledRef.current && !hasReachedMaxAttempts.current) {
           console.log('Attempting to reconnect...');
-          // We'll use a ref to the latest connect function
-          if (typeof connectRef.current === 'function') {
+          // Final check before calling connect
+          if (!wsDisabledRef.current && !hasReachedMaxAttempts.current && typeof connectRef.current === 'function') {
             connectRef.current();
           }
         }
         reconnectTimeoutRef.current = null;
       }, 2000 * reconnectAttempts.current);
     } else {
+      // CRITICAL: Set both flags immediately to prevent any further attempts
       hasReachedMaxAttempts.current = true;
       wsDisabledRef.current = true; // Disable WebSocket via ref for immediate effect
+      
       console.warn('Max reconnect attempts reached. WebSocket unavailable. Using REST API polling instead.');
       setConnectionError(null); // Clear error to indicate fallback mode
       
-      // Clear any pending reconnection timeout
+      // Clear any pending reconnection timeout IMMEDIATELY
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
       }
       
-      // Ensure client is deactivated
+      // Ensure client is deactivated IMMEDIATELY
       if (stompClientRef.current) {
         try {
           stompClientRef.current.deactivate();
+          stompClientRef.current = null; // Clear the reference
         } catch (e) {
           // Ignore errors during deactivation
+          stompClientRef.current = null; // Clear anyway
         }
       }
     }
@@ -370,20 +379,27 @@ export const useWebSocket = (channelId, onMessageCallback, shouldConnect = true)
         }
       }
       // CRITICAL: Return early - do NOT proceed with any connection logic
+      // Don't even check other conditions - just return
+      return;
+    }
+    
+    // Only proceed if WebSocket is NOT disabled (double-check)
+    if (wsDisabledRef.current || hasReachedMaxAttempts.current) {
       return;
     }
     
     // Only connect if all conditions are met AND WebSocket is not disabled
-    if (enableConnection && isAuthenticated && token && channelId && !wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-      // Final safety check before calling connect
+    if (enableConnection && isAuthenticated && token && channelId) {
+      // Triple-check before calling connect (race condition protection)
       if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
-        connect();
+        // Final check right before calling
+        if (!wsDisabledRef.current && !hasReachedMaxAttempts.current) {
+          connect();
+        }
       }
-    } else if (!enableConnection) {
+    } else if (!enableConnection && !wsDisabledRef.current) {
       // Only log if WebSocket is not disabled (to avoid spam)
-      if (!wsDisabledRef.current) {
-        console.log('WebSocket connections disabled, not connecting');
-      }
+      console.log('WebSocket connections disabled, not connecting');
     }
 
     // Cleanup on unmount or when dependencies change
