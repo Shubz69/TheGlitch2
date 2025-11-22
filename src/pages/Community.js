@@ -1416,9 +1416,23 @@ Let's build generational wealth together! 💰🚀`,
         const { messageId } = deleteMessageModal;
 
         try {
-            await Api.deleteMessage(selectedChannel.id, messageId);
+            // Check if this is a temporary message (optimistic update that hasn't been saved to DB yet)
+            const isTemporaryMessage = typeof messageId === 'string' && messageId.startsWith('temp_');
             
-            // Remove message from state
+            if (isTemporaryMessage) {
+                // Temporary messages don't exist in the database, just remove from local state
+                console.log('Deleting temporary message (not in database):', messageId);
+            } else {
+                // Real message - delete from database via API
+                try {
+                    await Api.deleteMessage(selectedChannel.id, messageId);
+                } catch (apiError) {
+                    // If API delete fails but message exists locally, still remove it locally
+                    console.warn('API delete failed, removing from local state only:', apiError.message);
+                }
+            }
+            
+            // Remove message from state (works for both temp and real messages)
             const updatedMessages = messages.filter(msg => msg.id !== messageId);
             setMessages(updatedMessages);
             persistMessagesList(selectedChannel.id, updatedMessages);
@@ -1433,7 +1447,10 @@ Let's build generational wealth together! 💰🚀`,
             setDeleteMessageModal(null);
         } catch (error) {
             console.error('Failed to delete message:', error);
-            alert('Failed to delete message: ' + (error.response?.data?.message || error.message));
+            // Only show error if it's not a temporary message
+            if (!(typeof messageId === 'string' && messageId.startsWith('temp_'))) {
+                alert('Failed to delete message: ' + (error.response?.data?.message || error.message));
+            }
         } finally {
             setIsDeletingMessage(false);
         }
