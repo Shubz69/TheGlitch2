@@ -35,11 +35,15 @@ const Settings = () => {
       return;
     }
 
-    if (superAdmin) {
-      loadUsers();
-      loadAdmins();
-    }
-    setLoading(false);
+    const initialize = async () => {
+      if (superAdmin) {
+        await loadUsers();
+        await loadAdmins();
+      }
+      setLoading(false);
+    };
+    
+    initialize();
   }, [superAdmin, admin, navigate]);
 
   const loadUsers = async () => {
@@ -55,8 +59,10 @@ const Settings = () => {
 
   const loadAdmins = async () => {
     try {
-      const allUsers = users.length > 0 ? users : await loadUsers();
-      const adminUsers = allUsers.filter(u => 
+      if (users.length === 0) {
+        await loadUsers();
+      }
+      const adminUsers = users.filter(u => 
         u.role === 'admin' || u.role === 'super_admin'
       );
       setAdmins(adminUsers);
@@ -97,7 +103,7 @@ const Settings = () => {
 
     try {
       // Update user role and capabilities via API
-      await Api.updateUserRole?.(selectedUser.id, {
+      await Api.updateUserRole(selectedUser.id, {
         role: selectedRole,
         capabilities: selectedCapabilities
       });
@@ -134,7 +140,7 @@ const Settings = () => {
     }
 
     try {
-      await Api.updateUserRole?.(adminUser.id, {
+      await Api.updateUserRole(adminUser.id, {
         role: 'free',
         capabilities: []
       });
