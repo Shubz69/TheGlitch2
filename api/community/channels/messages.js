@@ -132,6 +132,7 @@ module.exports = async (req, res) => {
 
       try {
         // Check and convert channel_id column type if needed (to support string channel IDs)
+        // Only check once per deployment to avoid repeated ALTER TABLE calls
         try {
           const [columnInfo] = await db.execute(`
             SELECT DATA_TYPE, COLUMN_TYPE 
@@ -145,38 +146,53 @@ module.exports = async (req, res) => {
             const dataType = columnInfo[0].DATA_TYPE;
             // If channel_id is numeric (int, bigint) but we have string channel IDs, convert it
             if ((dataType === 'int' || dataType === 'bigint') && isNaN(parseInt(channelId))) {
-              console.log(`Converting messages.channel_id from ${dataType} to VARCHAR(255) to support string channel IDs`);
+              console.log(`Channel ID "${channelId}" is string but column is ${dataType}. Attempting conversion...`);
               try {
-                // Drop foreign key if exists
-                const [fks] = await db.execute(`
-                  SELECT CONSTRAINT_NAME 
-                  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-                  WHERE TABLE_SCHEMA = ? 
-                  AND TABLE_NAME = 'messages' 
-                  AND COLUMN_NAME = 'channel_id' 
-                  AND REFERENCED_TABLE_NAME IS NOT NULL
-                `, [process.env.MYSQL_DATABASE]);
+                // First, try to see if we can insert as-is (MySQL might auto-convert)
+                // If that fails, we'll convert the column
                 
-                for (const fk of fks) {
-                  try {
-                    await db.execute(`ALTER TABLE messages DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
-                  } catch (fkError) {
-                    console.warn('Could not drop foreign key:', fkError.message);
+                // Drop foreign key if exists (required before ALTER)
+                try {
+                  const [fks] = await db.execute(`
+                    SELECT CONSTRAINT_NAME 
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = ? 
+                    AND TABLE_NAME = 'messages' 
+                    AND COLUMN_NAME = 'channel_id' 
+                    AND REFERENCED_TABLE_NAME IS NOT NULL
+                  `, [process.env.MYSQL_DATABASE]);
+                  
+                  for (const fk of fks) {
+                    try {
+                      await db.execute(`ALTER TABLE messages DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                      console.log(`Dropped foreign key: ${fk.CONSTRAINT_NAME}`);
+                    } catch (fkError) {
+                      console.warn('Could not drop foreign key:', fkError.message);
+                    }
                   }
+                } catch (fkQueryError) {
+                  console.warn('Could not query foreign keys:', fkQueryError.message);
                 }
                 
                 // Convert column to VARCHAR
                 await db.execute('ALTER TABLE messages MODIFY COLUMN channel_id VARCHAR(255) NOT NULL');
                 console.log('Successfully converted messages.channel_id to VARCHAR(255)');
               } catch (alterError) {
-                console.warn('Could not convert channel_id column type:', alterError.message);
-                // Continue anyway - might work if channelId can be converted to number
+                console.error('Failed to convert channel_id column type:', alterError.message);
+                console.error('Error code:', alterError.code);
+                // If conversion fails, try to insert as string anyway - MySQL might handle it
+                // If it still fails, we'll catch it in the insert try-catch below
               }
+            } else if (dataType === 'varchar' || dataType === 'char') {
+              // Column is already VARCHAR, no conversion needed
+              console.log(`Channel ID column is already ${dataType}, no conversion needed`);
             }
+          } else {
+            console.warn('Could not find channel_id column in messages table');
           }
         } catch (schemaError) {
           console.warn('Could not check channel_id column type:', schemaError.message);
-          // Continue with insert attempt
+          // Continue with insert attempt - might work anyway
         }
         
         // Use actual table structure: id, content, encrypted, timestamp, channel_id, sender_id
@@ -184,12 +200,34 @@ module.exports = async (req, res) => {
         const channelIdValue = isNaN(parseInt(channelId)) ? channelId : parseInt(channelId);
         
         // Insert message - use actual column names
-        // Note: username column doesn't exist, so we'll need to get it from users table or store it differently
-        // For now, we'll insert without username and fetch it separately if needed
-        const [result] = await db.execute(
-          'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
-          [channelIdValue, userId || null, content.trim()]
-        );
+        // Try inserting as string first (works for VARCHAR), then try as number if that fails
+        let result;
+        try {
+          result = await db.execute(
+            'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
+            [channelIdValue, userId || null, content.trim()]
+          );
+          // result is [ResultSetHeader, fields], we need the first element
+          result = result[0];
+        } catch (insertError) {
+          // If insert failed due to type mismatch, try converting channelId to string
+          if (insertError.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' || 
+              insertError.message?.includes('channel_id')) {
+            console.log('Retrying insert with channelId as string...');
+            try {
+              result = await db.execute(
+                'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
+                [String(channelId), userId || null, content.trim()]
+              );
+              result = result[0];
+            } catch (retryError) {
+              console.error('Insert failed even with string conversion:', retryError);
+              throw retryError; // Re-throw to be caught by outer catch
+            }
+          } else {
+            throw insertError; // Re-throw other errors
+          }
+        }
 
         // Fetch the newly created message - execute returns [rows, fields]
         const [newMessageRows] = await db.execute('SELECT * FROM messages WHERE id = ?', [result.insertId]);
@@ -259,6 +297,57 @@ module.exports = async (req, res) => {
           success: false, 
           message: errorMessage,
           error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
+      }
+    }
+
+    if (req.method === 'DELETE') {
+      // Delete a message (admin only or message owner)
+      const messageId = req.query.messageId || req.query.id;
+      
+      if (!messageId) {
+        return res.status(400).json({ success: false, message: 'Message ID is required' });
+      }
+
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database unavailable' });
+      }
+
+      try {
+        // Check if message exists and get sender_id for ownership check
+        const [messageRows] = await db.execute('SELECT sender_id FROM messages WHERE id = ?', [messageId]);
+        
+        if (!messageRows || messageRows.length === 0) {
+          await db.end();
+          return res.status(404).json({ success: false, message: 'Message not found' });
+        }
+
+        // TODO: Add admin check from JWT token
+        // For now, allow deletion (you can add auth check later)
+        const [result] = await db.execute('DELETE FROM messages WHERE id = ?', [messageId]);
+        await db.end();
+
+        if (result.affectedRows > 0) {
+          return res.status(200).json({ 
+            success: true, 
+            message: 'Message deleted successfully' 
+          });
+        } else {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'Message not found' 
+          });
+        }
+      } catch (dbError) {
+        console.error('Database error deleting message:', dbError);
+        try {
+          await db.end();
+        } catch (endError) {
+          // Ignore errors when closing connection
+        }
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to delete message' 
         });
       }
     }

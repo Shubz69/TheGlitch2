@@ -1327,6 +1327,38 @@ Let's build generational wealth together! 💰🚀`,
         setHasReadWelcome(true);
     };
 
+    const handleDeleteMessage = async (messageId) => {
+        if (!isAdmin) {
+            console.warn('Only admins can delete messages');
+            return;
+        }
+
+        if (!selectedChannel) {
+            return;
+        }
+
+        const confirmed = window.confirm('Are you sure you want to delete this message?');
+        if (!confirmed) return;
+
+        try {
+            await Api.deleteMessage(selectedChannel.id, messageId);
+            
+            // Remove message from state
+            const updatedMessages = messages.filter(msg => msg.id !== messageId);
+            setMessages(updatedMessages);
+            persistMessagesList(selectedChannel.id, updatedMessages);
+            
+            // Also remove from localStorage
+            const storageKey = `community_messages_${selectedChannel.id}`;
+            const storedMessages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const filteredStored = storedMessages.filter(msg => msg.id !== messageId);
+            localStorage.setItem(storageKey, JSON.stringify(filteredStored));
+        } catch (error) {
+            console.error('Failed to delete message:', error);
+            alert('Failed to delete message: ' + (error.response?.data?.message || error.message));
+        }
+    };
+
     // Group channels by category
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
@@ -1800,13 +1832,45 @@ Let's build generational wealth together! 💰🚀`,
                                             {(message.sender?.username || 'U').substring(0, 2).toUpperCase()}
                                         </div>
                                         <div className="message-content">
-                                            <div className="message-header-info">
-                                                <span className="message-author">
-                                                    {message.sender?.username || 'Unknown'}
-                                                </span>
-                                                <span className="message-timestamp">
-                                                    {formatTimestamp(message.timestamp)}
-                                                </span>
+                                            <div className="message-header-info" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span className="message-author">
+                                                        {message.sender?.username || 'Unknown'}
+                                                    </span>
+                                                    <span className="message-timestamp">
+                                                        {formatTimestamp(message.timestamp)}
+                                                    </span>
+                                                </div>
+                                                {isAdmin && (
+                                                    <button
+                                                        onClick={() => handleDeleteMessage(message.id)}
+                                                        style={{
+                                                            background: 'transparent',
+                                                            border: 'none',
+                                                            color: '#f87171',
+                                                            cursor: 'pointer',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            opacity: 0.7,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px',
+                                                            fontSize: '0.85rem',
+                                                            transition: 'all 0.2s ease'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.opacity = 1;
+                                                            e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.opacity = 0.7;
+                                                            e.currentTarget.style.background = 'transparent';
+                                                        }}
+                                                        title="Delete message"
+                                                    >
+                                                        <FaTrash size={12} />
+                                                    </button>
+                                                )}
                                             </div>
                                             <div className="message-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                                                 {message.isWelcomeMessage ? (

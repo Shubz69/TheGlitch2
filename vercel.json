@@ -21,6 +21,10 @@
       "destination": "/api/community/channels/messages.js?channelId=:channelId"
     },
     {
+      "source": "/api/community/channels/:channelId/messages/:messageId",
+      "destination": "/api/community/channels/messages.js?channelId=:channelId&messageId=:messageId"
+    },
+    {
       "source": "/api/stripe/create-subscription",
       "destination": "/api/stripe/create-subscription.js"
     },
