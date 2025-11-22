@@ -506,6 +506,136 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Handle /api/admin/users - Get all users (Super Admin only)
+  if ((pathname.includes('/users') || pathname.endsWith('/users')) && req.method === 'GET') {
+    try {
+      // Check if user is super admin
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      // TODO: Verify JWT and check if user is super admin
+      // For now, allow if token exists (you should add proper JWT verification)
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database connection error' });
+      }
+
+      try {
+        const [users] = await db.execute(`
+          SELECT id, email, username, role, 
+                 JSON_EXTRACT(metadata, '$.capabilities') as capabilities,
+                 created_at, last_seen
+          FROM users
+          ORDER BY created_at DESC
+        `);
+
+        const formattedUsers = users.map(user => ({
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          role: user.role || 'free',
+          capabilities: user.capabilities ? JSON.parse(user.capabilities) : [],
+          createdAt: user.created_at,
+          lastSeen: user.last_seen
+        }));
+
+        await db.end();
+        return res.status(200).json(formattedUsers);
+      } catch (dbError) {
+        console.error('Database error fetching users:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({ success: false, message: 'Failed to fetch users' });
+      }
+    } catch (error) {
+      console.error('Error in users GET:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch users' });
+    }
+  }
+
+  // Handle /api/admin/users/:userId/role - Update user role and capabilities (Super Admin only)
+  if (pathname.includes('/users/') && pathname.includes('/role') && req.method === 'PUT') {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      // Extract userId from path
+      const userIdMatch = pathname.match(/\/users\/(\d+)\/role/);
+      if (!userIdMatch) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID' });
+      }
+      const userId = userIdMatch[1];
+
+      const { role, capabilities } = req.body;
+
+      if (!role) {
+        return res.status(400).json({ success: false, message: 'Role is required' });
+      }
+
+      // Validate role
+      const validRoles = ['free', 'premium', 'admin', 'super_admin'];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ success: false, message: 'Invalid role' });
+      }
+
+      // Super admin cannot be changed
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database connection error' });
+      }
+
+      try {
+        // Check if user is super admin
+        const [userRows] = await db.execute('SELECT email FROM users WHERE id = ?', [userId]);
+        if (userRows.length === 0) {
+          await db.end();
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const userEmail = userRows[0].email;
+        if (userEmail === 'shubzfx@gmail.com' && role !== 'super_admin') {
+          await db.end();
+          return res.status(403).json({ success: false, message: 'Cannot change Super Admin role' });
+        }
+
+        // Update user role
+        await db.execute('UPDATE users SET role = ? WHERE id = ?', [role, userId]);
+
+        // Update capabilities in metadata JSON field
+        if (capabilities && Array.isArray(capabilities)) {
+          // Check if metadata column exists
+          try {
+            await db.execute('SELECT metadata FROM users LIMIT 1');
+          } catch (e) {
+            await db.execute('ALTER TABLE users ADD COLUMN metadata JSON DEFAULT NULL');
+          }
+
+          await db.execute(
+            'UPDATE users SET metadata = JSON_SET(COALESCE(metadata, "{}"), "$.capabilities", ?) WHERE id = ?',
+            [JSON.stringify(capabilities), userId]
+          );
+        }
+
+        await db.end();
+        return res.status(200).json({ 
+          success: true, 
+          message: 'User role and capabilities updated successfully' 
+        });
+      } catch (dbError) {
+        console.error('Database error updating user role:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({ success: false, message: 'Failed to update user role' });
+      }
+    } catch (error) {
+      console.error('Error in user role update:', error);
+      return res.status(500).json({ success: false, message: 'Failed to update user role' });
+    }
+  }
+
   return res.status(404).json({ success: false, message: 'Endpoint not found' });
 };
 

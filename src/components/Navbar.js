@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Navbar.css";
 import "../styles/UserDropdown.css";
-import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaBook, FaTrophy, FaCog, FaHeadset, FaBars, FaTimes, FaEnvelope, FaSlidersH } from 'react-icons/fa';
+import { isSuperAdmin, isAdmin } from '../utils/roles';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -38,10 +39,13 @@ const Navbar = () => {
                 {!user && <li><Link to="/why-glitch">Why Glitch</Link></li>}
                 <li><Link to="/contact">Contact Us</Link></li>
                 {user && <li><Link to="/leaderboard">Leaderboard</Link></li>}
-                {user?.role?.toUpperCase() === "ADMIN" && (
+                {(isAdmin(user) || isSuperAdmin(user)) && (
                     <>
                         <li><Link to="/admin">Admin Panel</Link></li>
                         <li><Link to="/admin/messages"><FaHeadset className="dropdown-icon" /> Contact Submissions</Link></li>
+                        {isSuperAdmin(user) && (
+                            <li><Link to="/settings">Settings</Link></li>
+                        )}
                     </>
                 )}
             </ul>
@@ -73,10 +77,15 @@ const Navbar = () => {
                                 <Link to="/leaderboard" className="dropdown-item">
                                     <FaTrophy className="dropdown-icon" /> Leaderboard
                                 </Link>
-                                {user?.role?.toUpperCase() === "ADMIN" && (
-                                    <Link to="/admin" className="dropdown-item">
-                                        <FaCog className="dropdown-icon" /> Admin Panel
-                                    </Link>
+                                {(isAdmin(user) || isSuperAdmin(user)) && (
+                                    <>
+                                        <Link to="/admin" className="dropdown-item">
+                                            <FaCog className="dropdown-icon" /> Admin Panel
+                                        </Link>
+                                        <Link to="/settings" className="dropdown-item">
+                                            <FaSlidersH className="dropdown-icon" /> Settings
+                                        </Link>
+                                    </>
                                 )}
                                 <button onClick={logout} className="dropdown-item">
                                     <FaSignOutAlt className="dropdown-icon" /> Logout

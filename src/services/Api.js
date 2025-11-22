@@ -707,4 +707,43 @@ const Api = {
     }
 };
 
+    // User Management (Super Admin only)
+    getUsers: async () => {
+        console.log('Fetching all users...');
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${API_BASE_URL}/api/admin/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    },
+
+    updateUserRole: async (userId, roleData) => {
+        console.log(`Updating user ${userId} role and capabilities...`);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.put(
+                `${API_BASE_URL}/api/admin/users/${userId}/role`,
+                roleData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response;
+        } catch (error) {
+            console.error('Error updating user role:', error);
+            throw error;
+        }
+    }
+};
+
 export default Api;

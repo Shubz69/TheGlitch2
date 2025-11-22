@@ -78,7 +78,8 @@ const Community = () => {
     const [userLevel, setUserLevel] = useState(1);
     const [storedUser, setStoredUser] = useState(null);
     const [userId, setUserId] = useState(null);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAdminUser, setIsAdminUser] = useState(false);
+    const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
     const { id: channelIdParam } = useParams();
@@ -456,7 +457,8 @@ const Community = () => {
 
     // Get user's role
     const getCurrentUserRole = () => {
-        if (isAdmin) return 'admin';
+        if (isSuperAdminUser) return 'super_admin';
+        if (isAdminUser) return 'admin';
         if (storedUser?.role) return storedUser.role.toLowerCase();
         return 'free';
     };
@@ -471,8 +473,8 @@ const Community = () => {
         const userRole = getCurrentUserRole();
         const userCourses = getUserCourses();
         
-        // Admins can access everything
-        if (userRole === 'admin' || isAdmin) {
+        // Admins and Super Admins can access everything
+        if (userRole === 'admin' || userRole === 'super_admin' || isAdminUser || isSuperAdminUser) {
             return true;
         }
         
@@ -509,16 +511,16 @@ const Community = () => {
         const isAnnouncementsChannel = channelName === 'announcements';
                // Admin-only channels: only admins can post
         if (isAdminChannel) {
-            return userRole === 'admin' || isAdmin;
+            return userRole === 'admin' || userRole === 'super_admin' || isAdminUser || isSuperAdminUser;
         }
         
         // Welcome and announcements channels: read-only for everyone except admins
-        if ((isWelcomeChannel || isAnnouncementsChannel) && !isAdmin) {
+        if ((isWelcomeChannel || isAnnouncementsChannel) && !isAdminUser && !isSuperAdminUser) {
             return false; // Read-only for non-admins, admins can post
         }
         
         // All other channels: everyone with subscription can post
-        if (hasActiveSubscription || isAdmin) {
+        if (hasActiveSubscription || isAdminUser || isSuperAdminUser) {
             return true;
         }
         
@@ -816,10 +818,10 @@ const Community = () => {
         if (!isAuthenticated) return;
         
         const storedUserData = JSON.parse(localStorage.getItem('user') || '{}');
-        const isAdmin = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin';
+        const isAdminCheck = storedUserData.role === 'ADMIN' || storedUserData.role === 'admin' || storedUserData.role === 'super_admin';
         
         // Admins bypass subscription requirement
-        if (isAdmin) {
+        if (isAdminCheck) {
             return;
         }
         
@@ -876,11 +878,16 @@ const Community = () => {
             setStoredUser(enhancedUser);
             setUserId(storedUserData.id);
             
-            // Check if user is admin
-            const adminEmail = 'shubzfx@gmail.com';
-            const userIsAdmin = storedUserData.email?.toLowerCase() === adminEmail.toLowerCase() || 
-                               storedUserData.role?.toLowerCase() === 'admin';
-            setIsAdmin(userIsAdmin);
+            // Check if user is admin or super admin
+            const userEmail = storedUserData.email?.toLowerCase() || '';
+            const userRole = storedUserData.role?.toLowerCase() || 'free';
+            
+            const userIsSuperAdmin = userEmail === SUPER_ADMIN_EMAIL.toLowerCase() || 
+                                    userRole === 'super_admin';
+            const userIsAdmin = userRole === 'admin' || userIsSuperAdmin;
+            
+            setIsSuperAdminUser(userIsSuperAdmin);
+            setIsAdminUser(userIsAdmin);
             
             // Set user level
             setUserLevel(calculatedLevel);
@@ -1383,7 +1390,7 @@ Let's build generational wealth together! 💰🚀`,
     };
 
     const handleDeleteMessage = (messageId) => {
-        if (!isAdmin) {
+        if (!isAdminUser) {
             console.warn('Only admins can delete messages');
             return;
         }
@@ -1467,7 +1474,7 @@ Let's build generational wealth together! 💰🚀`,
         const isAdminChannel = channel.accessLevel === 'admin-only' || channel.locked || channelName === 'admin';
         
         // Admin channel: Only admins can see it
-        if (isAdminChannel && !isAdmin) {
+        if (isAdminChannel && !isAdminUser && !isSuperAdminUser) {
             return acc; // Skip admin channel for non-admins
         }
         
@@ -1476,7 +1483,7 @@ Let's build generational wealth together! 💰🚀`,
         // No filtering needed for subscribed users - they see everything except admin channel
         
         // Only filter admin channel for non-admins
-        if (isAdminChannel && !isAdmin) {
+        if (isAdminChannel && !isAdminUser && !isSuperAdminUser) {
             return acc;
         }
         
@@ -1490,7 +1497,7 @@ Let's build generational wealth together! 💰🚀`,
     // Check subscription status for banner and channel visibility
     const hasActiveSubscription = checkSubscription();
     const storedUserDataForBanner = JSON.parse(localStorage.getItem('user') || '{}');
-    const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin';
+    const isAdminForBanner = storedUserDataForBanner.role === 'ADMIN' || storedUserDataForBanner.role === 'admin' || storedUserDataForBanner.role === 'super_admin';
     const showSubscribeBanner = !isAdminForBanner && !hasActiveSubscription;
     const showPaymentFailedBanner = !isAdminForBanner && paymentFailed;
 
@@ -1736,7 +1743,7 @@ Let's build generational wealth together! 💰🚀`,
             }}>
                 <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                     <h2 style={{ margin: 0 }}>Channels</h2>
-                    {isAdmin && (
+                    {(isAdminUser || isSuperAdminUser) && (
                         <button
                             type="button"
                             onClick={() => {
@@ -1809,7 +1816,7 @@ Let's build generational wealth together! 💰🚀`,
                                                         {channel.displayName || channel.name}
                                                     </span>
                                                 </span>
-                                                {isAdmin && !protectedChannelIds.includes(channel.id) && (
+                                                {(isAdminUser || isSuperAdminUser) && !protectedChannelIds.includes(channel.id) && (
                                                     <button
                                                         type="button"
                                                         aria-label={`Delete channel ${channel.displayName || channel.name}`}
@@ -1942,7 +1949,7 @@ Let's build generational wealth together! 💰🚀`,
                                                         {formatTimestamp(message.timestamp)}
                                                     </span>
                                                 </div>
-                                                {isAdmin && (
+                                                {(isAdminUser || isSuperAdminUser) && (
                                                     <button
                                                         onClick={() => handleDeleteMessage(message.id)}
                                                         style={{
@@ -2221,7 +2228,7 @@ Let's build generational wealth together! 💰🚀`,
             </div>
 
             {/* Channel Manager Modal */}
-            {isAdmin && showChannelManager && (
+            {(isAdminUser || isSuperAdminUser) && showChannelManager && (
                 <div
                     style={{
                         position: 'fixed',

@@ -33,6 +33,7 @@ import AdminPanel from './pages/AdminPanel';
 import PaymentSuccess from './pages/PaymentSuccess';
 import VerifyMFA from './pages/VerifyMFA';
 import Subscription from './pages/Subscription';
+import Settings from './pages/Settings';
 
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -118,6 +119,7 @@ function AppRoutes() {
                     <Route path="/admin" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
                     <Route path="/admin/users" element={user?.role === "ADMIN" ? <AdminUserList /> : <Navigate to="/" />} />
                     <Route path="/admin/tools" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
+                    <Route path="/settings" element={(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <Settings /> : <Navigate to="/" />} />
 
                     <Route path="*" element={<NotFound />} />
                 </Routes>

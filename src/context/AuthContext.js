@@ -43,17 +43,29 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const resolveUserInfo = (data = {}) => ({
-    id: data.id || data.userId || data.sub || null,
-    username: data.username || data.name || '',
-    email: data.email || '',
-    name: data.name || data.username || '',
-    avatar: data.avatar || '/avatars/avatar_ai.png',
-    phone: data.phone || '',
-    address: data.address || '',
-    role: data.role || 'USER',
-    mfaVerified: data.mfaVerified || false
-  });
+  const resolveUserInfo = (data = {}) => {
+    const email = (data.email || '').toLowerCase();
+    const role = data.role || 'free';
+    
+    // Check if user is super admin by email
+    let finalRole = role;
+    if (email === 'shubzfx@gmail.com') {
+      finalRole = 'super_admin';
+    }
+    
+    return {
+      id: data.id || data.userId || data.sub || null,
+      username: data.username || data.name || '',
+      email: data.email || '',
+      name: data.name || data.username || '',
+      avatar: data.avatar || '/avatars/avatar_ai.png',
+      phone: data.phone || '',
+      address: data.address || '',
+      role: finalRole,
+      capabilities: data.capabilities || [],
+      mfaVerified: data.mfaVerified || false
+    };
+  };
 
   const persistUser = useCallback((userInfo) => {
     const safeUser = resolveUserInfo(userInfo);
