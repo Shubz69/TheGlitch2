@@ -131,6 +131,54 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // Check and convert channel_id column type if needed (to support string channel IDs)
+        try {
+          const [columnInfo] = await db.execute(`
+            SELECT DATA_TYPE, COLUMN_TYPE 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = ? 
+            AND TABLE_NAME = 'messages' 
+            AND COLUMN_NAME = 'channel_id'
+          `, [process.env.MYSQL_DATABASE]);
+          
+          if (columnInfo && columnInfo.length > 0) {
+            const dataType = columnInfo[0].DATA_TYPE;
+            // If channel_id is numeric (int, bigint) but we have string channel IDs, convert it
+            if ((dataType === 'int' || dataType === 'bigint') && isNaN(parseInt(channelId))) {
+              console.log(`Converting messages.channel_id from ${dataType} to VARCHAR(255) to support string channel IDs`);
+              try {
+                // Drop foreign key if exists
+                const [fks] = await db.execute(`
+                  SELECT CONSTRAINT_NAME 
+                  FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                  WHERE TABLE_SCHEMA = ? 
+                  AND TABLE_NAME = 'messages' 
+                  AND COLUMN_NAME = 'channel_id' 
+                  AND REFERENCED_TABLE_NAME IS NOT NULL
+                `, [process.env.MYSQL_DATABASE]);
+                
+                for (const fk of fks) {
+                  try {
+                    await db.execute(`ALTER TABLE messages DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                  } catch (fkError) {
+                    console.warn('Could not drop foreign key:', fkError.message);
+                  }
+                }
+                
+                // Convert column to VARCHAR
+                await db.execute('ALTER TABLE messages MODIFY COLUMN channel_id VARCHAR(255) NOT NULL');
+                console.log('Successfully converted messages.channel_id to VARCHAR(255)');
+              } catch (alterError) {
+                console.warn('Could not convert channel_id column type:', alterError.message);
+                // Continue anyway - might work if channelId can be converted to number
+              }
+            }
+          }
+        } catch (schemaError) {
+          console.warn('Could not check channel_id column type:', schemaError.message);
+          // Continue with insert attempt
+        }
+        
         // Use actual table structure: id, content, encrypted, timestamp, channel_id, sender_id
         // Handle channel_id as either string or number
         const channelIdValue = isNaN(parseInt(channelId)) ? channelId : parseInt(channelId);
@@ -183,8 +231,35 @@ module.exports = async (req, res) => {
         return res.status(201).json(message);
       } catch (dbError) {
         console.error('Database error creating message:', dbError);
-        await db.end();
-        return res.status(500).json({ success: false, message: 'Failed to create message' });
+        console.error('Error details:', {
+          message: dbError.message,
+          code: dbError.code,
+          errno: dbError.errno,
+          sqlState: dbError.sqlState,
+          sqlMessage: dbError.sqlMessage,
+          channelId: channelId,
+          channelIdType: typeof channelId
+        });
+        
+        // Try to provide more helpful error message
+        let errorMessage = 'Failed to create message';
+        if (dbError.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' || dbError.code === 'ER_BAD_FIELD_ERROR') {
+          errorMessage = 'Channel ID type mismatch. Please contact support.';
+        } else if (dbError.message && dbError.message.includes('channel_id')) {
+          errorMessage = 'Invalid channel ID format';
+        }
+        
+        try {
+          await db.end();
+        } catch (endError) {
+          // Ignore errors when closing connection
+        }
+        
+        return res.status(500).json({ 
+          success: false, 
+          message: errorMessage,
+          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
       }
     }
 
