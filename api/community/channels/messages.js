@@ -38,6 +38,7 @@ const ensureMessagesTable = async (db) => {
         channel_id VARCHAR(255) NOT NULL,
         sender_id INT,
         content TEXT NOT NULL,
+        encrypted BOOLEAN DEFAULT FALSE,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_channel (channel_id),
         INDEX idx_timestamp (timestamp),
@@ -45,6 +46,41 @@ const ensureMessagesTable = async (db) => {
       )
     `);
     console.log('Messages table ensured (created or already exists)');
+    
+    // Check if encrypted column exists, add it if it doesn't
+    try {
+      const [encryptedColumn] = await db.execute(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? 
+        AND TABLE_NAME = 'messages' 
+        AND COLUMN_NAME = 'encrypted'
+      `, [process.env.MYSQL_DATABASE]);
+      
+      if (!encryptedColumn || encryptedColumn.length === 0) {
+        // Add encrypted column with default value
+        await db.execute('ALTER TABLE messages ADD COLUMN encrypted BOOLEAN DEFAULT FALSE');
+        console.log('Added encrypted column to messages table');
+      } else {
+        // Check if it has a default value
+        const [columnInfo] = await db.execute(`
+          SELECT COLUMN_DEFAULT 
+          FROM INFORMATION_SCHEMA.COLUMNS 
+          WHERE TABLE_SCHEMA = ? 
+          AND TABLE_NAME = 'messages' 
+          AND COLUMN_NAME = 'encrypted'
+        `, [process.env.MYSQL_DATABASE]);
+        
+        if (columnInfo && columnInfo.length > 0 && columnInfo[0].COLUMN_DEFAULT === null) {
+          // Set default value if it doesn't have one
+          await db.execute('ALTER TABLE messages MODIFY COLUMN encrypted BOOLEAN DEFAULT FALSE');
+          console.log('Set default value for encrypted column');
+        }
+      }
+    } catch (encryptedError) {
+      console.warn('Could not check/add encrypted column:', encryptedError.message);
+      // Continue anyway
+    }
     
     // Check if channel_id is VARCHAR, if not, convert it
     try {
@@ -300,10 +336,11 @@ module.exports = async (req, res) => {
         }
         
         // Insert message - use actual column names
+        // Include encrypted field with default FALSE value
         let result;
         try {
           const insertResult = await db.execute(
-            'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
+            'INSERT INTO messages (channel_id, sender_id, content, encrypted, timestamp) VALUES (?, ?, ?, FALSE, NOW())',
             [channelIdValue, userId || null, content.trim()]
           );
           // result is [ResultSetHeader, fields], we need the first element
