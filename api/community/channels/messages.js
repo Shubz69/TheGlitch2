@@ -24,6 +24,82 @@ const getDbConnection = async () => {
   }
 };
 
+// Ensure messages table exists with correct schema
+const ensureMessagesTable = async (db) => {
+  if (!db || !process.env.MYSQL_DATABASE) {
+    return false;
+  }
+
+  try {
+    // Create table if it doesn't exist with VARCHAR channel_id (supports string IDs)
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        channel_id VARCHAR(255) NOT NULL,
+        sender_id INT,
+        content TEXT NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_channel (channel_id),
+        INDEX idx_timestamp (timestamp),
+        INDEX idx_sender (sender_id)
+      )
+    `);
+    console.log('Messages table ensured (created or already exists)');
+    
+    // Check if channel_id is VARCHAR, if not, convert it
+    try {
+      const [columnInfo] = await db.execute(`
+        SELECT DATA_TYPE, COLUMN_TYPE 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? 
+        AND TABLE_NAME = 'messages' 
+        AND COLUMN_NAME = 'channel_id'
+      `, [process.env.MYSQL_DATABASE]);
+      
+      if (columnInfo && columnInfo.length > 0) {
+        const dataType = columnInfo[0].DATA_TYPE;
+        if (dataType === 'int' || dataType === 'bigint') {
+          console.log('Converting channel_id from', dataType, 'to VARCHAR(255)...');
+          try {
+            // Drop foreign keys first
+            const [fks] = await db.execute(`
+              SELECT CONSTRAINT_NAME 
+              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+              WHERE TABLE_SCHEMA = ? 
+              AND TABLE_NAME = 'messages' 
+              AND COLUMN_NAME = 'channel_id' 
+              AND REFERENCED_TABLE_NAME IS NOT NULL
+            `, [process.env.MYSQL_DATABASE]);
+            
+            for (const fk of fks) {
+              try {
+                await db.execute(`ALTER TABLE messages DROP FOREIGN KEY ${fk.CONSTRAINT_NAME}`);
+                console.log(`Dropped foreign key: ${fk.CONSTRAINT_NAME}`);
+              } catch (fkError) {
+                console.warn('Could not drop foreign key:', fkError.message);
+              }
+            }
+            
+            // Convert to VARCHAR
+            await db.execute('ALTER TABLE messages MODIFY COLUMN channel_id VARCHAR(255) NOT NULL');
+            console.log('Successfully converted channel_id to VARCHAR(255)');
+          } catch (alterError) {
+            console.error('Failed to convert channel_id:', alterError.message);
+            // Continue anyway
+          }
+        }
+      }
+    } catch (checkError) {
+      console.warn('Could not check channel_id column:', checkError.message);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error ensuring messages table:', error);
+    return false;
+  }
+};
+
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -131,27 +207,16 @@ module.exports = async (req, res) => {
       }
 
       try {
-        // First, check if messages table exists
-        try {
-          const [tableCheck] = await db.execute(`
-            SELECT TABLE_NAME 
-            FROM INFORMATION_SCHEMA.TABLES 
-            WHERE TABLE_SCHEMA = ? 
-            AND TABLE_NAME = 'messages'
-          `, [process.env.MYSQL_DATABASE]);
-          
-          if (!tableCheck || tableCheck.length === 0) {
-            console.error('Messages table does not exist');
-            await db.end();
-            return res.status(500).json({ 
-              success: false, 
-              message: 'Messages table does not exist. Please contact support.',
-              error: 'Table missing'
-            });
-          }
-        } catch (tableError) {
-          console.warn('Could not check if messages table exists:', tableError.message);
-          // Continue anyway
+        // Ensure messages table exists with correct schema
+        const tableExists = await ensureMessagesTable(db);
+        if (!tableExists) {
+          console.error('Failed to ensure messages table exists');
+          await db.end();
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to initialize messages table. Please contact support.',
+            error: 'Table initialization failed'
+          });
         }
 
         // Check and convert channel_id column type if needed (to support string channel IDs)
