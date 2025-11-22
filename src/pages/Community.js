@@ -1057,7 +1057,8 @@ const Community = () => {
         fetchOnlineStatus();
 
         // Then fetch every 10 seconds for live updates
-        const statusInterval = setInterval(fetchOnlineStatus, 10000);
+        // OPTIMIZATION: Check online status less frequently (15 seconds instead of 10)
+        const statusInterval = setInterval(fetchOnlineStatus, 15000);
 
         return () => clearInterval(statusInterval);
     }, [isAuthenticated, fetchOnlineStatus]);
