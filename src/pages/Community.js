@@ -122,6 +122,10 @@ const Community = () => {
     const [channelActionStatus, setChannelActionStatus] = useState(null);
     const [channelActionLoading, setChannelActionLoading] = useState(false);
     
+    // Delete message modal state
+    const [deleteMessageModal, setDeleteMessageModal] = useState(null); // { messageId, messageContent }
+    const [isDeletingMessage, setIsDeletingMessage] = useState(false);
+    
     const categoryOrder = useMemo(() => ([
         'announcements',
         'staff',
@@ -1327,7 +1331,7 @@ Let's build generational wealth together! 💰🚀`,
         setHasReadWelcome(true);
     };
 
-    const handleDeleteMessage = async (messageId) => {
+    const handleDeleteMessage = (messageId) => {
         if (!isAdmin) {
             console.warn('Only admins can delete messages');
             return;
@@ -1337,8 +1341,28 @@ Let's build generational wealth together! 💰🚀`,
             return;
         }
 
-        const confirmed = window.confirm('Are you sure you want to delete this message?');
-        if (!confirmed) return;
+        // Find the message to show in confirmation
+        const messageToDelete = messages.find(msg => msg.id === messageId);
+        if (!messageToDelete) {
+            console.warn('Message not found:', messageId);
+            return;
+        }
+
+        // Show custom delete confirmation modal
+        setDeleteMessageModal({
+            messageId,
+            messageContent: messageToDelete.content,
+            author: messageToDelete.sender?.username || 'Unknown'
+        });
+    };
+
+    const confirmDeleteMessage = async () => {
+        if (!deleteMessageModal || !selectedChannel) {
+            return;
+        }
+
+        setIsDeletingMessage(true);
+        const { messageId } = deleteMessageModal;
 
         try {
             await Api.deleteMessage(selectedChannel.id, messageId);
@@ -1353,10 +1377,19 @@ Let's build generational wealth together! 💰🚀`,
             const storedMessages = JSON.parse(localStorage.getItem(storageKey) || '[]');
             const filteredStored = storedMessages.filter(msg => msg.id !== messageId);
             localStorage.setItem(storageKey, JSON.stringify(filteredStored));
+            
+            // Close modal
+            setDeleteMessageModal(null);
         } catch (error) {
             console.error('Failed to delete message:', error);
             alert('Failed to delete message: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setIsDeletingMessage(false);
         }
+    };
+
+    const cancelDeleteMessage = () => {
+        setDeleteMessageModal(null);
     };
 
     // Group channels by category
@@ -2353,6 +2386,149 @@ Let's build generational wealth together! 💰🚀`,
                                         </div>
                                     ))
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Message Confirmation Modal */}
+            {deleteMessageModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10000,
+                        backdropFilter: 'blur(4px)'
+                    }}
+                    onClick={cancelDeleteMessage}
+                >
+                    <div
+                        style={{
+                            background: '#1F2937',
+                            borderRadius: '12px',
+                            padding: '24px',
+                            maxWidth: '500px',
+                            width: '90%',
+                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ marginBottom: '20px' }}>
+                            <h3 style={{
+                                margin: 0,
+                                marginBottom: '8px',
+                                color: '#F9FAFB',
+                                fontSize: '1.25rem',
+                                fontWeight: 600
+                            }}>
+                                Delete Message
+                            </h3>
+                            <p style={{
+                                margin: 0,
+                                color: '#9CA3AF',
+                                fontSize: '0.9rem'
+                            }}>
+                                Are you sure you want to delete this message? This action cannot be undone.
+                            </p>
+                        </div>
+
+                        {/* Message Preview */}
+                        <div style={{
+                            background: '#111827',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            marginBottom: '20px',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}>
+                            <div style={{
+                                fontSize: '0.75rem',
+                                color: '#6B7280',
+                                marginBottom: '4px'
+                            }}>
+                                {deleteMessageModal.author}
+                            </div>
+                            <div style={{
+                                color: '#E5E7EB',
+                                fontSize: '0.9rem',
+                                wordBreak: 'break-word'
+                            }}>
+                                {deleteMessageModal.messageContent.length > 100
+                                    ? deleteMessageModal.messageContent.substring(0, 100) + '...'
+                                    : deleteMessageModal.messageContent
+                                }
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{
+                            display: 'flex',
+                            gap: '12px',
+                            justifyContent: 'flex-end'
+                        }}>
+                            <button
+                                onClick={cancelDeleteMessage}
+                                disabled={isDeletingMessage}
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    borderRadius: '8px',
+                                    padding: '10px 20px',
+                                    color: '#E5E7EB',
+                                    cursor: isDeletingMessage ? 'not-allowed' : 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 500,
+                                    transition: 'all 0.2s ease',
+                                    opacity: isDeletingMessage ? 0.5 : 1
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isDeletingMessage) {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'transparent';
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDeleteMessage}
+                                disabled={isDeletingMessage}
+                                style={{
+                                    background: isDeletingMessage 
+                                        ? 'rgba(239, 68, 68, 0.5)' 
+                                        : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '10px 20px',
+                                    color: '#FFFFFF',
+                                    cursor: isDeletingMessage ? 'not-allowed' : 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 600,
+                                    transition: 'all 0.2s ease',
+                                    boxShadow: isDeletingMessage ? 'none' : '0 4px 6px -1px rgba(239, 68, 68, 0.3)'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isDeletingMessage) {
+                                        e.currentTarget.style.background = 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isDeletingMessage) {
+                                        e.currentTarget.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+                                    }
+                                }}
+                            >
+                                {isDeletingMessage ? 'Deleting...' : 'Delete Message'}
+                            </button>
                         </div>
                     </div>
                 </div>

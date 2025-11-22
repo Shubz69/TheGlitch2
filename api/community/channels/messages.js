@@ -369,7 +369,19 @@ module.exports = async (req, res) => {
 
     if (req.method === 'DELETE') {
       // Delete a message (admin only or message owner)
-      const messageId = req.query.messageId || req.query.id;
+      // Extract messageId from query params (Vercel routing) or URL path
+      let messageId = req.query.messageId || req.query.id;
+      
+      // If not in query, try to extract from URL path
+      if (!messageId && req.url) {
+        const urlParts = req.url.split('/');
+        const messageIdIndex = urlParts.findIndex(part => part === 'messages') + 1;
+        if (messageIdIndex > 0 && urlParts[messageIdIndex]) {
+          messageId = urlParts[messageIdIndex].split('?')[0]; // Remove query string if present
+        }
+      }
+      
+      console.log('DELETE request - messageId:', messageId, 'from query:', req.query, 'from URL:', req.url);
       
       if (!messageId) {
         return res.status(400).json({ success: false, message: 'Message ID is required' });
@@ -380,25 +392,46 @@ module.exports = async (req, res) => {
       }
 
       try {
-        // Check if message exists and get sender_id for ownership check
-        const [messageRows] = await db.execute('SELECT sender_id FROM messages WHERE id = ?', [messageId]);
+        // Try both string and numeric messageId (handle both cases)
+        let messageRows = [];
+        let messageIdValue = messageId;
+        
+        // First try with the messageId as-is (could be string or number)
+        try {
+          [messageRows] = await db.execute('SELECT id, sender_id, channel_id FROM messages WHERE id = ?', [messageIdValue]);
+        } catch (queryError) {
+          // If that fails, try converting to number
+          const numericId = parseInt(messageId);
+          if (!isNaN(numericId)) {
+            messageIdValue = numericId;
+            [messageRows] = await db.execute('SELECT id, sender_id, channel_id FROM messages WHERE id = ?', [messageIdValue]);
+          } else {
+            throw queryError;
+          }
+        }
         
         if (!messageRows || messageRows.length === 0) {
+          console.log('Message not found with ID:', messageId, 'tried value:', messageIdValue);
           await db.end();
           return res.status(404).json({ success: false, message: 'Message not found' });
         }
 
+        const message = messageRows[0];
+        console.log('Found message to delete:', message.id, 'in channel:', message.channel_id);
+
         // TODO: Add admin check from JWT token
         // For now, allow deletion (you can add auth check later)
-        const [result] = await db.execute('DELETE FROM messages WHERE id = ?', [messageId]);
+        const [result] = await db.execute('DELETE FROM messages WHERE id = ?', [messageIdValue]);
         await db.end();
 
         if (result.affectedRows > 0) {
+          console.log('Message deleted successfully:', messageIdValue);
           return res.status(200).json({ 
             success: true, 
             message: 'Message deleted successfully' 
           });
         } else {
+          console.log('Delete query executed but no rows affected');
           return res.status(404).json({ 
             success: false, 
             message: 'Message not found' 
@@ -406,14 +439,23 @@ module.exports = async (req, res) => {
         }
       } catch (dbError) {
         console.error('Database error deleting message:', dbError);
+        console.error('Error details:', {
+          message: dbError.message,
+          code: dbError.code,
+          messageId: messageId,
+          messageIdType: typeof messageId
+        });
         try {
-          await db.end();
+          if (db && !db.ended) {
+            await db.end();
+          }
         } catch (endError) {
           // Ignore errors when closing connection
         }
         return res.status(500).json({ 
           success: false, 
-          message: 'Failed to delete message' 
+          message: 'Failed to delete message',
+          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
         });
       }
     }
