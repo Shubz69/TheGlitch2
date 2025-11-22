@@ -163,6 +163,42 @@ const Community = () => {
             return channelListRef.current;
         }
 
+        // OPTIMIZATION: Load cached channels first for instant display
+        const cachedChannelsKey = 'community_channels_cache';
+        let cachedChannels = [];
+        try {
+            const cached = localStorage.getItem(cachedChannelsKey);
+            if (cached) {
+                cachedChannels = JSON.parse(cached);
+                if (cachedChannels.length > 0) {
+                    // Show cached channels immediately
+                    const preparedCached = cachedChannels.map((channel) => {
+                        const baseId = channel.id ?? channel.name ?? `channel-${Date.now()}`;
+                        const idString = String(baseId);
+                        const normalizedName = channel.name || idString;
+                        const displayNameValue = channel.displayName || normalizedName
+                            .split('-')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+                        const accessLevelValue = (channel.accessLevel || channel.access_level || 'open').toLowerCase();
+                        return {
+                            ...channel,
+                            id: idString,
+                            name: normalizedName,
+                            displayName: displayNameValue,
+                            category: channel.category || 'general',
+                            description: channel.description || '',
+                            accessLevel: accessLevelValue,
+                            locked: channel.locked ?? accessLevelValue === 'admin-only'
+                        };
+                    });
+                    setChannelList(sortChannels(preparedCached));
+                }
+            }
+        } catch (cacheError) {
+            console.warn('Error loading cached channels:', cacheError);
+        }
+
         let channelsFromServer = [];
 
         try {
@@ -172,8 +208,17 @@ const Community = () => {
             } else if (Array.isArray(response?.data?.channels)) {
                 channelsFromServer = response.data.channels;
             }
+            
+            // Cache channels for next time
+            if (channelsFromServer.length > 0) {
+                localStorage.setItem(cachedChannelsKey, JSON.stringify(channelsFromServer));
+            }
         } catch (error) {
             console.warn('Failed to fetch channels from API:', error?.message || error);
+            // Keep showing cached channels if API fails
+            if (cachedChannels.length > 0) {
+                return channelListRef.current;
+            }
         }
 
         let preparedChannels = [];
@@ -539,40 +584,42 @@ const Community = () => {
         }
     };
 
-    // Fetch messages for a channel
+    // Fetch messages for a channel - optimized for fast loading
     const fetchMessages = useCallback(async (channelId) => {
         if (!channelId) return;
         
+        // OPTIMIZATION: Load from localStorage FIRST for instant display
+        const cachedMessages = loadMessagesFromStorage(channelId);
+        if (cachedMessages.length > 0) {
+            // Show cached messages immediately while fetching fresh ones
+            setMessages(cachedMessages);
+        } else {
+            // No cache, show empty array immediately
+            setMessages([]);
+        }
+        
+        // Then fetch from API in background to get latest messages
         try {
-            // Fetch from backend API for permanent persistence
             const response = await Api.getChannelMessages(channelId);
             if (response && response.data && Array.isArray(response.data)) {
                 const apiMessages = response.data;
                 
-                // Save to localStorage as backup/cache
-                saveMessagesToStorage(channelId, apiMessages);
-                
-                // Set messages from API
-                setMessages(apiMessages);
-                return;
-            } else {
-                // Response format unexpected, try localStorage
-                const storedMessages = loadMessagesFromStorage(channelId);
-                if (storedMessages.length > 0) {
-                    setMessages(storedMessages);
-                } else {
-                    setMessages([]);
+                // Only update if messages actually changed (avoid unnecessary re-renders)
+                if (JSON.stringify(apiMessages) !== JSON.stringify(cachedMessages)) {
+                    // Save to localStorage as backup/cache
+                    saveMessagesToStorage(channelId, apiMessages);
+                    
+                    // Update with fresh messages from API
+                    setMessages(apiMessages);
                 }
+                return;
             }
         } catch (apiError) {
-            console.warn('Backend API unavailable, loading from localStorage:', apiError.message);
-            // Use localStorage as persistent storage - messages persist here
-            const storedMessages = loadMessagesFromStorage(channelId);
-            if (storedMessages.length > 0) {
-                setMessages(storedMessages);
-            } else {
-                setMessages([]);
+            // Silently fail if we already have cached messages
+            if (cachedMessages.length === 0) {
+                console.warn('Backend API unavailable, no cached messages:', apiError.message);
             }
+            // Keep showing cached messages if available
         }
     }, []);
 
@@ -996,7 +1043,8 @@ const Community = () => {
         updateConnectionStatus();
         
         // Update status every 3 seconds for real-time updates
-        const statusCheckInterval = setInterval(updateConnectionStatus, 3000);
+        // OPTIMIZATION: Check connection status less frequently (5 seconds instead of 3)
+        const statusCheckInterval = setInterval(updateConnectionStatus, 5000);
         
         return () => clearInterval(statusCheckInterval);
     }, [isAuthenticated, isConnected, connectionError, checkApiConnectivity]);
@@ -1017,8 +1065,10 @@ const Community = () => {
     // Load messages when channel changes
     useEffect(() => {
         if (selectedChannel) {
-            fetchMessages(selectedChannel.id);
+            // Navigate immediately (non-blocking)
             navigate(`/community/${selectedChannel.id}`);
+            // Fetch messages (will show cached first, then update)
+            fetchMessages(selectedChannel.id);
         }
     }, [selectedChannel, fetchMessages, navigate]);
 
