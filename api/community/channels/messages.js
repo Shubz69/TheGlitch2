@@ -131,8 +131,31 @@ module.exports = async (req, res) => {
       }
 
       try {
+        // First, check if messages table exists
+        try {
+          const [tableCheck] = await db.execute(`
+            SELECT TABLE_NAME 
+            FROM INFORMATION_SCHEMA.TABLES 
+            WHERE TABLE_SCHEMA = ? 
+            AND TABLE_NAME = 'messages'
+          `, [process.env.MYSQL_DATABASE]);
+          
+          if (!tableCheck || tableCheck.length === 0) {
+            console.error('Messages table does not exist');
+            await db.end();
+            return res.status(500).json({ 
+              success: false, 
+              message: 'Messages table does not exist. Please contact support.',
+              error: 'Table missing'
+            });
+          }
+        } catch (tableError) {
+          console.warn('Could not check if messages table exists:', tableError.message);
+          // Continue anyway
+        }
+
         // Check and convert channel_id column type if needed (to support string channel IDs)
-        // Only check once per deployment to avoid repeated ALTER TABLE calls
+        let columnType = null;
         try {
           const [columnInfo] = await db.execute(`
             SELECT DATA_TYPE, COLUMN_TYPE 
@@ -143,14 +166,11 @@ module.exports = async (req, res) => {
           `, [process.env.MYSQL_DATABASE]);
           
           if (columnInfo && columnInfo.length > 0) {
-            const dataType = columnInfo[0].DATA_TYPE;
+            columnType = columnInfo[0].DATA_TYPE;
             // If channel_id is numeric (int, bigint) but we have string channel IDs, convert it
-            if ((dataType === 'int' || dataType === 'bigint') && isNaN(parseInt(channelId))) {
-              console.log(`Channel ID "${channelId}" is string but column is ${dataType}. Attempting conversion...`);
+            if ((columnType === 'int' || columnType === 'bigint') && isNaN(parseInt(channelId))) {
+              console.log(`Channel ID "${channelId}" is string but column is ${columnType}. Attempting conversion...`);
               try {
-                // First, try to see if we can insert as-is (MySQL might auto-convert)
-                // If that fails, we'll convert the column
-                
                 // Drop foreign key if exists (required before ALTER)
                 try {
                   const [fks] = await db.execute(`
@@ -177,49 +197,70 @@ module.exports = async (req, res) => {
                 // Convert column to VARCHAR
                 await db.execute('ALTER TABLE messages MODIFY COLUMN channel_id VARCHAR(255) NOT NULL');
                 console.log('Successfully converted messages.channel_id to VARCHAR(255)');
+                columnType = 'varchar'; // Update for next insert attempt
               } catch (alterError) {
                 console.error('Failed to convert channel_id column type:', alterError.message);
                 console.error('Error code:', alterError.code);
-                // If conversion fails, try to insert as string anyway - MySQL might handle it
-                // If it still fails, we'll catch it in the insert try-catch below
+                // Continue - we'll try to insert anyway
               }
-            } else if (dataType === 'varchar' || dataType === 'char') {
-              // Column is already VARCHAR, no conversion needed
-              console.log(`Channel ID column is already ${dataType}, no conversion needed`);
+            } else if (columnType === 'varchar' || columnType === 'char') {
+              console.log(`Channel ID column is already ${columnType}, no conversion needed`);
             }
           } else {
             console.warn('Could not find channel_id column in messages table');
           }
         } catch (schemaError) {
           console.warn('Could not check channel_id column type:', schemaError.message);
-          // Continue with insert attempt - might work anyway
+          // Continue with insert attempt
         }
         
         // Use actual table structure: id, content, encrypted, timestamp, channel_id, sender_id
-        // Handle channel_id as either string or number
-        const channelIdValue = isNaN(parseInt(channelId)) ? channelId : parseInt(channelId);
+        // Handle channel_id as either string or number based on column type
+        let channelIdValue = channelId; // Default to string
+        if (columnType === 'int' || columnType === 'bigint') {
+          // If column is numeric, try to convert channelId to number
+          const numericId = parseInt(channelId);
+          if (!isNaN(numericId)) {
+            channelIdValue = numericId;
+          } else {
+            // Can't convert string to number for numeric column
+            console.error(`Cannot convert channel ID "${channelId}" to number for ${columnType} column`);
+            await db.end();
+            return res.status(500).json({ 
+              success: false, 
+              message: `Channel ID "${channelId}" is not compatible with database column type ${columnType}`,
+              error: 'Type mismatch'
+            });
+          }
+        }
         
         // Insert message - use actual column names
-        // Try inserting as string first (works for VARCHAR), then try as number if that fails
         let result;
         try {
-          result = await db.execute(
+          const insertResult = await db.execute(
             'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
             [channelIdValue, userId || null, content.trim()]
           );
           // result is [ResultSetHeader, fields], we need the first element
-          result = result[0];
+          result = insertResult[0];
+          console.log('Message inserted successfully with ID:', result.insertId);
         } catch (insertError) {
-          // If insert failed due to type mismatch, try converting channelId to string
+          console.error('Insert error:', insertError.message);
+          console.error('Insert error code:', insertError.code);
+          console.error('Channel ID value:', channelIdValue, 'Type:', typeof channelIdValue);
+          
+          // If insert failed, try alternative approaches
           if (insertError.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' || 
               insertError.message?.includes('channel_id')) {
+            // Try with string conversion
             console.log('Retrying insert with channelId as string...');
             try {
-              result = await db.execute(
+              const retryResult = await db.execute(
                 'INSERT INTO messages (channel_id, sender_id, content, timestamp) VALUES (?, ?, ?, NOW())',
                 [String(channelId), userId || null, content.trim()]
               );
-              result = result[0];
+              result = retryResult[0];
+              console.log('Message inserted successfully on retry with ID:', result.insertId);
             } catch (retryError) {
               console.error('Insert failed even with string conversion:', retryError);
               throw retryError; // Re-throw to be caught by outer catch
@@ -275,28 +316,53 @@ module.exports = async (req, res) => {
           errno: dbError.errno,
           sqlState: dbError.sqlState,
           sqlMessage: dbError.sqlMessage,
+          sql: dbError.sql,
           channelId: channelId,
-          channelIdType: typeof channelId
+          channelIdType: typeof channelId,
+          stack: dbError.stack
         });
         
         // Try to provide more helpful error message
         let errorMessage = 'Failed to create message';
+        let errorDetails = null;
+        
         if (dbError.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' || dbError.code === 'ER_BAD_FIELD_ERROR') {
-          errorMessage = 'Channel ID type mismatch. Please contact support.';
+          errorMessage = 'Channel ID type mismatch. Database schema needs update.';
+          errorDetails = `Channel ID "${channelId}" (${typeof channelId}) cannot be inserted into column type.`;
         } else if (dbError.message && dbError.message.includes('channel_id')) {
           errorMessage = 'Invalid channel ID format';
+          errorDetails = dbError.message;
+        } else if (dbError.code === 'ER_NO_SUCH_TABLE') {
+          errorMessage = 'Messages table does not exist';
+          errorDetails = 'Database table needs to be created.';
+        } else if (dbError.code === 'ER_ACCESS_DENIED_ERROR' || dbError.code === 'ER_DBACCESS_DENIED_ERROR') {
+          errorMessage = 'Database access denied';
+          errorDetails = 'Check database credentials and permissions.';
+        } else {
+          errorMessage = dbError.message || 'Database error occurred';
+          errorDetails = `Error code: ${dbError.code || 'UNKNOWN'}`;
         }
         
         try {
-          await db.end();
+          if (db && !db.ended) {
+            await db.end();
+          }
         } catch (endError) {
           // Ignore errors when closing connection
+          console.warn('Error closing database connection:', endError.message);
         }
         
+        // Return detailed error in development, generic in production
         return res.status(500).json({ 
           success: false, 
           message: errorMessage,
-          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+          error: errorDetails,
+          code: dbError.code,
+          // Include full error in development mode for debugging
+          ...(process.env.NODE_ENV === 'development' ? {
+            fullError: dbError.message,
+            stack: dbError.stack
+          } : {})
         });
       }
     }
