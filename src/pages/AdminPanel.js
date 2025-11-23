@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../utils/useWebSocket';
+import ConfirmationModal from '../components/ConfirmationModal';
 import '../styles/AdminPanel.css';
 
 const AdminPanel = () => {
@@ -11,6 +12,7 @@ const AdminPanel = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState(new Set());
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, userId: null, userEmail: null });
 
     // WebSocket connection for real-time updates
     const { isConnected } = useWebSocket(null, handleOnlineStatusUpdate, true);
@@ -86,14 +88,17 @@ const AdminPanel = () => {
         }
     }
 
-    const handleDeleteUser = async (userId) => {
-        if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-            return;
-        }
+    const handleDeleteUser = (userId, userEmail) => {
+        setDeleteModal({ isOpen: true, userId, userEmail });
+    };
+
+    const confirmDeleteUser = async () => {
+        const { userId } = deleteModal;
+        if (!userId) return;
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${userId}`, {
+            const response = await fetch(`/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -102,13 +107,16 @@ const AdminPanel = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete user');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Failed to delete user');
             }
 
             // Refresh the user list
             fetchUsers();
+            setDeleteModal({ isOpen: false, userId: null, userEmail: null });
         } catch (err) {
-            setError('Failed to delete user. Please try again.');
+            setError(err.message || 'Failed to delete user. Please try again.');
+            setDeleteModal({ isOpen: false, userId: null, userEmail: null });
         }
     };
 
@@ -160,7 +168,7 @@ const AdminPanel = () => {
                                 <div className="user-actions">
                                     <button 
                                         className="delete-btn"
-                                        onClick={() => handleDeleteUser(user.id)}
+                                        onClick={() => handleDeleteUser(user.id, user.email)}
                                     >
                                         Delete
                                     </button>
@@ -170,6 +178,17 @@ const AdminPanel = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, userId: null, userEmail: null })}
+                onConfirm={confirmDeleteUser}
+                title="Delete User"
+                message={`Are you sure you want to delete ${deleteModal.userEmail || 'this user'}? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                type="danger"
+            />
         </div>
     );
 };

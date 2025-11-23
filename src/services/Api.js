@@ -704,8 +704,7 @@ const Api = {
             // Something happened in setting up the request that triggered an Error
             return error.message;
         }
-    }
-};
+    },
 
     // User Management (Super Admin only)
     getUsers: async () => {

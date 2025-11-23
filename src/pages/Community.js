@@ -4,6 +4,7 @@ import { useWebSocket } from '../utils/useWebSocket';
 import { useNavigate, useParams } from 'react-router-dom';
 import Api from '../services/Api';
 import BinaryBackground from '../components/BinaryBackground';
+import { SUPER_ADMIN_EMAIL } from '../utils/roles';
 
 // Icons
 import { FaHashtag, FaLock, FaBullhorn, FaPaperPlane, FaSmile, FaTrash, FaPaperclip, FaTimes, FaPlus } from 'react-icons/fa';
@@ -688,6 +689,9 @@ const Community = () => {
             return;
         }
 
+        // Use confirmation modal instead of window.confirm
+        // This will be handled by the channel manager modal
+        // For now, keep the confirm but we'll replace it with modal later
         const confirmed = window.confirm(`Delete channel "${channel.displayName || channel.name}"? This cannot be undone.`);
         if (!confirmed) return;
 

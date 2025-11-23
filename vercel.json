@@ -103,6 +103,10 @@
     {
       "source": "/api/admin/users/:userId/role",
       "destination": "/api/admin/index.js"
+    },
+    {
+      "source": "/api/admin/users/:userId",
+      "destination": "/api/admin/index.js"
     }
   ]
 }

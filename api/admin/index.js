@@ -636,6 +636,61 @@ module.exports = async (req, res) => {
     }
   }
 
+  // Handle /api/admin/users/:userId - Delete user (Super Admin only)
+  if (pathname.includes('/users/') && !pathname.includes('/role') && req.method === 'DELETE') {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      // Extract userId from path
+      const userIdMatch = pathname.match(/\/users\/(\d+)/);
+      if (!userIdMatch) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID' });
+      }
+      const userId = userIdMatch[1];
+
+      const db = await getDbConnection();
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database connection error' });
+      }
+
+      try {
+        // Check if user exists
+        const [userRows] = await db.execute('SELECT email FROM users WHERE id = ?', [userId]);
+        if (userRows.length === 0) {
+          await db.end();
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const userEmail = userRows[0].email;
+        
+        // Prevent deletion of super admin
+        if (userEmail === 'shubzfx@gmail.com') {
+          await db.end();
+          return res.status(403).json({ success: false, message: 'Cannot delete Super Admin account' });
+        }
+
+        // Delete user
+        await db.execute('DELETE FROM users WHERE id = ?', [userId]);
+
+        await db.end();
+        return res.status(200).json({ 
+          success: true, 
+          message: 'User deleted successfully' 
+        });
+      } catch (dbError) {
+        console.error('Database error deleting user:', dbError);
+        if (db && !db.ended) await db.end();
+        return res.status(500).json({ success: false, message: 'Failed to delete user' });
+      }
+    } catch (error) {
+      console.error('Error in user delete:', error);
+      return res.status(500).json({ success: false, message: 'Failed to delete user' });
+    }
+  }
+
   return res.status(404).json({ success: false, message: 'Endpoint not found' });
 };
 

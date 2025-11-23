@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   isSuperAdmin, 
   isAdmin, 
-  getUserRole,
   ADMIN_CAPABILITIES,
   DEFAULT_ADMIN_CAPABILITIES,
   getCapabilityName,
@@ -12,6 +11,7 @@ import {
   SUPER_ADMIN_EMAIL
 } from '../utils/roles';
 import Api from '../services/Api';
+import ConfirmationModal from '../components/ConfirmationModal';
 import '../styles/Settings.css';
 
 const Settings = () => {
@@ -25,6 +25,7 @@ const Settings = () => {
   const [selectedCapabilities, setSelectedCapabilities] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('users');
+  const [deleteAdminModal, setDeleteAdminModal] = useState({ isOpen: false, adminUser: null });
 
   const superAdmin = isSuperAdmin(user);
   const admin = isAdmin(user);
@@ -44,6 +45,7 @@ const Settings = () => {
     };
     
     initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [superAdmin, admin, navigate]);
 
   const loadUsers = async () => {
@@ -128,16 +130,18 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteAdmin = async (adminUser) => {
+  const handleDeleteAdmin = (adminUser) => {
     if (!superAdmin) return;
     if (adminUser.email === SUPER_ADMIN_EMAIL) {
       alert('Cannot delete Super Admin account!');
       return;
     }
+    setDeleteAdminModal({ isOpen: true, adminUser });
+  };
 
-    if (!window.confirm(`Are you sure you want to remove admin privileges from ${adminUser.email}?`)) {
-      return;
-    }
+  const confirmDeleteAdmin = async () => {
+    const { adminUser } = deleteAdminModal;
+    if (!adminUser) return;
 
     try {
       await Api.updateUserRole(adminUser.id, {
@@ -152,10 +156,11 @@ const Settings = () => {
       );
       setUsers(updatedUsers);
       loadAdmins();
-      alert('Admin privileges removed successfully!');
+      setDeleteAdminModal({ isOpen: false, adminUser: null });
     } catch (error) {
       console.error('Error removing admin:', error);
       alert('Failed to remove admin: ' + (error.message || 'Unknown error'));
+      setDeleteAdminModal({ isOpen: false, adminUser: null });
     }
   };
 
@@ -363,6 +368,17 @@ const Settings = () => {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={deleteAdminModal.isOpen}
+        onClose={() => setDeleteAdminModal({ isOpen: false, adminUser: null })}
+        onConfirm={confirmDeleteAdmin}
+        title="Remove Admin Privileges"
+        message={`Are you sure you want to remove admin privileges from ${deleteAdminModal.adminUser?.email || 'this user'}? They will be downgraded to a free user.`}
+        confirmText="Remove Admin"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 };
