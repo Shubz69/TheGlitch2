@@ -524,30 +524,93 @@ module.exports = async (req, res) => {
       }
 
       try {
-        const [users] = await db.execute(`
-          SELECT id, email, username, role, 
-                 JSON_EXTRACT(metadata, '$.capabilities') as capabilities,
-                 created_at, last_seen
-          FROM users
-          ORDER BY created_at DESC
-        `);
+        // Check if metadata column exists
+        let hasMetadata = false;
+        try {
+          await db.execute('SELECT metadata FROM users LIMIT 1');
+          hasMetadata = true;
+        } catch (e) {
+          // Column doesn't exist, that's okay
+          hasMetadata = false;
+        }
 
-        const formattedUsers = users.map(user => ({
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          role: user.role || 'free',
-          capabilities: user.capabilities ? JSON.parse(user.capabilities) : [],
-          createdAt: user.created_at,
-          lastSeen: user.last_seen
-        }));
+        // Check if created_at and last_seen exist
+        let hasCreatedAt = false;
+        let hasLastSeen = false;
+        try {
+          await db.execute('SELECT created_at, last_seen FROM users LIMIT 1');
+          hasCreatedAt = true;
+          hasLastSeen = true;
+        } catch (e) {
+          // Check individually
+          try {
+            await db.execute('SELECT created_at FROM users LIMIT 1');
+            hasCreatedAt = true;
+          } catch (e2) {}
+          try {
+            await db.execute('SELECT last_seen FROM users LIMIT 1');
+            hasLastSeen = true;
+          } catch (e2) {}
+        }
+
+        // Build query based on available columns
+        let query = 'SELECT id, email, username, role';
+        if (hasMetadata) {
+          query += ', JSON_EXTRACT(metadata, "$.capabilities") as capabilities';
+        }
+        if (hasCreatedAt) {
+          query += ', created_at';
+        }
+        if (hasLastSeen) {
+          query += ', last_seen';
+        }
+        query += ' FROM users';
+        if (hasCreatedAt) {
+          query += ' ORDER BY created_at DESC';
+        } else {
+          query += ' ORDER BY id DESC';
+        }
+
+        const [users] = await db.execute(query);
+
+        const formattedUsers = users.map(user => {
+          const formatted = {
+            id: user.id,
+            email: user.email || '',
+            username: user.username || user.name || '',
+            role: user.role || 'free',
+            capabilities: []
+          };
+
+          // Parse capabilities if metadata exists
+          if (hasMetadata && user.capabilities) {
+            try {
+              formatted.capabilities = JSON.parse(user.capabilities);
+            } catch (e) {
+              formatted.capabilities = [];
+            }
+          }
+
+          if (hasCreatedAt) {
+            formatted.createdAt = user.created_at;
+          }
+          if (hasLastSeen) {
+            formatted.lastSeen = user.last_seen;
+          }
+
+          return formatted;
+        });
 
         await db.end();
         return res.status(200).json(formattedUsers);
       } catch (dbError) {
         console.error('Database error fetching users:', dbError);
         if (db && !db.ended) await db.end();
-        return res.status(500).json({ success: false, message: 'Failed to fetch users' });
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to fetch users',
+          error: dbError.message 
+        });
       }
     } catch (error) {
       console.error('Error in users GET:', error);
