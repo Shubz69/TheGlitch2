@@ -107,6 +107,10 @@
     {
       "source": "/api/admin/users/:userId",
       "destination": "/api/admin/index.js"
+    },
+    {
+      "source": "/api/leaderboard",
+      "destination": "/api/leaderboard.js"
     }
   ]
 }

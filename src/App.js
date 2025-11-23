@@ -115,11 +115,11 @@ function AppRoutes() {
                     )}
 
                     {/* Admin-only Routes */}
-                    <Route path="/admin/messages" element={user?.role === "ADMIN" ? <AdminMessages /> : <Navigate to="/" />} />
-                    <Route path="/admin" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
-                    <Route path="/admin/users" element={user?.role === "ADMIN" ? <AdminUserList /> : <Navigate to="/" />} />
-                    <Route path="/admin/tools" element={user?.role === "ADMIN" ? <AdminPanel /> : <Navigate to="/" />} />
-                    <Route path="/settings" element={(user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <Settings /> : <Navigate to="/" />} />
+                    <Route path="/admin/messages" element={(user?.role === "ADMIN" || user?.role === "admin" || user?.role === "super_admin" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <AdminMessages /> : <Navigate to="/" />} />
+                    <Route path="/admin" element={(user?.role === "ADMIN" || user?.role === "admin" || user?.role === "super_admin" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <AdminPanel /> : <Navigate to="/" />} />
+                    <Route path="/admin/users" element={(user?.role === "ADMIN" || user?.role === "admin" || user?.role === "super_admin" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <AdminUserList /> : <Navigate to="/" />} />
+                    <Route path="/admin/tools" element={(user?.role === "ADMIN" || user?.role === "admin" || user?.role === "super_admin" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <AdminPanel /> : <Navigate to="/" />} />
+                    <Route path="/settings" element={(user?.role === "ADMIN" || user?.role === "admin" || user?.role === "SUPER_ADMIN" || user?.role === "super_admin" || user?.email?.toLowerCase() === 'shubzfx@gmail.com') ? <Settings /> : <Navigate to="/" />} />
 
                     <Route path="*" element={<NotFound />} />
                 </Routes>

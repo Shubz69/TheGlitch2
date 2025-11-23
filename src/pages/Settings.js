@@ -12,6 +12,7 @@ import {
 } from '../utils/roles';
 import Api from '../services/Api';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { toast } from 'react-toastify';
 import '../styles/Settings.css';
 
 const Settings = () => {
@@ -122,18 +123,35 @@ const Settings = () => {
         loadAdmins();
       }
 
-      alert('User role and capabilities updated successfully!');
+      toast.success('User role and capabilities updated successfully!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setSelectedUser(null);
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Failed to update user: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to update user: ' + (error.message || 'Unknown error'), {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
   const handleDeleteAdmin = (adminUser) => {
     if (!superAdmin) return;
     if (adminUser.email === SUPER_ADMIN_EMAIL) {
-      alert('Cannot delete Super Admin account!');
+      toast.warning('Cannot delete Super Admin account!', {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
       return;
     }
     setDeleteAdminModal({ isOpen: true, adminUser });
@@ -156,10 +174,17 @@ const Settings = () => {
       );
       setUsers(updatedUsers);
       loadAdmins();
+      toast.success('Admin privileges removed successfully!', {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
       setDeleteAdminModal({ isOpen: false, adminUser: null });
     } catch (error) {
       console.error('Error removing admin:', error);
-      alert('Failed to remove admin: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to remove admin: ' + (error.message || 'Unknown error'), {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
       setDeleteAdminModal({ isOpen: false, adminUser: null });
     }
   };

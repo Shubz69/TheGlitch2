@@ -167,13 +167,18 @@ module.exports = async (req, res) => {
         // Use existing table structure - don't try to create/modify
         // The actual table has: id, content, encrypted, timestamp, channel_id, sender_id
         
-        // Try to fetch messages - use timestamp column (actual column name)
+        // Try to fetch messages with username from users table
         // channel_id is bigint in actual table, but we receive it as string, so we need to handle both
         let [rows] = [];
         try {
           // Try with channel_id as string first (for string IDs like 'welcome')
+          // JOIN with users table to get username
           [rows] = await db.execute(
-            'SELECT * FROM messages WHERE channel_id = ? ORDER BY timestamp ASC',
+            `SELECT m.*, u.username, u.name, u.email 
+             FROM messages m 
+             LEFT JOIN users u ON m.sender_id = u.id 
+             WHERE m.channel_id = ? 
+             ORDER BY m.timestamp ASC`,
             [channelId]
           );
         } catch (queryError) {
@@ -181,20 +186,32 @@ module.exports = async (req, res) => {
           const numericChannelId = parseInt(channelId);
           if (!isNaN(numericChannelId)) {
             [rows] = await db.execute(
-              'SELECT * FROM messages WHERE channel_id = ? ORDER BY timestamp ASC',
+              `SELECT m.*, u.username, u.name, u.email 
+               FROM messages m 
+               LEFT JOIN users u ON m.sender_id = u.id 
+               WHERE m.channel_id = ? 
+               ORDER BY m.timestamp ASC`,
               [numericChannelId]
             );
           } else {
             // If channelId is not numeric and query failed, try ordering by id
             try {
               [rows] = await db.execute(
-                'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
-          [channelId]
-        );
+                `SELECT m.*, u.username, u.name, u.email 
+                 FROM messages m 
+                 LEFT JOIN users u ON m.sender_id = u.id 
+                 WHERE m.channel_id = ? 
+                 ORDER BY m.id ASC`,
+                [channelId]
+              );
             } catch (fallbackError) {
               if (!isNaN(numericChannelId)) {
                 [rows] = await db.execute(
-                  'SELECT * FROM messages WHERE channel_id = ? ORDER BY id ASC',
+                  `SELECT m.*, u.username, u.name, u.email 
+                   FROM messages m 
+                   LEFT JOIN users u ON m.sender_id = u.id 
+                   WHERE m.channel_id = ? 
+                   ORDER BY m.id ASC`,
                   [numericChannelId]
                 );
               } else {
@@ -206,21 +223,26 @@ module.exports = async (req, res) => {
         await db.end();
 
         // Map to frontend format - handle actual column names
-        const messages = rows.map(row => ({
-          id: row.id,
-          channelId: row.channel_id,
-          userId: row.sender_id, // Actual column is sender_id, not user_id
-          username: row.username || 'Anonymous', // username might not exist, use fallback
-          content: row.content,
-          createdAt: row.timestamp, // Actual column is timestamp, not created_at
-          timestamp: row.timestamp,
-          sender: {
-            id: row.sender_id,
-            username: row.username || 'Anonymous',
-            avatar: '/avatars/avatar_ai.png',
-            role: 'USER'
-          }
-        }));
+        const messages = rows.map(row => {
+          // Get username from joined user table, fallback to name, then email prefix, then Anonymous
+          const username = row.username || row.name || (row.email ? row.email.split('@')[0] : 'Anonymous');
+          
+          return {
+            id: row.id,
+            channelId: row.channel_id,
+            userId: row.sender_id,
+            username: username,
+            content: row.content,
+            createdAt: row.timestamp,
+            timestamp: row.timestamp,
+            sender: {
+              id: row.sender_id,
+              username: username,
+              avatar: '/avatars/avatar_ai.png',
+              role: 'USER'
+            }
+          };
+        });
 
         return res.status(200).json(messages);
       } catch (dbError) {

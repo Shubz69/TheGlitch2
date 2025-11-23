@@ -24,7 +24,10 @@ const AdminPanel = () => {
             return;
         }
         
-        if (user && user.role !== 'ADMIN') {
+        const userRole = user?.role?.toLowerCase() || '';
+        const isAdmin = userRole === 'admin' || userRole === 'super_admin' || user?.email?.toLowerCase() === 'shubzfx@gmail.com';
+        
+        if (user && !isAdmin) {
             navigate('/');
             return;
         }
