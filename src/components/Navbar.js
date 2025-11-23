@@ -43,9 +43,6 @@ const Navbar = () => {
                     <>
                         <li><Link to="/admin">Admin Panel</Link></li>
                         <li><Link to="/admin/messages"><FaHeadset className="dropdown-icon" /> Contact Submissions</Link></li>
-                        {isSuperAdmin(user) && (
-                            <li><Link to="/settings">Settings</Link></li>
-                        )}
                     </>
                 )}
             </ul>
