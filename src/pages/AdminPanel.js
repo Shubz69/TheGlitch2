@@ -46,7 +46,8 @@ const AdminPanel = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/community/users`, {
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -60,6 +61,7 @@ const AdminPanel = () => {
             const data = await response.json();
             setUsers(data);
         } catch (err) {
+            console.error('Error fetching users:', err);
             setError('Failed to load users. Please try again.');
         } finally {
             setLoading(false);
@@ -69,7 +71,8 @@ const AdminPanel = () => {
     const fetchOnlineStatus = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/admin/user-status`, {
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/admin/user-status`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -81,6 +84,7 @@ const AdminPanel = () => {
                 setOnlineUsers(new Set(data.onlineUsers.map(u => u.id)));
             }
         } catch (err) {
+            console.error('Error fetching online status:', err);
         }
     };
 
@@ -101,7 +105,8 @@ const AdminPanel = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/admin/users/${userId}`, {
+            const apiBaseUrl = window.location.origin;
+            const response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -117,7 +122,9 @@ const AdminPanel = () => {
             // Refresh the user list
             fetchUsers();
             setDeleteModal({ isOpen: false, userId: null, userEmail: null });
+            setError(null); // Clear any previous errors
         } catch (err) {
+            console.error('Error deleting user:', err);
             setError(err.message || 'Failed to delete user. Please try again.');
             setDeleteModal({ isOpen: false, userId: null, userEmail: null });
         }
@@ -163,10 +170,17 @@ const AdminPanel = () => {
                                     <div className="user-email">{user.email}</div>
                                     <div className="user-name">({user.name || user.username || 'N/A'})</div>
                                     <div className="user-role">{user.role}</div>
-                                    <div className="user-joined">Joined: N/A</div>
+                                    <div className="user-joined">
+                                        Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                                    </div>
                                     <div className={`user-status ${onlineUsers.has(user.id) ? 'online' : 'offline'}`}>
                                         {onlineUsers.has(user.id) ? 'Online' : 'Offline'}
                                     </div>
+                                    {user.capabilities && user.capabilities.length > 0 && (
+                                        <div className="user-capabilities" style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px' }}>
+                                            Capabilities: {user.capabilities.length}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="user-actions">
                                     <button 

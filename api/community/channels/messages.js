@@ -491,6 +491,118 @@ module.exports = async (req, res) => {
       }
     }
 
+    if (req.method === 'PUT') {
+      // Update/edit a message (admin only or message owner)
+      const { content } = req.body;
+      let messageId = req.query.messageId || req.query.id;
+      
+      // If not in query, try to extract from URL path
+      if (!messageId && req.url) {
+        const urlParts = req.url.split('/');
+        const messageIdIndex = urlParts.findIndex(part => part === 'messages') + 1;
+        if (messageIdIndex > 0 && urlParts[messageIdIndex]) {
+          messageId = urlParts[messageIdIndex].split('?')[0];
+        }
+      }
+      
+      if (!messageId) {
+        return res.status(400).json({ success: false, message: 'Message ID is required' });
+      }
+
+      if (!content || !content.trim()) {
+        return res.status(400).json({ success: false, message: 'Message content is required' });
+      }
+
+      if (!db) {
+        return res.status(500).json({ success: false, message: 'Database unavailable' });
+      }
+
+      try {
+        // Try both string and numeric messageId
+        let messageRows = [];
+        let messageIdValue = messageId;
+        
+        try {
+          [messageRows] = await db.execute('SELECT id, sender_id, channel_id FROM messages WHERE id = ?', [messageIdValue]);
+        } catch (queryError) {
+          const numericId = parseInt(messageId);
+          if (!isNaN(numericId)) {
+            messageIdValue = numericId;
+            [messageRows] = await db.execute('SELECT id, sender_id, channel_id FROM messages WHERE id = ?', [messageIdValue]);
+          } else {
+            throw queryError;
+          }
+        }
+        
+        if (!messageRows || messageRows.length === 0) {
+          await db.end();
+          return res.status(404).json({ success: false, message: 'Message not found' });
+        }
+
+        const message = messageRows[0];
+        
+        // TODO: Add admin check from JWT token
+        // For now, allow editing (you can add auth check later)
+        
+        // Update message content
+        const [result] = await db.execute(
+          'UPDATE messages SET content = ? WHERE id = ?',
+          [content.trim(), messageIdValue]
+        );
+        
+        // Fetch updated message
+        const [updatedRows] = await db.execute(
+          `SELECT m.*, u.username, u.name, u.email 
+           FROM messages m 
+           LEFT JOIN users u ON m.sender_id = u.id 
+           WHERE m.id = ?`,
+          [messageIdValue]
+        );
+        
+        await db.end();
+
+        if (result.affectedRows > 0 && updatedRows.length > 0) {
+          const updatedMessage = updatedRows[0];
+          const username = updatedMessage.username || updatedMessage.name || (updatedMessage.email ? updatedMessage.email.split('@')[0] : 'Anonymous');
+          
+          const responseMessage = {
+            id: updatedMessage.id,
+            channelId: updatedMessage.channel_id,
+            userId: updatedMessage.sender_id,
+            username: username,
+            content: updatedMessage.content,
+            createdAt: updatedMessage.timestamp,
+            timestamp: updatedMessage.timestamp,
+            edited: true,
+            sender: {
+              id: updatedMessage.sender_id,
+              username: username,
+              avatar: '/avatars/avatar_ai.png',
+              role: 'USER'
+            }
+          };
+
+          return res.status(200).json(responseMessage);
+        } else {
+          return res.status(404).json({ success: false, message: 'Message not found' });
+        }
+      } catch (dbError) {
+        console.error('Database error updating message:', dbError);
+        try {
+          if (db && !db.ended) {
+            await db.end();
+          }
+        } catch (endError) {
+          // Ignore errors when closing connection
+        }
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to update message',
+          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
+      }
+    }
+
     if (req.method === 'DELETE') {
       // Delete a message (admin only or message owner)
       // Extract messageId from query params (Vercel routing) or URL path

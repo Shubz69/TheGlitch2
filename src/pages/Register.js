@@ -188,27 +188,35 @@ const Register = () => {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password,
-                name: formData.name,
+                name: formData.name || formData.username,
                 avatar: '/avatars/avatar_ai.png'
             };
 
             localStorage.setItem('newSignup', 'true');
             localStorage.removeItem('emailVerified');
 
-            await registerUser(submitData);
-            setIsLoading(false);
+            const result = await registerUser(submitData);
+            
+            // Check if registration was successful
+            if (result && result.status === 'SUCCESS') {
+                setIsLoading(false);
 
-            toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
-                position: "top-center",
-                autoClose: 1500,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+                toast.success('🎉 Account created successfully! Welcome to The Glitch!', {
+                    position: "top-center",
+                    autoClose: 1500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
 
-            setError('');
-            setSuccess('');
+                setError('');
+                setSuccess('');
+                
+                // Navigation will be handled by AuthContext
+            } else {
+                throw new Error('Registration failed. Please try again.');
+            }
         } catch (err) {
             console.error('Registration error:', err);
             let errorMsg = err.message || 'Registration failed. Please try again.';

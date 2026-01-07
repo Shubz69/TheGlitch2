@@ -7,7 +7,7 @@ import BinaryBackground from '../components/BinaryBackground';
 import { SUPER_ADMIN_EMAIL } from '../utils/roles';
 
 // Icons
-import { FaHashtag, FaLock, FaBullhorn, FaPaperPlane, FaSmile, FaTrash, FaPaperclip, FaTimes, FaPlus } from 'react-icons/fa';
+import { FaHashtag, FaLock, FaBullhorn, FaPaperPlane, FaSmile, FaTrash, FaPaperclip, FaTimes, FaPlus, FaEdit, FaCheck, FaTimesCircle } from 'react-icons/fa';
 
 // All API calls use real endpoints only - no mock mode
 
@@ -127,6 +127,11 @@ const Community = () => {
     // Delete message modal state
     const [deleteMessageModal, setDeleteMessageModal] = useState(null); // { messageId, messageContent }
     const [isDeletingMessage, setIsDeletingMessage] = useState(false);
+    
+    // Edit message state
+    const [editingMessageId, setEditingMessageId] = useState(null);
+    const [editingMessageContent, setEditingMessageContent] = useState('');
+    const [isEditingMessage, setIsEditingMessage] = useState(false);
     
     const categoryOrder = useMemo(() => ([
         'announcements',
@@ -1471,6 +1476,74 @@ Let's build generational wealth together! 💰🚀`,
         setDeleteMessageModal(null);
     };
 
+    // Handle edit message
+    const handleEditMessage = (message) => {
+        if (!isAdminUser && !isSuperAdminUser) {
+            console.warn('Only admins can edit messages');
+            return;
+        }
+        setEditingMessageId(message.id);
+        setEditingMessageContent(message.content);
+    };
+
+    const cancelEditMessage = () => {
+        setEditingMessageId(null);
+        setEditingMessageContent('');
+    };
+
+    const confirmEditMessage = async () => {
+        if (!editingMessageId || !selectedChannel || !editingMessageContent.trim()) {
+            return;
+        }
+
+        setIsEditingMessage(true);
+        const messageId = editingMessageId;
+        const newContent = editingMessageContent.trim();
+
+        try {
+            // Check if this is a temporary message
+            const isTemporaryMessage = typeof messageId === 'string' && messageId.startsWith('temp_');
+            
+            if (!isTemporaryMessage) {
+                // Real message - update in database via API
+                try {
+                    await Api.updateMessage(selectedChannel.id, messageId, { content: newContent });
+                } catch (apiError) {
+                    console.warn('API update failed:', apiError.message);
+                    // Still update locally even if API fails
+                }
+            }
+            
+            // Update message in state
+            const updatedMessages = messages.map(msg => 
+                msg.id === messageId 
+                    ? { ...msg, content: newContent, edited: true }
+                    : msg
+            );
+            setMessages(updatedMessages);
+            persistMessagesList(selectedChannel.id, updatedMessages);
+            
+            // Also update in localStorage
+            const storageKey = `community_messages_${selectedChannel.id}`;
+            const storedMessages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const updatedStored = storedMessages.map(msg => 
+                msg.id === messageId 
+                    ? { ...msg, content: newContent, edited: true }
+                    : msg
+            );
+            localStorage.setItem(storageKey, JSON.stringify(updatedStored));
+            
+            // Close edit mode
+            setEditingMessageId(null);
+            setEditingMessageContent('');
+        } catch (error) {
+            console.error('Failed to edit message:', error);
+            alert('Failed to edit message: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setIsEditingMessage(false);
+        }
+    };
+
     // Group channels by category
     const groupedChannels = channelList.reduce((acc, channel) => {
         const category = channel.category || 'general';
@@ -1856,27 +1929,27 @@ Let's build generational wealth together! 💰🚀`,
                 
                 {/* User Profile at Bottom */}
                 <div className="sidebar-footer" style={{
-                    padding: '12px 16px',
+                    padding: '8px 12px',
                     borderTop: '1px solid var(--border-color)',
                     background: 'var(--bg-primary)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '8px'
+                    gap: '6px'
                 }}>
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px'
+                        gap: '8px'
                     }}>
                         <div style={{
-                            width: '36px',
-                            height: '36px',
+                            width: '32px',
+                            height: '32px',
                             borderRadius: '50%',
                             background: 'linear-gradient(135deg, var(--purple-primary), var(--purple-dark))',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '1rem',
+                            fontSize: '0.875rem',
                             fontWeight: 700,
                             color: 'white',
                             flexShrink: 0
@@ -1885,8 +1958,8 @@ Let's build generational wealth together! 💰🚀`,
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ 
-                                fontWeight: 600, 
-                                fontSize: '0.9rem',
+                                fontWeight: 500, 
+                                fontSize: '0.8125rem',
                                 color: 'white',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
@@ -1895,10 +1968,10 @@ Let's build generational wealth together! 💰🚀`,
                                 {storedUser?.username || storedUser?.name || 'User'}
                             </div>
                             <div style={{ 
-                                fontSize: '0.7rem',
+                                fontSize: '0.6875rem',
                                 color: 'var(--text-muted)',
                                 display: 'flex',
-                                gap: '6px'
+                                gap: '4px'
                             }}>
                                 <span>Level {userLevel}</span>
                                 <span>•</span>
@@ -1954,59 +2027,198 @@ Let's build generational wealth together! 💰🚀`,
                                                     </span>
                                                 </div>
                                                 {(isAdminUser || isSuperAdminUser) && (
-                                                    <button
-                                                        onClick={() => handleDeleteMessage(message.id)}
-                                                        style={{
-                                                            background: 'transparent',
-                                                            border: 'none',
-                                                            color: '#f87171',
-                                                            cursor: 'pointer',
-                                                            padding: '4px 8px',
-                                                            borderRadius: '4px',
-                                                            opacity: 0.7,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '4px',
-                                                            fontSize: '0.85rem',
-                                                            transition: 'all 0.2s ease'
-                                                        }}
-                                                        onMouseEnter={(e) => {
-                                                            e.currentTarget.style.opacity = 1;
-                                                            e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                            e.currentTarget.style.opacity = 0.7;
-                                                            e.currentTarget.style.background = 'transparent';
-                                                        }}
-                                                        title="Delete message"
-                                                    >
-                                                        <FaTrash size={12} />
-                                                    </button>
+                                                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                                        {editingMessageId === message.id ? (
+                                                            <>
+                                                                <button
+                                                                    onClick={confirmEditMessage}
+                                                                    disabled={isEditingMessage || !editingMessageContent.trim()}
+                                                                    style={{
+                                                                        background: 'transparent',
+                                                                        border: 'none',
+                                                                        color: '#10b981',
+                                                                        cursor: isEditingMessage || !editingMessageContent.trim() ? 'not-allowed' : 'pointer',
+                                                                        padding: '4px 8px',
+                                                                        borderRadius: '4px',
+                                                                        opacity: (isEditingMessage || !editingMessageContent.trim()) ? 0.5 : 0.7,
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        fontSize: '0.85rem',
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        if (!isEditingMessage && editingMessageContent.trim()) {
+                                                                            e.currentTarget.style.opacity = 1;
+                                                                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                                                                        }
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.opacity = (isEditingMessage || !editingMessageContent.trim()) ? 0.5 : 0.7;
+                                                                        e.currentTarget.style.background = 'transparent';
+                                                                    }}
+                                                                    title="Save changes"
+                                                                >
+                                                                    <FaCheck size={12} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={cancelEditMessage}
+                                                                    disabled={isEditingMessage}
+                                                                    style={{
+                                                                        background: 'transparent',
+                                                                        border: 'none',
+                                                                        color: '#6b7280',
+                                                                        cursor: isEditingMessage ? 'not-allowed' : 'pointer',
+                                                                        padding: '4px 8px',
+                                                                        borderRadius: '4px',
+                                                                        opacity: isEditingMessage ? 0.5 : 0.7,
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        fontSize: '0.85rem',
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        if (!isEditingMessage) {
+                                                                            e.currentTarget.style.opacity = 1;
+                                                                            e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
+                                                                        }
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.opacity = isEditingMessage ? 0.5 : 0.7;
+                                                                        e.currentTarget.style.background = 'transparent';
+                                                                    }}
+                                                                    title="Cancel editing"
+                                                                >
+                                                                    <FaTimesCircle size={12} />
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleEditMessage(message)}
+                                                                    style={{
+                                                                        background: 'transparent',
+                                                                        border: 'none',
+                                                                        color: '#3b82f6',
+                                                                        cursor: 'pointer',
+                                                                        padding: '4px 8px',
+                                                                        borderRadius: '4px',
+                                                                        opacity: 0.7,
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        fontSize: '0.85rem',
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        e.currentTarget.style.opacity = 1;
+                                                                        e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.opacity = 0.7;
+                                                                        e.currentTarget.style.background = 'transparent';
+                                                                    }}
+                                                                    title="Edit message"
+                                                                >
+                                                                    <FaEdit size={12} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteMessage(message.id)}
+                                                                    style={{
+                                                                        background: 'transparent',
+                                                                        border: 'none',
+                                                                        color: '#f87171',
+                                                                        cursor: 'pointer',
+                                                                        padding: '4px 8px',
+                                                                        borderRadius: '4px',
+                                                                        opacity: 0.7,
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        fontSize: '0.85rem',
+                                                                        transition: 'all 0.2s ease'
+                                                                    }}
+                                                                    onMouseEnter={(e) => {
+                                                                        e.currentTarget.style.opacity = 1;
+                                                                        e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+                                                                    }}
+                                                                    onMouseLeave={(e) => {
+                                                                        e.currentTarget.style.opacity = 0.7;
+                                                                        e.currentTarget.style.background = 'transparent';
+                                                                    }}
+                                                                    title="Delete message"
+                                                                >
+                                                                    <FaTrash size={12} />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </div>
-                                            <div className="message-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                                                {message.isWelcomeMessage ? (
-                                                    message.content.split('\n').map((line, idx) => {
-                                                        const trimmedLine = line.trim();
-                                                        // Format markdown-style headers
-                                                        if (trimmedLine.startsWith('## ')) {
-                                                            return <h3 key={idx} style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '16px', marginBottom: '10px', color: 'var(--primary)' }}>{trimmedLine.substring(3)}</h3>;
+                                            {editingMessageId === message.id ? (
+                                                <textarea
+                                                    value={editingMessageContent}
+                                                    onChange={(e) => setEditingMessageContent(e.target.value)}
+                                                    style={{
+                                                        width: '100%',
+                                                        minHeight: '80px',
+                                                        padding: '8px',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid var(--border-color)',
+                                                        background: 'var(--bg-elevated)',
+                                                        color: 'var(--text-primary)',
+                                                        fontSize: '0.9rem',
+                                                        fontFamily: 'inherit',
+                                                        resize: 'vertical',
+                                                        lineHeight: '1.6'
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Escape') {
+                                                            cancelEditMessage();
+                                                        } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                                            confirmEditMessage();
                                                         }
-                                                        // Format bold text (lines that start and end with **)
-                                                        if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**') && trimmedLine.length > 4) {
-                                                            return <div key={idx} style={{ fontWeight: 'bold', marginTop: '8px', marginBottom: '4px' }}>{trimmedLine.replace(/\*\*/g, '')}</div>;
-                                                        }
-                                                        // Empty lines
-                                                        if (trimmedLine === '') {
-                                                            return <br key={idx} />;
-                                                        }
-                                                        // Regular text lines
-                                                        return <div key={idx} style={{ marginBottom: '4px' }}>{line.replace(/\*\*/g, '')}</div>;
-                                                    })
-                                                ) : (
-                                                    message.content
-                                                )}
-                                            </div>
+                                                    }}
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <div className="message-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                                                    {message.isWelcomeMessage ? (
+                                                        message.content.split('\n').map((line, idx) => {
+                                                            const trimmedLine = line.trim();
+                                                            // Format markdown-style headers
+                                                            if (trimmedLine.startsWith('## ')) {
+                                                                return <h3 key={idx} style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '16px', marginBottom: '10px', color: 'var(--primary)' }}>{trimmedLine.substring(3)}</h3>;
+                                                            }
+                                                            // Format bold text (lines that start and end with **)
+                                                            if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**') && trimmedLine.length > 4) {
+                                                                return <div key={idx} style={{ fontWeight: 'bold', marginTop: '8px', marginBottom: '4px' }}>{trimmedLine.replace(/\*\*/g, '')}</div>;
+                                                            }
+                                                            // Empty lines
+                                                            if (trimmedLine === '') {
+                                                                return <br key={idx} />;
+                                                            }
+                                                            // Regular text lines
+                                                            return <div key={idx} style={{ marginBottom: '4px' }}>{line.replace(/\*\*/g, '')}</div>;
+                                                        })
+                                                    ) : (
+                                                        <>
+                                                            {message.content}
+                                                            {message.edited && (
+                                                                <span style={{ 
+                                                                    fontSize: '0.75rem', 
+                                                                    color: 'var(--text-muted)', 
+                                                                    fontStyle: 'italic',
+                                                                    marginLeft: '8px'
+                                                                }}>
+                                                                    (edited)
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
                                             {message.isWelcomeMessage && !hasReadWelcome && (
                                                 <div style={{
                                                     marginTop: '20px',

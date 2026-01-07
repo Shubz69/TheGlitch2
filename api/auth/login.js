@@ -117,6 +117,131 @@ module.exports = async (req, res) => {
         });
       }
 
+      // Check if user has MFA enabled (check mfa_verified column or mfaEnabled)
+      let mfaEnabled = false;
+      try {
+        // Check if mfa_verified column exists and if user has MFA enabled
+        const [mfaCheck] = await db.execute(
+          'SELECT mfa_verified, mfaEnabled FROM users WHERE id = ?',
+          [user.id]
+        );
+        if (mfaCheck && mfaCheck.length > 0) {
+          // MFA is enabled if mfa_verified is 1 or mfaEnabled is true
+          mfaEnabled = mfaCheck[0].mfa_verified === 1 || mfaCheck[0].mfaEnabled === 1 || mfaCheck[0].mfaEnabled === true;
+        }
+      } catch (mfaError) {
+        // Column might not exist, that's okay - MFA is optional
+        console.log('MFA column check:', mfaError.message);
+      }
+
+      // If MFA is enabled, send MFA code and return MFA_REQUIRED status
+      if (mfaEnabled) {
+        // Import nodemailer for sending MFA code
+        const nodemailer = require('nodemailer');
+        
+        // Create email transporter
+        const createEmailTransporter = () => {
+          if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            return null;
+          }
+          try {
+            return nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: process.env.EMAIL_USER.trim(),
+                pass: process.env.EMAIL_PASS.trim()
+              }
+            });
+          } catch (error) {
+            console.error('Failed to create email transporter:', error);
+            return null;
+          }
+        };
+
+        // Generate 6-digit MFA code
+        const generateMFACode = () => {
+          return Math.floor(100000 + Math.random() * 900000).toString();
+        };
+
+        const mfaCode = generateMFACode();
+        const expiresAt = Date.now() + (10 * 60 * 1000); // 10 minutes
+
+        // Store MFA code in database (create table if needed)
+        try {
+          await db.execute(`
+            CREATE TABLE IF NOT EXISTS mfa_codes (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              user_id INT NOT NULL,
+              email VARCHAR(255) NOT NULL,
+              code VARCHAR(10) NOT NULL,
+              expires_at BIGINT NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              INDEX idx_user_id (user_id),
+              INDEX idx_email (email),
+              INDEX idx_expires (expires_at)
+            )
+          `);
+          
+          // Delete any existing codes for this user
+          await db.execute('DELETE FROM mfa_codes WHERE user_id = ?', [user.id]);
+          
+          // Insert new code
+          await db.execute(
+            'INSERT INTO mfa_codes (user_id, email, code, expires_at) VALUES (?, ?, ?, ?)',
+            [user.id, emailLower, mfaCode, expiresAt]
+          );
+        } catch (mfaDbError) {
+          console.error('Error storing MFA code:', mfaDbError);
+        }
+
+        // Send MFA code via email
+        const transporter = createEmailTransporter();
+        if (transporter) {
+          try {
+            await transporter.sendMail({
+              from: process.env.EMAIL_USER,
+              to: emailLower,
+              subject: 'THE GLITCH - MFA Verification Code',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0a0a1a; color: #ffffff;">
+                  <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #8B5CF6; font-size: 32px; margin: 0;">THE GLITCH</h1>
+                  </div>
+                  <div style="background-color: #1a0f2e; padding: 30px; border-radius: 10px; border: 1px solid #8B5CF6;">
+                    <h2 style="color: #8B5CF6; margin-top: 0;">MFA Verification Required</h2>
+                    <p style="font-size: 16px; line-height: 1.6;">
+                      Your login attempt requires MFA verification. Please use the following code to complete your login:
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                      <div style="display: inline-block; background-color: #251a3a; padding: 20px 40px; border-radius: 8px; border: 2px solid #8B5CF6;">
+                        <span style="font-size: 36px; font-weight: bold; color: #8B5CF6; letter-spacing: 5px;">${mfaCode}</span>
+                      </div>
+                    </div>
+                    <p style="font-size: 14px; color: #cccccc; margin-top: 30px;">
+                      This code will expire in 10 minutes. If you didn't request this code, please ignore this email.
+                    </p>
+                  </div>
+                </div>
+              `
+            });
+            console.log(`MFA code sent to ${emailLower}`);
+          } catch (emailError) {
+            console.error('Error sending MFA email:', emailError);
+          }
+        }
+
+        await db.end();
+
+        return res.status(200).json({
+          success: true,
+          status: 'MFA_REQUIRED',
+          id: user.id,
+          email: user.email,
+          username: user.username || user.email.split('@')[0],
+          message: 'MFA verification required. Please check your email for the verification code.'
+        });
+      }
+
       // Update last_seen
       await db.execute(
         'UPDATE users SET last_seen = NOW() WHERE id = ?',
